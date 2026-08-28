@@ -1,27 +1,16 @@
 # Point Hebdomadaire - Projet
 
 Date : Jeudi 03
-Semaine n° 09
+Semaine n° 01
 
 ## Tâches réalisées cette semaine
 
 > Exemples : `- [x] Tâche 1` ou - `ras`
 
-### Nom Prénom élève 1
+### Jules
 5h
 - [x] Tâche 1
 - [x] Tâche 2
-
-### Nom Prénom élève 2
-0h
-- ras
-
-### Nom Prénom élève 3
-
-### Nom Prénom élève 4
-
-
----
 
 ## Backlog
 
