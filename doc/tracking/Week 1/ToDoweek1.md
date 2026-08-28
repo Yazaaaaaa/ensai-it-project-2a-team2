@@ -5,12 +5,9 @@
 
 ## Faustine
 - Diagramme de cas d'utilisation au propre
-- Faire .env
 
 ## Jules
-- Diagramme de Gantt
-- Faire .env
+- Diagramme UML
 
 ## Abderrahmane
 - Étude préalable
-- Faire .env
