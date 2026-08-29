@@ -1,0 +1,49 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Back-end FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uv",
+            "args": [
+                "run",
+                "--project",
+                "backend",
+                "python",
+                "backend/src/main.py"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/backend/src"
+            }
+        },
+        {
+            "name": "Front-end Streamlit",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uv",
+            "args": [
+                "run",
+                "streamlit",
+                "run",
+                "src/app.py"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/frontend",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/frontend/src"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "🚀 Full Stack",
+            "configurations": [
+                "Back-end FastAPI",
+                "Front-end Streamlit"
+            ]
+        }
+    ]
+}
