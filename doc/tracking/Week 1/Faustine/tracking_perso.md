@@ -8,9 +8,7 @@ Semaine n° 01
 > Exemples : `- [x] Tâche 1` ou - `ras`
 
 ### Faustine 
-5h
-- [x] Tâche 1
-- [x] Tâche 2
+- [x] Code du diagramme des cas d'utilisation version 1
 
 ## Backlog
 
