@@ -19,7 +19,7 @@ stateDiagram
 
     [*] --> Home
     Home --> login
-    login --> main-app
+    login --> main_app
     Home --> signup
     Home --> quit
     quit --> [*]
@@ -40,6 +40,6 @@ stateDiagram
         manage_accounts --> view_accounts
         manage_accounts --> delete_accounts
         settings --> logout
-        logout --> [*]: return to home
+        logout --> [*]
     }
 ```
