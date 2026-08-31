@@ -13,6 +13,8 @@ stateDiagram
     update_data : Update the data
     manage_accounts : Manage accounts
     alerts : View alerts
+    edit_alerts : Edit alerts
+    add_neo : Add NEO
     view_accounts : View accounts
     delete_accounts : Delete an account
     logout : Logout
