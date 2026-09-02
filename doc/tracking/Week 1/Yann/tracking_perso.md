@@ -10,7 +10,9 @@ Semaine n° 01
 ### Yann
 
 - [x] Tâche 1 : Mise en forme du template github - 40 minutes
-- [x] Tâche 2
+- [x] Tâche 2 : Compréhension de l'utilité de chaque fichier
+- [x] Tâche 3 : Tri des fichiers (suppression de tout ce qui était utile seulement pour le template)
+- [x] Tâche 4 : Actualisation du Readme pour compréhension des fichiers restants
 
 ## Backlog
 
