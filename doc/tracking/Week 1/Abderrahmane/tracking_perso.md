@@ -9,7 +9,7 @@ Semaine n° 01
 
 ### Abderrahmane 
 5h
-- [x] Tâche 1
+- [x] Rédaction de l'étude préalable 
 - [x] Tâche 2
 
 ## Backlog
