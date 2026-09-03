@@ -8,7 +8,7 @@ Semaine n° 01
 > Exemples : `- [x] Tâche 1` ou - `ras`
 
 ### Abderrahmane 
-5h
+
 - [x] Rédaction de l'étude préalable 
 
 
