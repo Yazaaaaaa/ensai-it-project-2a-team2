@@ -8,9 +8,9 @@ Semaine n° 01
 > Exemples : `- [x] Tâche 1` ou - `ras`
 
 ### Jules
-5h
-- [x] Tâche 1
-- [x] Tâche 2
+
+- [x] Tâche 1 : Compréhension de la structure de l'application (structure DAO, structure, controleur)
+- [x] Tâche 2 : Réalisation d'une première version du diagramme de classe
 
 ## Backlog
 
