@@ -18,7 +18,7 @@ stateDiagram
     view_accounts : View accounts
     delete_accounts : Delete an account
     logout : Logout
-    parameters_admin : Parameters for admin
+    settings_admin : Settings for admin
 
     [*] --> Home
     Home --> login
@@ -38,7 +38,7 @@ stateDiagram
         alerts --> edit_alerts
         [*] --> add_neo
         [*] --> settings
-        state parameters_admin {
+        state settings_admin {
             settings --> update_data
             settings --> manage_accounts
             manage_accounts --> view_accounts
