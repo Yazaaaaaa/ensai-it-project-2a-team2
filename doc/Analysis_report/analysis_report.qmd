@@ -1,0 +1,102 @@
+---
+title: ""
+format:
+  pdf:
+    documentclass: report
+    mainfont: "TeX Gyre Termes"
+    header-includes: |
+      \usepackage{enumitem}
+      \setlist[itemize]{label=$\bullet$}  % Puce ronde classique
+    include-in-header:
+      text: |
+        \setlength{\parindent}{2em}
+lang: fr
+fontsize: 11pt
+papersize: a4
+geometry: top=1.5cm, bottom=1.5cm, left=2.5cm, right=2.5cm
+link-citations: true 
+nocite: "@*"
+editor: 
+  markdown: 
+    wrap: sentence
+---
+
+<!--Cette première partie ci-dessus entre deux « --- » s’appelle un « YAML header » (nom en anglais aussi utilisé en français) ou un « en-tête YAML ».-->
+
+<!--« lang: fr » à remplacer par « lang: en » si rapport rédigé en anglais. Définir la langue du document est utile pour la typographie (par exemple les espaces autour de la ponctuation ne sont pas les mêmes dans les deux langues), la langue de la table des matières, des dates, le cadre linguistique du PDF généré, etc.-->
+
+<!--« mainfont » définit la police utilisée et « fontsize » la taille de cette police.-->
+
+```{=html}
+<!--« header-includes: |
+      \usepackage[bottom]{footmisc} » permet aux notes de bas de page d’être réellement en bas de page et non juste après la dernière ligne de texte (ce qui peut amener à des notes en milieu de page si le texte s’arrête à ce niveau).-->
+```
+
+```{=html}
+<!--« text: |
+      \usepackage[dvipsnames]{xcolor} » permet de mettre des portions de texte en couleur.-->
+```
+
+```{=html}
+<!--« text: |
+      \usepackage{booktabs} » permet d’utiliser le langage LaTeX pour améliorer la présentation des tableaux. -->
+```
+
+<!--« geometry » définit les marges de chaque taille du rapport. « top », en haut ; « bottom », en bas ; « left », à gauche ; « right », à droite.-->
+
+<!--La présentation de la page de titre est codée ci-dessous en LaTeX qui est un langage supporté par les documents Quarto sur RStudio ; sauf à vouloir innover la présentation, vous n’avez pas à apprendre le langage LaTeX à cette fin. Toutefois, selon la nature du projet, vous aurez peut-être à étudier davantage LaTeX pour rédiger des formules mathématiques ou pour améliorer la présentation de vos tableaux. Page officielle de ce langage de programmation : https://www.latex-project.org/ (en anglais). De nombreux autres sites également en français enseignent l’utilisation de LaTeX, dans son ensemble ou pour un usage particulier de ce langage.-->
+
+\begin{titlepage}
+\centering
+
+
+{\LARGE\textsc{Projet d'économie}}\\
+\vspace{0.5cm}
+{\large Élèves 1A}
+
+\vspace{2.5cm}
+
+\rule{\textwidth}{0.5mm}\\
+\vspace{0.8cm}
+{\huge\bfseries Analysis report}\\
+\vspace{0.8cm}
+\rule{\textwidth}{0.5mm}\\
+
+\vspace{2.5cm}
+
+\begin{flushleft}
+\emph{Étudiant·e·s :}\\
+Yann Malzieu\\
+Faustine Barbeau\\
+Jules Frulli\\
+Abderrahmane Taleb Amar\\
+\end{flushleft}
+
+\begin{flushright}
+\emph{Responsable :}\\
+Olivier Ricciardi\\
+\vspace{1.0cm}
+\end{flushright}
+
+\vfill 
+\begin{center}
+École nationale de la statistique et de l’analyse de l’information\\
+2026--2027
+\end{center}
+\end{titlepage}
+
+<!--« vspace » définit la taille verticale d’un espace à laisser vide.-->
+
+<!--« flushleft », « flushright » et « center » : alignements à gauche, à droite et centré.-->
+
+<!--« \emph » met du texte en italique dans un texte en romain et vice versa.-->
+
+<!--« vfill » renvoie le texte codé par la suite (ici jusqu’à « \end{titlepage} » en bas de la page.-->
+
+<!--Dans « 2025--2026 », les deux traits d’union permettent de faire un tiret long. « 2025--2026 » pourra être remplacé par une date.-->
+
+\renewcommand{\contentsname}{Sommaire}
+\tableofcontents
+
+# Introduction
+
