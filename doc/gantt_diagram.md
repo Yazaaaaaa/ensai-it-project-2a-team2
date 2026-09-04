@@ -8,8 +8,8 @@ gantt
     dateFormat YYYY-MM-DD
     section Analysis
         Mentoring 1        :milestone, 2026-08-28, 1d
-        Action diagramm    :2026-08-28, 8d
-        Class diagramm     :2026-08-28, 8d
+        Action diagram    :2026-08-28, 8d
+        Class diagram     :2026-08-28, 8d
         Mentoring 2        :milestone, 2026-09-04, 1d
         Mentoring 3        :milestone, 2026-09-11, 1d
         Analysis document  :milestone, 2026-09-17, 1d
