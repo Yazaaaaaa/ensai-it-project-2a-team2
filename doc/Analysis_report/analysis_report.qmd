@@ -50,9 +50,9 @@ editor:
 \centering
 
 
-{\LARGE\textsc{Projet d'économie}}\\
+{\LARGE\textsc{Informatic project}}\\
 \vspace{0.5cm}
-{\large Élèves 1A}
+{\large Studient 2nd year}
 
 \vspace{2.5cm}
 
@@ -100,3 +100,130 @@ Olivier Ricciardi\\
 
 # Introduction
 
+Le 13 avril 2029 un astéroïde sera visible à l'oeil nu depuis la Terre, un évènement très rare ! Cette information est effectivement visible grâce à notre API NEO Watch.
+Nous avons codé une application permettant de visualiser les NEO recencés par la NASA sur leur API
+
+## 1. Overview and system scope
+### 1.1 System objective
+NEO-Watch is an application for monitoring Near-Earth Objects (NEOs), the asteroids and comets whose trajectory brings them close to Earth's orbit. The application uses the catalogue made available by NASA through its public API, keeps a copy of it in its own database, and lets authenticated users view, search, track and receive alerts about these objects.
+The application is used by both an user and an admin who handles accounts and data.
+
+### 1.2 What the system does 
+The system does several tasks as : secure account and access management, viewing and searching of NEOs, personalisation through a dashboard,  have favourites and alerts, add  NEOs observed by users, and update the catalogue from NASA data.
+
+### 1.3 Data sources
+NEOs come from two distinct origins:
+NASA origin: the large majority of objects, copied from NASA's API into the local database. These objects can be refreshed during updates.
+User origin: NEOs added manually by an observing user (feature F4). They exist only in the local database and must never be overwritten during synchronisations with NASA.
+This distinction of origin is an important constraint of the project: the database must record for each NEO whether it comes from NASA or from a user, so that updates only affect the Nasa’s NEOs.
+
+### 1.4 NASA APIs used
+(Not definitive): The project relies on NASA's NeoWs (Near Earth Object Web Service) for asteroids, which allows objects to be queried by close-approach date range, by identifier, and to browse the catalogue.We can add, according to the optional feature FO8, the APOD (Astronomy Picture of the Day) API, which is used to retrieve the picture of the day.
+
+### 1.5 Selected features
+Core features (all selected, mandatory):
+F1 -User and access management. Secure access, two roles (user, administrator).
+F2 - Dashboard. Personalised summary view of upcoming approaches.
+F3 - Browse NEOs. Multi-criteria search, sorting, export of results.
+F4 - Create a NEO. Adding an observed object, protected from updates.
+F5 - Favourites list. Object tracking, distance history, exportable graphs.
+F6 - Alerts. Defining conditions that trigger a notification at login.
+Selected optional features (3):
+️ Selection to be validated by the team yet: The outline leaves us the choice of optional features open; we keep three for now:
+FO2 - Search history. Each user can view their searches from the last 30 days; the administrator can view the history of a user of their choice. Rationale: directly extends F3 and enriches the administrator role.
+FO3 - Statistics. Indicators such as the number of objects per month, size distribution, proportion of potentially hazardous objects, average distance, etc. Rationale: exploits data already present in the database and complements the F2 dashboard.
+FO8 - Picture of the day. Export of the astronomy picture of the day provided by NASA's APOD API. Rationale: low effort (a single additional API) for real usage value.
+
+### 1.6 System actors
+User (standard role): a person with an account (login + password) giving access to the viewing features and to their personal space (dashboard, favourites, alerts, history).
+Administrator (privileged role): a particular user who, in addition, manages other users' accounts, views the connection history, handles the update of data from NASA's API, and can view search histories.
+NASA API (external actor): a particular actor, used in read-only mode, which provides the NEO catalogue and the picture of the day.
+
+### 1.7  Vague points in the outline
+The outlinz deliberately leaves several points open. Here are the decisions taken.️ This part is yet to be validated with our supervisor.
+Horizon of "upcoming NEOs" (F2, F3): by default the next 7 days, with the option to extend the window (up to 30 days), assuming  NeoWs works by date range.
+Definition of "potentially hazardous":  do we reuse the indicator provided by NASA or do we recompute it?
+Scope of the NASA update (F1): the update covers a date window around the current date (not the entire historical catalogue), consistent with how the API works.
+Protection of created NEOs (F4): any user-origin NEO is marked as such and excluded from any rewriting during synchronisations.
+Distance history of favourites (F5): at each known approach of a favourite NEO, the distance to Earth is recorded so that its evolution can be plotted.
+Alert evaluation (F6): alert conditions are checked at the moment the user logs in, as stated in the brief; the corresponding notifications are then presented to them.
+Export format (F3, F5, FO3): data is exported in CSV format; graphs can be exported as an image (PNG).
+Search history retention (FO2): a rolling 30 days, as stated in the brief.
+
+
+## 2. Requirements to be met
+This section describes in words the use cases (the actions the actors can perform) and the organisation of the menus. Turning these into diagrams belongs to the next phase (general design).
+
+## 2.1 Use cases by actor
+Available to any user:
+Create an account (login + password). (F1)
+Log in and log out. (F1)
+View their personalised dashboard. (F2)
+Search for one or more NEOs by various criteria, sort the results, export them. (F3)
+View the detailed record of a NEO. (F3)
+Add an observed NEO to the catalogue. (F4)
+Add or remove a NEO from their favourites list. (F5)
+View their favourites and the associated distance history, export a graph. (F5)
+Define, view and delete alerts. (F6)
+Receive their alert notifications at login. (F6)
+View their search history from the last 30 days. (FO2)
+View the statistics. (FO3)
+Export the astronomy picture of the day. (FO8)
+Available to the administrator only (in addition to all of the above):
+Manage other users' accounts (view, create, edit, delete). (F1)
+View the connection history. (F1)
+Trigger the update of data from NASA's API. (F1)
+View the search history of a user of their choice. (FO2)
+Performed by the system (external actor / automated processes):
+Provide NEO data and the picture of the day, in read-only mode, via NASA's API.
+
+## 2.2 Detailed descriptions of a few use cases
+To illustrate the expected level of detail, here are three use cases described more finely. The others would follow the same model.
+Log in to the application (F1).
+The user enters their login and password. The system verifies the credentials (the password is compared in protected form). If the credentials are valid, access is granted according to the user's role, the connection is recorded in the history, and any triggered alerts are presented to them. If the credentials are invalid, access is denied and an error message is displayed.
+Search for a NEO (F3).
+The user enters one or more criteria (name, identifier, dimensions, approach date, etc.). The system queries the local database and displays the list of matching NEOs, with the option to sort by various criteria. The user can open a detailed record or export the list in CSV format. The search is recorded in the user's history.
+Define an alert (F6).
+The user expresses a condition, for example "notify me when an asteroid larger than 100 m passes within 5 million km of Earth". The system saves the alert in the user's personal space.2.3 Description of menus and screens
+The application is organised around the following screens.
+Access screens (before login):
+Login: entering the login and password.
+Account creation: registering a new user.
+User-space screens (after login):
+Dashboard: personalised summary (upcoming approaches, number of potentially hazardous objects ahead, closest NEO over a period, the user's favourites, alert notifications). (F2, F6)
+Search a NEO: multi-criteria search form, sortable list, detailed record, export. (F3)
+Add a NEO: form for creating an observed object. (F4)
+My favourites: list of tracked NEOs, distance history, exportable graphs. (F5)
+My alerts: creating, viewing and deleting alerts. (F6)
+My history: searches from the last 30 days. (FO2)
+Statistics: indicators and graphs. (FO3)
+Picture of the day: display and export of the APOD image. (FO8)
+Administrator-only features:
+User management: list and management of accounts. (F1)
+Connection history: log of connections. (F1)
+Data update: triggering the NASA synchronisation. (F1)
+Search histories: viewing the history of a chosen user. (FO2)
+
+
+## 3. Specific requirements and constraints
+
+### 3.1 Imposed technical constraints
+The following technology choices are imposed on the project:
+Language: Python.
+Version control: Git.
+Database: PostgreSQL.
+Backend API: FastAPI.
+Tests: pytest.
+
+### 3.2 Target architecture
+The application follows a client-server architecture organised around a REST API:
+The frontend is the visible part and never accesses the database or the NASA API directly.
+The FastAPI backend exposes an API that the frontend queries; it centralises all logic, access to the PostgreSQL database, and exchanges with the NASA API.
+The PostgreSQL database ensures the persistence of data (accounts, NEOs, favourites, alerts, histories).
+The NASA API is an external service queried in read-only mode by the backend.
+
+### 3.3 Security requirements
+Access to the application is secured by authentication (login + password).
+Passwords are never stored in plain text; they are kept in protected form (hashing).
+Access rights are differentiated by role: certain actions (account management, connection history, NASA update) are reserved for the administrator, and this control is enforced on the backend side.
+NASA data is  read-only; no writing to the NASA API is possible.
