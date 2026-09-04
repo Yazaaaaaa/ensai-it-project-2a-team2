@@ -9,4 +9,7 @@
 - [] reformuler le sujet
 - [x] rédaction étude préalable
 - [] diagramme de base de données
+- [] diagramme d'activité
+- [] diagramme de séquence
+
 
