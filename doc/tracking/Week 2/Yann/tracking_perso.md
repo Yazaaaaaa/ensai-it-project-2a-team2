@@ -5,11 +5,9 @@ Semaine n° 2
 
 ## Tâches réalisées cette semaine
 
-> Exemples : `- [x] Tâche 1` ou - `ras`
 
 ### Malzieu Yann
-5h
-- [x] Tâche 1
+- [x] Tâche 1: maj repo avec modifications des branches et update du repo
 - [x] Tâche 2
 
 
