@@ -1,15 +1,15 @@
 # ENSAI IT Project — 2A Équipe 2 : NEO-Watch ☄️
 
-URL API: https://www.neowsapp.com/swagger-ui/index.html#/
-
-**Projet :** NEO-Watch  
-**Tuteur :** Olivier Ricciardi  
-**Objectif :** Suivre et surveiller les objets géocroiseurs (*Near-Earth Objects* / NEOs) répertoriés par la NASA pour anticiper les risques d'impact et informer les utilisateurs.
+> **URL de l'API :** [https://www.neowsapp.com/swagger-ui/index.html#/](https://www.neowsapp.com/swagger-ui/index.html#/)  
+> **Projet :** NEO-Watch  
+> **Tuteur :** Olivier Ricciardi  
+> **Objectif :** Suivre et surveiller les objets géocroiseurs (*Near-Earth Objects* / NEOs) répertoriés par la NASA pour anticiper les risques d'impact et informer les utilisateurs.
 
 ---
 
-## Structure du dépôt
+## 🏗️ Structure du dépôt
 
+```text
 ensai-it-project-2a-team2/
 ├── .github/
 │   └── workflows/
@@ -17,115 +17,188 @@ ensai-it-project-2a-team2/
 ├── .vscode/
 │   └── settings.json          # Configuration VSCode spécifique au projet
 ├── backend/                   # API FastAPI & Logique métier (architecture en couches)
-├── frontend/                  # Interface utilisateur Streamlit (tableau de bord, recherche, graphiques)
+├── frontend/                  # Interface utilisateur Streamlit (tableau de bord, recherche)
 ├── doc/                       # Diagrammes UML, rapport, suivi de projet
 ├── data/                      # Scripts SQL (création des tables et données d'initialisation)
 ├── .gitignore                 # Fichiers et dossiers ignorés par Git
 ├── docker-compose.yml         # Orchestration des conteneurs
 ├── LICENSE                    # Licence logicielle et droits d'utilisation
 └── README.md                  # Documentation du projet
+```
 
 ---
 
-## Organisation des fichiers et dossiers
+## 📁 Organisation des fichiers et dossiers
 
 ### 1. Racine du projet
 
-- README.md : Présentation du projet NEO-Watch, instructions d'installation et guide d'utilisation.
-- LICENSE : Précise les droits d'utilisation et la licence logicielle du dépôt.
-- docker-compose.yml : Configuration Docker multi-conteneurs orchestrant le backend FastAPI, l'interface Streamlit et la base PostgreSQL.
-- .gitignore : Fichiers et dossiers ignorés par Git.
-- .github/workflows/ci.yml : Pipeline CI automatisé (tests unitaires pytest, analyse du code Pylint).
-- .vscode/settings.json : Paramètres d'environnement VSCode partagés par l'équipe.
-
-### 2. backend/ — Couche API (Détail de l'architecture pour NEO-Watch)
-
-Le backend gère la sécurité, la persistance dans PostgreSQL, la logique de surveillance des astéroïdes et la communication avec les API de la NASA (NeoWs, APOD). Il s'appuie sur une architecture en couches :
-
-- Dockerfile : Fichier de build Docker pour conteneuriser l'API FastAPI.
-- pyproject.toml / uv.lock : Gestionnaire de dépendances Python (uv / poetry).
-- test/ : Tests automatisés exécutés via pytest (validation de la couche service et des règles de gestion).
-- src/ : Code source de l'application backend.
-  - main.py : Point d'entrée de l'application FastAPI ; configure l'API, les middlewares et inclut les routes.
-  - controller/ : **Contrôleurs et Routes HTTP** — Reçoit les requêtes de l'utilisateur ou du frontend et renvoie les réponses HTTP.
-    - Ex. : `auth_controller.py` (connexion/inscription F1), `neo_controller.py` (recherche, ajouts manuel F3/F4, comparaison FO1), `alert_controller.py` (gestion des alertes F6), `admin_controller.py` (gestion utilisateurs/historique FO2 et rechargement NASA F1/FO7), `apod_controller.py` (export de l'image du jour NASA FO8).
-  - service/ : **Logique Métier & Calculs** — Contient l'intelligence de l'application.
-    - Ex. : Synchronisation des données NASA NeoWs tout en préservant les NEO créés manuellement (F4), évaluation des critères d'alerte (taille, distance, vitesse F6), calcul des statistiques d'approche/distribution (FO3), moteur de recommandation d'astéroïdes d'intérêt (FO4), et génération des emails de notification (FO5).
-  - dao/ (Data Access Object) : **Accès aux Données (PostgreSQL)** — Exécute les requêtes SQL directes à la base de données.
-    - Ex. : Requêtes d'insertion/lecture des utilisateurs, persistance de la liste des favoris (F5), sauvegarde de l'historique des recherches sur 30 jours (FO2), stockage des propositions de modification d'amateurs (FO6) et gestion de la réinitialisation (`db_connection.py`).
-  - schema/ : **Schémas de Validation (Pydantic)** — Valide le format des requêtes reçues et sérialise les réponses JSON.
-    - Ex. : Modèles pour la création de compte, les filtres de recherche de NEOs, la structure d'une alerte personnalisée ou les propositions de modification.
-  - business_object/ : **Entités Métier** — Représente les objets fondamentaux du domaine NEO-Watch manipulant les données métier.
-    - Ex. : `User` (rôles utilisateur/admin), `NEO` (identifiant, nom, taille, vitesse, niveau de dangerosité), `Approach` (distance, date de passage), `Alert` et `SearchRecord`.
-  - utils/ : **Outils Utilitaires & Sécurité** — Modules d'appui réutilisables.
-    - Ex. : Hachage des mots de passe et génération de tokens JWT (`security.py`), client d'intégration avec l'API externe de la NASA (`nasa_api_client.py`), utilitaires de logs et réinitialisation de la base.
-
-### 3. frontend/ — Interface Graphique (Streamlit)
-
-Interface web interactive développée en Python avec Streamlit pour permettre la navigation et le suivi des géocroiseurs.
-
-- .streamlit/config.toml : Personnalisation graphique et thématique du tableau de bord Streamlit.
-- src/ : Code source de l'interface graphique.
-  - app.py : Point d'entrée de l'application Streamlit et gestion du menu principal.
-  - pages/ : Vues applicatives correspondant aux fonctionnalités de NEO-Watch :
-    - Dashboard personnalisé (synthèse des proches passages, objets dangereux, favoris - F2)
-    - Catalogue & Recherche de NEOs avec exports (F3)
-    - Formulaire d'observation pour ajouter/proposer des NEOs (F4, FO6)
-    - Espace Favoris avec graphiques d'évolution des distances (F5)
-    - Centre de configuration des alertes et notifications (F6)
-    - Comparateur visuel d'astéroïdes (FO1) & Statistiques globales (FO3)
-    - Console d'administration (gestion des comptes, historique des recherches, synchronisation NASA - F1, FO2, FO7)
-  - utils/ :
-    - api_client.py : Module de communication HTTP avec les endpoints du backend FastAPI.
-    - auth_guard.py : Contrôle d'accès sécurisant la navigation selon le rôle connecté (utilisateur / administrateur).
-    - env_variables.py : Chargement des configurations d'environnement du frontend.
-
-### 4. doc/ — Documentation du Projet
-
-- Rapport de projet complet, suivi d'avancement (tracking hebdomadaire) et comptes-rendus de réunion.
-- Diagrammes UML (diagrammes de classes, de cas d'utilisation et de séquence pour les flux d'alerte et de synchronisation NASA).
-- gantt_diagram.md : Planning prévisionnel et jalons de livraison.
-
-### 5. data/ — Données & Base de données PostgreSQL
-
-- Scripts SQL de création du schéma de base de données PostgreSQL.
-- Jeux de données d'initialisation (*seeds*) pour insérer les premiers utilisateurs, administrateurs et catalogue initial de NEOs.
+| Fichier / Dossier | Description |
+| :--- | :--- |
+| `README.md` | Présentation du projet NEO-Watch, instructions d'installation et guide d'utilisation. |
+| `LICENSE` | Précise les droits d'utilisation et la licence logicielle du dépôt. |
+| `docker-compose.yml` | Configuration Docker multi-conteneurs orchestrant l'API, l'IHM et la BDD PostgreSQL. |
+| `.gitignore` | Fichiers et dossiers ignorés par le suivi Git. |
+| `.github/workflows/ci.yml` | Pipeline CI automatisé (tests unitaires `pytest`, analyse du code `pylint`). |
+| `.vscode/settings.json` | Paramètres d'environnement VSCode partagés par l'équipe. |
 
 ---
 
-## Intégration Continue (CI)
+### 2. `backend/` — Couche API (Architecture en couches)
 
-Le dépôt contient un fichier de workflow automatisé (`.github/workflows/ci.yml`).
-Chaque push sur GitHub déclenche un pipeline qui exécute les étapes suivantes :
+Le backend gère la sécurité, la persistance dans PostgreSQL, la logique de surveillance des astéroïdes et la communication avec les API de la NASA (`NeoWs`, `APOD`).
 
-1. Création d'un conteneur à partir d'une image Ubuntu (Linux) (machine virtuelle avec un noyau Linux).
-2. Installation de Python.
-3. Installation des paquets et dépendances requis.
-4. Exécution des tests unitaires (uniquement la couche service, l'exécution des tests DAO étant plus complexe).
-5. Analyse du code avec Pylint (échec de l'étape si le score est inférieur à 7.5).
+```text
+backend/
+├── Dockerfile                 # Image Docker du backend FastAPI
+├── pyproject.toml             # Configuration du projet et dépendances
+├── uv.lock                    # Fichier de verrouillage des versions
+├── test/                      # Tests automatisés (pytest)
+│   ├── test_neo_service.py
+│   ├── test_alert_service.py
+│   └── test_auth_service.py
+└── src/
+    ├── main.py                # Point d'entrée de l'application FastAPI
+    ├── controller/            # Contrôleurs HTTP (endpoints API)
+    ├── service/               # Logique métier et calculs
+    ├── dao/                   # Data Access Objects (requêtes SQL directes)
+    ├── schema/                # Schémas de validation Pydantic
+    ├── business_object/       # Entités et objets du domaine
+    └── utils/                 # Outils utilitaires et sécurité
+```
 
-L'avancement du pipeline est consultable directement sur GitHub dans l'onglet **Actions**.
+#### Exemples de fichiers par sous-dossier backend :
+
+* **`src/controller/` (Routes HTTP)**  
+  * `auth_controller.py` : Connexion et inscription (`F1`).
+  * `neo_controller.py` : Recherche, ajout manuel et comparaison de NEOs (`F3`, `F4`, `FO1`).
+  * `alert_controller.py` : Création et gestion des alertes (`F6`).
+  * `admin_controller.py` : Gestion des utilisateurs, historique et rechargement NASA (`F1`, `FO2`, `FO7`).
+  * `apod_controller.py` : Récupération et export de l'image du jour NASA (`FO8`).
+* **`src/service/` (Logique Métier)**  
+  * `neo_service.py` : Synchronisation NASA NeoWs sans écraser les ajouts manuels (`F4`).
+  * `alert_service.py` : Évaluation des critères d'alerte (taille, distance, vitesse) (`F6`).
+  * `stats_service.py` : Calculs statistiques sur les approches et distributions (`FO3`).
+  * `recommendation_service.py` : Moteur de sélection des astéroïdes d'intérêt (`FO4`).
+  * `notification_service.py` : Envoi d'emails de notification (`FO5`).
+* **`src/dao/` (Accès PostgreSQL)**  
+  * `db_connection.py` : Gestion de la connexion PostgreSQL.
+  * `user_dao.py` : Opérations SQL sur la table des utilisateurs (`F1`).
+  * `favorite_dao.py` : Persistance et historique des favoris (`F5`).
+  * `search_history_dao.py` : Sauvegarde des recherches utilisateur sur 30 jours (`FO2`).
+  * `modification_proposal_dao.py` : Stockage des demandes de modification (`FO6`).
+* **`src/schema/` (Validation Pydantic)**  
+  * `user_schema.py` : Validation des identifiants et rôles.
+  * `neo_schema.py` : Structure de validation pour le filtrage et la création de NEO.
+  * `alert_schema.py` : Validation des seuils de distance et taille.
+* **`src/business_object/` (Entités Métier)**  
+  * `user.py` : Représentation d'un utilisateur (rôles `User` / `Admin`).
+  * `neo.py` : Modèle de données d'un astéroïde (nom, dimensions, dangerosité).
+  * `approach.py` : Données d'approche (date, vitesse, distance de la Terre).
+  * `alert.py` : Entité d'une alerte personnalisée.
+* **`src/utils/` (Utilitaires)**  
+  * `security.py` : Hachage des mots de passe et génération de tokens JWT.
+  * `nasa_api_client.py` : Client HTTP pour interroger l'API externe NeoWs.
+  * `database_reset.py` : Outil de réinitialisation de la BDD.
 
 ---
 
-## Lancement rapide avec Docker
+### 3. `frontend/` — Interface Graphique (Streamlit)
 
-Prérequis : Docker Desktop installé.
+Interface web interactive développée en Python avec Streamlit.
 
-- Dockerfile : Empreinte et instructions d'assemblage de l'image de l'application et de son environnement.
-- Docker Compose : Outil de configuration (via fichier YAML) pour exécuter et lier les différents services (backend, frontend, BDD PostgreSQL).
+```text
+frontend/
+├── .streamlit/
+│   └── config.toml            # Thème et configuration visuelle
+└── src/
+    ├── app.py                 # Point d'entrée Streamlit & navigation
+    ├── pages/                 # Vues applicatives
+    └── utils/                 # Modules d'appui client
+```
 
-### Commandes principales
+#### Exemples de fichiers par sous-dossier frontend :
 
-- Lancer et construire les conteneurs : `docker compose up --build -d`
-- Voir les processus en cours : `docker compose ps`
-- Consulter les logs :
-  - Tous les conteneurs : `docker compose logs -f`
-  - Backend uniquement : `docker compose logs -f backend`
-- Arrêter les conteneurs : `docker compose stop`
-- Supprimer les conteneurs : `docker compose down`
+* **`src/pages/` (Vues de l'application)**  
+  * `dashboard.py` : Tableau de bord personnalisé (proches passages, favoris, alertes) (`F2`).
+  * `search_catalog.py` : Catalogue de recherche avec filtres et exports (`F3`).
+  * `add_observation.py` : Formulaire d'ajout et de proposition de modification de NEO (`F4`, `FO6`).
+  * `favorites.py` : Visualisation des favoris et graphiques d'évolution des distances (`F5`).
+  * `alert_settings.py` : Configuration des alertes et affichage des notifications (`F6`).
+  * `comparator.py` : Outil de comparaison visuelle et tableaux de bord statistiques (`FO1`, `FO3`).
+  * `admin_panel.py` : Console d'administration (comptes, historique, rechargement NASA) (`F1`, `FO2`, `FO7`).
+* **`src/utils/` (Utilitaires frontend)**  
+  * `api_client.py` : Encapsulation des requêtes HTTP vers l'API FastAPI backend.
+  * `auth_guard.py` : Contrôle d'accès et vérification de la session utilisateur/admin.
+  * `env_variables.py` : Chargement des URL et configurations d'environnement client.
 
-### Accès aux services
+---
 
-- Backend API (FastAPI / Swagger) : http://localhost:5000
-- Frontend UI (Streamlit) : http://localhost:8000
+### 4. `doc/` — Documentation du Projet
+
+Ressources explicatives, schémas de conception et suivi de projet.
+
+* `rapport_projet.pdf` : Rapport final du projet.
+* `gantt_diagram.md` : Planning prévisionnel et jalons de livraison.
+* `use_case_diagram.png` / `class_diagram.png` : Diagrammes UML fonctionnels et structures de classes.
+* `activity_diagram.html` : Diagramme d'activité interactif pour la synchronisation NASA.
+* `tracking/` : Dossier contenant les comptes-rendus de réunions hebdomadaires et tableaux de tâches.
+
+---
+
+### 5. `data/` — Données & Base de données PostgreSQL
+
+Fichiers d'initialisation et de structure de la base PostgreSQL.
+
+* `create_tables.sql` : Script DDL de création des tables (`users`, `neos`, `approaches`, `favorites`, `alerts`, `search_history`).
+* `seed_data.sql` : Script d'insertion des données de départ (administrateur par défaut, utilisateurs de test, catalogue initial de NEOs).
+
+---
+
+## ⚙️ Intégration Continue (CI)
+
+Le fichier `.github/workflows/ci.yml` définit la pipeline automatique exécutée à chaque `push` :
+
+1. **Création du conteneur :** Instanciation d'un environnement virtuel basé sur Ubuntu (Linux).
+2. **Setup environnement :** Installation de Python et des dépendances (`uv` / `pip`).
+3. **Tests automatisés :** Exécution des tests unitaires `pytest` (couche `service`).
+4. **Analyse de code :** Contrôle de qualité avec `pylint` (échec du pipeline si le score est sous 7.5).
+
+*L'avancement du build est directement suivi via l'onglet **Actions** du dépôt GitHub.*
+
+---
+
+## 🚀 Lancement rapide avec Docker
+
+### Prérequis
+Avoir **Docker Desktop** installé et démarré.
+
+### Définitions
+* **Dockerfile :** Fichier de recettes décrivant l'environnement d'exécution de l'application backend.
+* **Docker Compose :** Fichier YAML d'orchestration permettant de démarrer le backend, le frontend et la base PostgreSQL dans un réseau virtuel unifié.
+
+### Commandes usuelles
+
+```bash
+# Lancer et construire l'ensemble des conteneurs en arrière-plan
+docker compose up --build -d
+
+# Vérifier l'état des conteneurs en cours d'exécution
+docker compose ps
+
+# Consulter les logs de tous les conteneurs
+docker compose logs -f
+
+# Consulter uniquement les logs du backend
+docker compose logs -f backend
+
+# Stopper les conteneurs sans les supprimer
+docker compose stop
+
+# Arrêter et supprimer l'ensemble des conteneurs et réseaux
+docker compose down
+```
+
+### URLs d'accès aux services
+
+* **Frontend UI (Streamlit) :** [http://localhost:8000](http://localhost:8000)
+* **Backend API (FastAPI / Swagger) :** [http://localhost:5000](http://localhost:5000)
