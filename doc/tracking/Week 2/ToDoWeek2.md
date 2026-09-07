@@ -1,7 +1,7 @@
 ## To Do List week 2
 
 ## Yann
-- Faire le repo correctement, branches et readme + traduction des suivis
+- [x] Faire le repo correctement, branches et readme + traduction des suivis
 - diagramme d'activité
 
 ## Faustine
