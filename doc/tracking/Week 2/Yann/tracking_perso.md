@@ -7,8 +7,8 @@ Semaine n° 2
 
 
 ### Malzieu Yann
-- [x] Tâche 1: maj repo avec modifications des branches et update du repo
-- [x] Tâche 2
+- [x] Tâche 1: git pull with branch updates and repo update
+- [x] Tâche 2: Realisation of the general activity diagram and the one focused on settings
 
 
 
