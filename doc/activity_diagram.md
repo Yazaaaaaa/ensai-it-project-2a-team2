@@ -1,50 +1,48 @@
 ```mermaid
 stateDiagram
-    login : Login
-    main_app : Main application
-    signup : Sign Up
-    search_neo : Search for a NEO
-    favs_list : View the list of favorites NEOs
-    settings : Settings
-    search_name : Search by name
-    search_filter : Search by filter
-    download : Download the results
-    edit_list : Edit the list
-    update_data : Update the data
-    manage_accounts : Manage accounts
-    alerts : View alerts
-    edit_alerts : Edit alerts
-    add_neo : Add NEO
-    view_accounts : View accounts
-    delete_accounts : Delete an account
-    logout : Logout
-    settings_admin : Settings for admin
+  main_app:Main application
+  search_neo:Search for a NEO
+  search_characteristics:Search by characteristics
+  download:Download the results
+  add_favorites:Add a new NEO as a favorite
+  favs_list:View the list of favorites NEOs
+  edit_list:Edit the list
+  add_neo:Add NEO
+  enter_characteristics:Enter characteristics
+  New_neo:New NEO
+  Delete_user_info:Delete user information
+  create_alerts:Create alerts
+  settings:Settings
+  login:Login
+  signup:Signup
 
-    [*] --> Home
-    Home --> login
-    login --> main_app
-    Home --> signup
-    Home --> quit
-    quit --> [*]
+  state if_state <<choice>>
+  state if_statemain <<choice>>
 
-    state main_app {
-        [*] --> search_neo
-        search_neo --> search_name
-        search_neo --> search_filter
-        search_filter --> download
-        [*] --> favs_list
-        favs_list --> edit_list
-        [*] --> alerts
-        alerts --> edit_alerts
-        [*] --> add_neo
-        [*] --> settings
-        state settings_admin {
-            settings --> update_data
-            settings --> manage_accounts
-            manage_accounts --> view_accounts
-            manage_accounts --> delete_accounts
-        }
-        settings --> logout
-        logout --> [*]
-    }
+  [*] --> Home
+  Home --> quit
+  quit --> [*]
+  Home --> signup
+  Home --> login
+  login --> if_state
+  if_state --> main_app:correct password
+  if_state --> login:false password
+
+  state main_app {
+    [*] --> search_neo
+    search_neo --> search_characteristics
+    search_characteristics --> add_favorites
+    add_favorites --> download
+    search_characteristics --> download
+    [*] --> favs_list
+    favs_list --> edit_list
+    [*] --> create_alerts
+    [*] --> add_neo
+    add_neo --> enter_characteristics
+    enter_characteristics --> if_statemain
+    if_statemain --> New_neo:New NEO validate
+    if_statemain --> Delete_user_info:NEO already exist
+    [*] --> settings
+
+  }
 ```
