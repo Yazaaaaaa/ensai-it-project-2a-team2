@@ -12,4 +12,4 @@
 - Diagramme de classes
 
 ## Abderrahmane
-- Diagramme de séquences
+- [x] Diagramme de séquences
