@@ -9,14 +9,11 @@ flowchart LR
     Admin["Administrator"]
 
     subgraph subgroup["NEO-watch application"]
-        login([Login])
-        signup([Signup])
         logout([Logout])
         search([Search NEOs])
-        searchname([Search by name])
-        searchfilter([Search by filters])
         download([Download the results])
         favlist([View the list of favorites NEOs])
+        addfav([Add a favorite NEO])
         editlist([Edit the list])
         alerts([View alerts])
         editalerts([Edit alerts])
@@ -25,11 +22,12 @@ flowchart LR
         manage([Manage accounts])
         accounts([View accounts])
         deleteaccount([Delete an account])
+        login([Login])
+        signup([Signup])
         
     end
 
-    Visitor --> signup
-    Visitor --> login
+    
     User --> search
     User --> favlist
     User --> add
@@ -39,12 +37,13 @@ flowchart LR
     Admin --> update
     Admin --> User
 
+    Visitor --> signup
+    Visitor --> login
+
     alerts -. "include" .-> editalerts
     manage -. "include" .-> accounts
-    search -. "extend" .-> searchname
-    search -. "extend" .-> searchfilter
-    searchname -. "extend" .-> download
-    searchfilter -. "extend" .-> download
+    search -. "extend" .-> download
+    search -. "extend" .-> addfav
     favlist -. "extend" .-> editlist
     manage -. "extend" .-> deleteaccount
 ```
