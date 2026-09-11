@@ -97,10 +97,8 @@ classDiagram
         +string password_hash
     }
     class Admin {
-        +triggerNasaSync()
     }
     class ClassicMember {
-        +proposeNeo(data)
     }
     class Connection {
         +int id
