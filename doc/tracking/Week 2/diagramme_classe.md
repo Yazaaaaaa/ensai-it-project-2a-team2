@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     class BaseDAO{
         <<abstract>>
@@ -129,3 +130,4 @@ classDiagram
     NeoDAO ..> NEO : crée
     FavDAO ..> Fav : crée
     AlertDAO ..> Alert : crée
+```
