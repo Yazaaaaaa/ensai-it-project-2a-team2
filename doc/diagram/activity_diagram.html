@@ -39,7 +39,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="activity_diagram_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="activity_diagram_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="activity_diagram_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="activity_diagram_files/libs/bootstrap/bootstrap-247ebf7f51b9e70f793fab8232d43f88.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="activity_diagram_files/libs/bootstrap/bootstrap-87e23fed0fbc345d7ddb46a8db588084.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -53,61 +53,52 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<p>Pour afficher ce diagramme dans VScode :</p>
-<ul>
-<li>à gauche aller dans <strong>Extensions</strong> (ou CTRL + SHIFT + X)</li>
-<li>rechercher <code>mermaid</code>
-<ul>
-<li>installer l’extension <strong>Markdown Preview Mermaid Support</strong></li>
-</ul></li>
-<li>revenir sur ce fichier
-<ul>
-<li>faire <strong>CTRL + K</strong>, puis <strong>V</strong></li>
-</ul></li>
-</ul>
 <pre class="mermaid"><code>stateDiagram
-    login : Login
-    main_app : Main application
-    signup : Sign Up
-    search_neo : Search for a NEO
-    favs_list : View the list of favorites NEOs
-    settings : Settings
-    search_name : Search by name
-    search_filter : Search by filter
-    download : Download the results
-    edit_list : Edit the list
-    update_data : Update the data
-    manage_accounts : Manage accounts
-    alerts : View alerts
-    view_accounts : View accounts
-    delete_accounts : Delete an account
-    logout : Logout
+  main_app:Main application
+  search_neo:Search for a NEO
+  search_characteristics:Search by characteristics
+  download:Download the results
+  add_favorites:Add a new NEO as a favorite
+  favs_list:View the list of favorites NEOs
+  edit_list:Edit the list
+  add_neo:Add NEO
+  enter_characteristics:Enter characteristics
+  New_neo:New NEO
+  Delete_user_info:Delete user information
+  create_alerts:Create alerts
+  settings:Settings
+  login:Login
+  signup:Signup
 
-    [*] --&gt; Home
-    Home --&gt; login
-    login --&gt; main-app
-    Home --&gt; signup
-    Home --&gt; quit
-    quit --&gt; [*]
+  state if_state &lt;&lt;choice&gt;&gt;
+  state if_statemain &lt;&lt;choice&gt;&gt;
 
-    state main_app {
-        [*] --&gt; search_neo
-        search_neo --&gt; search_name
-        search_neo --&gt; search_filter
-        search_filter --&gt; download
-        [*] --&gt; favs_list
-        favs_list --&gt; edit_list
-        [*] --&gt; alerts
-        alerts --&gt; edit_alerts
-        [*] --&gt; add_neo
-        [*] --&gt; settings
-        settings --&gt; update_data
-        settings --&gt; manage_accounts
-        manage_accounts --&gt; view_accounts
-        manage_accounts --&gt; delete_accounts
-        settings --&gt; logout
-        logout --&gt; [*]: return to home
-    }</code></pre>
+  [*] --&gt; Home
+  Home --&gt; quit
+  quit --&gt; [*]
+  Home --&gt; signup
+  Home --&gt; login
+  login --&gt; if_state
+  if_state --&gt; main_app:correct password
+  if_state --&gt; login:false password
+
+  state main_app {
+    [*] --&gt; search_neo
+    search_neo --&gt; search_characteristics
+    search_characteristics --&gt; add_favorites
+    add_favorites --&gt; download
+    search_characteristics --&gt; download
+    [*] --&gt; favs_list
+    favs_list --&gt; edit_list
+    [*] --&gt; create_alerts
+    [*] --&gt; add_neo
+    add_neo --&gt; enter_characteristics
+    enter_characteristics --&gt; if_statemain
+    if_statemain --&gt; New_neo:New NEO validate
+    if_statemain --&gt; Delete_user_info:NEO already exist
+    [*] --&gt; settings
+
+  }</code></pre>
 
 </main>
 <!-- /main column -->
