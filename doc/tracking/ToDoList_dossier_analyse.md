@@ -8,8 +8,8 @@
 - [] explication de l'appli
 - [] reformuler le sujet
 - [x] rédaction étude préalable
-- [] diagramme de base de données
-- [] diagramme d'activité
+- [x] diagramme de base de données
+- [x] diagramme d'activité
 - [] diagramme de séquence
 
 
