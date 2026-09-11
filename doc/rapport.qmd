@@ -1,0 +1,10 @@
+![User Case Diagram](use_case_diagram.png)
+
+The NEO-Watch app is available to users and administrators with a personal account. To start using the app, visitors can register or log in. Once this first step has been completed, the various features are shown in Figure ?.
+
+Several features are available to users.
+
+They can search for NEOs, then download the results or add a NEO to their favourites. The app also allows users to view their list of favourite NEOs, giving them the option to edit this list. To help users keep track of changes to NEOs, they receive notifications after login. Later, they can view previous alerts. To view alerts and receive notifications, users must configure them. They can choose the type of alerts.
+As app users are likely to observe NEOs, they can discover new ones and add them to the app. Finally, users can log out of the app.
+
+The administrator is a user with additional functions. They can update data relating to NEOs and manage the app’s accounts. This management function involves viewing the various accounts and allows them to delete accounts.
