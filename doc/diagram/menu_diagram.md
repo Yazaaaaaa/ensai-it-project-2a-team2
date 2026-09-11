@@ -1,4 +1,4 @@
-````mermaid
+```mermaid
 ---
 config:
       htmlLabels : false
