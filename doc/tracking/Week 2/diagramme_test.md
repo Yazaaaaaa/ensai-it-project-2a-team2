@@ -137,14 +137,37 @@ classDiagram
     FavDAO ..> Fav : crée
     AlertDAO ..> Alert : crée
 
-    %% --- Définition des styles ---
-    classDef controller fill:#d0e1fd,stroke:#2b579a,color:#0f2b5c,stroke-width:1px;
-    classDef service fill:#d1e7dd,stroke:#198754,color:#0f5132,stroke-width:1px;
-    classDef dao fill:#ffe5d9,stroke:#d9480f,color:#7c2d12,stroke-width:1px;
-    classDef business fill:#f3d5ff,stroke:#8e44ad,color:#4a154b,stroke-width:1px;
+    %% Définition des styles
+    classDef controller fill:#d0e1fd,stroke:#2b579a,color:#0f2b5c;
+    classDef service fill:#d1e7dd,stroke:#198754,color:#0f5132;
+    classDef dao fill:#ffe5d9,stroke:#d9480f,color:#7c2d12;
+    classDef business fill:#f3d5ff,stroke:#8e44ad,color:#4a154b;
 
-    %% --- Application des classes ---
-    class BaseController,UserController,NeoController,FavController,AlertController controller;
-    class BaseService,UserService,AdminService,NeoService,FavService,AlertService,Connection_historyService service;
-    class BaseDAO,UserDAO,NeoDAO,FavDAO,AlertDAO dao;
-    class User,Admin,ClassicMember,Connection,NEO,Fav,Alert business;
+    %% Application individuelle
+    class BaseController controller
+    class UserController controller
+    class NeoController controller
+    class FavController controller
+    class AlertController controller
+
+    class BaseService service
+    class UserService service
+    class AdminService service
+    class NeoService service
+    class FavService service
+    class AlertService service
+    class Connection_historyService service
+
+    class BaseDAO dao
+    class UserDAO dao
+    class NeoDAO dao
+    class FavDAO dao
+    class AlertDAO dao
+
+    class User business
+    class Admin business
+    class ClassicMember business
+    class Connection business
+    class NEO business
+    class Fav business
+    class Alert business
