@@ -1,0 +1,135 @@
+---
+title: ""
+format:
+  pdf:
+    documentclass: report
+    mainfont: "TeX Gyre Termes"
+    header-includes: |
+      \usepackage{enumitem}
+      \setlist[itemize]{label=$\bullet$}  % Puce ronde classique
+    include-in-header:
+      text: |
+        \setlength{\parindent}{2em}
+lang: fr
+fontsize: 11pt
+papersize: a4
+geometry: top=1.5cm, bottom=1.5cm, left=2.5cm, right=2.5cm
+link-citations: true 
+nocite: "@*"
+editor: 
+  markdown: 
+    wrap: sentence
+---
+
+
+
+\begin{titlepage}
+\centering
+
+
+{\LARGE\textsc{Informatic project}}\\
+\vspace{0.5cm}
+{\large Studient 2nd year}
+
+\vspace{2.5cm}
+
+\rule{\textwidth}{0.5mm}\\
+\vspace{0.8cm}
+{\huge\bfseries Analysis report: NEO-Watch}\\
+\vspace{0.8cm}
+\rule{\textwidth}{0.5mm}\\
+
+\vspace{2.5cm}
+
+\begin{flushleft}
+\emph{Students :}\\
+Yann Malzieu\\
+Faustine Barbeau\\
+Jules Frulli\\
+Abderrahmane Taleb Amar\\
+\end{flushleft}
+
+\begin{flushright}
+\emph{Tutor :}\\
+Olivier Ricciardi\\
+\vspace{1.0cm}
+\end{flushright}
+
+\vfill 
+\begin{center}
+ENSAI\\
+2026--2027
+\end{center}
+\end{titlepage}
+
+\renewcommand{\contentsname}{Table of content}
+\tableofcontents
+
+
+# 1. Introduction and Context
+
+### Problem Statement of the NEO-Watch Project and Application Stakes.
+
+# 2. Requirements Analysis and Main Features
+
+## 2.1. Functional Requirements (User Management, Dashboard, Alerts, NASA API).
+
+## 2.2. Application Features (Use Case Diagram).
+
+## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram).
+
+# 3. Technical Design and Data Structure
+
+### In introduction put here the technical characteristics
+
+## 3.1. Class Architecture (Class Diagram).
+
+## 3.2. Table Organization (Database Diagram).
+
+# 4. Modeling the Application's Layered Structure
+
+## 4.1. Authentication and Role Management (Login Sequence Diagram)
+
+## 4.2. NEO Search Management (Search NEO Sequence Diagram)
+
+## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram)
+
+# 5. User Interface (Menu Diagram)
+
+# 6. Planning and Project Management (Gantt Chart)
+
+# 7. Conclusion and Perspectives
+
+# 1. Introduction
+
+# 2. Analyse des besoins et des principales fonctionnalités
+
+## 2.1. Expression des besoins fonctionnels.
+
+## 2.2. Les fonctionnalités de l'application (diagramme de cas d'utilisation).
+
+## 2.3. Déroulement de l'application (diagramme d'activités + d'actvités des settings).
+
+# 3. Conception technique et structure des données 
+
+### en intro de cette partiemettre les charactérisitiques techniques (langages utilisés, etc...)
+
+## 3.1. Architecture des classes (Diagramme de classe).
+
+## 3.2. Organisation des tables (Diagramme BDD).
+
+# 4. Modélisation de la structure en couches de l'application
+
+## 4.1. Gestion de l'authentification et des rôles (Diagramme de séquence pour se login)
+
+## 4.2. Gestion de la recherche de NEO (Diagramme de séquence pour search neo)
+
+## 4.3. Gestion de la synchronisation avec l'API de la NASA (Diagramme de séquence pour update des données de la base) 
+
+# 5. Interface utilisateur (diagramme des menus)
+
+# 6. Planification et pilotage (diagramme de Gantt)
+
+# 7. Conclusion et perspectives
+
+
