@@ -2,7 +2,6 @@
 classDiagram
     class BaseDAO{
         <<abstract>>
-        #Session db_session
         +getById(id) T
         +list(filters) List
         +save(entity) T
@@ -10,14 +9,12 @@ classDiagram
     }
     class BaseService{
         <<abstract>>
-        #BaseDAOdao
         +get(id) T
         +create(data) T
         +remove(id)
     }
     class BaseController{
         <<abstract>>
-        #BaseServiceservice
         +handleGet(id)
         +handleCreate(data)
         +handleDelete(id)
@@ -29,8 +26,14 @@ classDiagram
         +getByEmail(email) User
     }
     class UserService {
-        +authenticateUser(email, password) User
-        +logConnection(user_id, ip)
+        +connexion(email, password)
+        +create_account(email, password)
+        +deconnexion()
+    }
+    class AdminService {
+        +ban(user)
+        +synchro_NASA()
+        +deconnexion()
     }
     class UserController {
         +register(data)
@@ -38,6 +41,7 @@ classDiagram
     }
     BaseDAO<|-- UserDAO
     BaseService<|-- UserService
+    BaseService<|-- AdminService
     BaseController<|-- UserController
 
     class NeoDAO {
@@ -45,7 +49,8 @@ classDiagram
     }
     class NeoService {
         +searchNeos(criteria) List~NEO~
-        +syncFromNasa()
+        +sorting_Neo_by(criteria)
+        +export(list)
     }
     class NeoController {
         +search(criteria)
@@ -59,8 +64,6 @@ classDiagram
         +findByUser(user_id) List~Fav~
     }
     class FavService {
-        +toggleFavorite(user_id, neo_id)
-        +recordDistanceSnapshot(fav_id)
     }
     class FavController {
         +toggle(user_id, neo_id)
@@ -74,7 +77,7 @@ classDiagram
         +findActiveAlerts() List~Alert~
     }
     class AlertService {
-        +checkAllAlerts()
+        +send_notification()
     }
     class AlertController {
         +create(user_id, criteria)
@@ -82,6 +85,10 @@ classDiagram
     BaseDAO<|-- AlertDAO
     BaseService<|-- AlertService
     BaseController<|-- AlertController
+
+    class Connection_historyService{
+    }
+    BaseService<|-- Connection_historyService
 
     class User {
         <<abstract>>
