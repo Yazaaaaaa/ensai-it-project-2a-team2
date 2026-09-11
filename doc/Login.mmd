@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor U as User
+    participant F as Frontend
+    participant B as Backend (FastAPI)
+    participant DB as PostgreSQL
+
+    U->>F: Enters login + password
+    F->>B: POST /login (credentials)
+    B->>DB: Look up the user
+    DB-->>B: User + hashed password
+
+    alt Valid credentials
+        B->>B: Verify the password
+        B-->>F: JWT token + success
+        F-->>U: Show the dashboard
+    else Invalid credentials
+        B-->>F: Error (401 - unauthorized)
+        F-->>U: Show "incorrect credentials"
+    end
