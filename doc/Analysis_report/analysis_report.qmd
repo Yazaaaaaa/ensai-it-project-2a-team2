@@ -74,7 +74,12 @@ ENSAI\\
 
 ## 2.2. Application Features (Use Case Diagram). - F
 
+![Use case diagram](../diagram/use_case_diagram.png)
+
 ## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram). - Y
+![Activity diagram](../diagram/activity_diagram.png)
+
+![Activity diagram focused on settings](../diagram/activity_diagram_settings.png)
 
 # 3. Technical Design and Data Structure
 
@@ -82,18 +87,43 @@ ENSAI\\
 
 ## 3.1. Class Architecture (Class Diagram). - J
 
+![Title](../diagram/service_layer_class_diagram.png)
+
+
 ## 3.2. Table Organization (Database Diagram). - J 
+
+![Title](../diagram/diagram_bdd.png)
+
 
 # 4. Modeling the Application's Layered Structure
 
 ## 4.1. Authentication and Role Management (Login Sequence Diagram) - Y
 
+![Title](../diagram/sequency_diagram_login.png)
+
+
 ## 4.2. NEO Search Management (Search NEO Sequence Diagram) - A
+
+![Title](../diagram/sequency_diagram_search_neo.png)
+
 
 ## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram) - A
 
+![Title](../diagram/sequency_diragram_update_nasa.png)
+
+
 # 5. User Interface (Menu Diagram) - F
+
+![Title](../diagram/menu_diagram.png)
+
 
 # 6. Planning and Project Management (Gantt Chart) - Y
 
+![Title](../diagram/gantt_diagram.png)
+
+
 # 7. Conclusion and Perspectives
+
+# Annexe
+
+![Title](../diagram/total_class_diagram.png)
