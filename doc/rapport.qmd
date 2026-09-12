@@ -1,4 +1,6 @@
-![User Case Diagram](use_case_diagram.png)
+## 2.2 Use case diagram
+
+![Use Case Diagram](use_case_diagram.png)
 
 The NEO-Watch app is available to users and administrators with a personal account. To start using the app, visitors can register or log in. Once this first step has been completed, the various features are shown in Figure ?.
 
@@ -8,3 +10,17 @@ They can search for NEOs, then download the results or add a NEO to their favour
 As app users are likely to observe NEOs, they can discover new ones and add them to the app. Finally, users can log out of the app.
 
 The administrator is a user with additional functions. They can update data relating to NEOs and manage the app’s accounts. This management function involves viewing the various accounts and allows them to delete accounts.
+
+## 5. User interface (Menu diagram)
+
+We decided to provide a user interface that makes the app easier to use and more accessible for asteroid enthusiasts. Various menus will be displayed. 
+
+First, the user will go to the home menu to log in, create an account, or exit the app. 
+
+Once logged in, the user will access the main menu, which offers the app’s main features (Search for a NEO, View the dashboard, Add a new NEO, View alerts, View settings). Then, depending on the choices of the user he will access to a new menu. To search for a NEO there's a plenty of characteristics.
+
+To search for a NEO, there are a variety of characteristics associated with the asteroid. The user can choose to select one or more search criteria.
+
+We can access the settings through the main menu. For users, this menu primarily allows you to change the dashboard's visual preferences. Additional features are available to administrators in the settings menu, such as updating data or performing account management tasks.
+
+The user interface will be implemented using Streamlit or exclusively via the VS Code terminal, depending on the project's progress and the delivery date.
