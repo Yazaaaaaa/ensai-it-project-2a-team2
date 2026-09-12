@@ -77,13 +77,29 @@ ENSAI\\
 ![Use case diagram](../diagram/use_case_diagram.png)
 
 ## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram). - Y
+
 ![Activity diagram](../diagram/activity_diagram.png)
+
+When the user is logging, he enter in the main application. We list all the features and also the settings part as show as in figure 3.
+
 
 ![Activity diagram focused on settings](../diagram/activity_diagram_settings.png)
 
+This figure focuses on the settings section. There are two different parts: one for the user and the other for the administrator. The administrator is also a user, so they can access both parts.
+
+The user has a personal section where they can change the theme color, such as switching to dark mode or light mode.
+
+They can also customize the dashboard, meaning they can choose which features they want to display on the dashboard page.
+
+The administrator can use these features in their designated section. 
+
+Additionally, when a user logs out, the application automatically redirects them to the home page.
 # 3. Technical Design and Data Structure
 
 ### In introduction put here the technical characteristics - Y 
+
+
+The application will be developed in Python and version-controlled via Git, to run a FastAPI backend coupled with a PostgreSQL database for reliable data persistence. It will dynamically integrate with NASA’s Near Earth Object Web Service (NeoWs) REST API using secure authentication keys. Code quality and system reliability will be ensured by comprehensive automated testing with pytest, while the frontend layer will be flexibly built using Python frameworks like Streamlit or standard web technologies such as React or Vue.
 
 ## 3.1. Class Architecture (Class Diagram). - J
 
