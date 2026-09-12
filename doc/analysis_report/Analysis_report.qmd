@@ -66,70 +66,64 @@ ENSAI\\
 \tableofcontents
 
 
-# 1. Introduction and Context
-
-### Problem Statement of the NEO-Watch Project and Application Stakes.
+# 1. Introduction and Context - A 
 
 # 2. Requirements Analysis and Main Features
 
-## 2.1. Functional Requirements (User Management, Dashboard, Alerts, NASA API).
+## 2.1. Functional Requirements (User Management, Dashboard, Alerts, NASA API). - A
 
-## 2.2. Application Features (Use Case Diagram).
+## 2.2. Application Features (Use Case Diagram). - F
 
-## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram).
+![Use case diagram](../diagram/use_case_diagram.png)
+
+## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram). - Y
+![Activity diagram](../diagram/activity_diagram.png)
+
+![Activity diagram focused on settings](../diagram/activity_diagram_settings.png)
 
 # 3. Technical Design and Data Structure
 
-### In introduction put here the technical characteristics
+### In introduction put here the technical characteristics - Y 
 
-## 3.1. Class Architecture (Class Diagram).
+## 3.1. Class Architecture (Class Diagram). - J
 
-## 3.2. Table Organization (Database Diagram).
+![Title](../diagram/service_layer_class_diagram.png)
+
+
+## 3.2. Table Organization (Database Diagram). - J 
+
+![Title](../diagram/diagram_bdd.png)
+
 
 # 4. Modeling the Application's Layered Structure
 
-## 4.1. Authentication and Role Management (Login Sequence Diagram)
+## 4.1. Authentication and Role Management (Login Sequence Diagram) - Y
 
-## 4.2. NEO Search Management (Search NEO Sequence Diagram)
+![Title](../diagram/sequency_diagram_login.png)
 
-## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram)
 
-# 5. User Interface (Menu Diagram)
+## 4.2. NEO Search Management (Search NEO Sequence Diagram) - A
 
-# 6. Planning and Project Management (Gantt Chart)
+![Title](../diagram/sequency_diagram_search_neo.png)
+
+
+## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram) - A
+
+![Title](../diagram/sequency_diragram_update_nasa.png)
+
+
+# 5. User Interface (Menu Diagram) - F
+
+![Title](../diagram/menu_diagram.png)
+
+
+# 6. Planning and Project Management (Gantt Chart) - Y
+
+![Title](../diagram/gantt_diagram.png)
+
 
 # 7. Conclusion and Perspectives
 
-# 1. Introduction
+# Annexe
 
-# 2. Analyse des besoins et des principales fonctionnalités
-
-## 2.1. Expression des besoins fonctionnels.
-
-## 2.2. Les fonctionnalités de l'application (diagramme de cas d'utilisation).
-
-## 2.3. Déroulement de l'application (diagramme d'activités + d'actvités des settings).
-
-# 3. Conception technique et structure des données 
-
-### en intro de cette partiemettre les charactérisitiques techniques (langages utilisés, etc...)
-
-## 3.1. Architecture des classes (Diagramme de classe).
-
-## 3.2. Organisation des tables (Diagramme BDD).
-
-# 4. Modélisation de la structure en couches de l'application
-
-## 4.1. Gestion de l'authentification et des rôles (Diagramme de séquence pour se login)
-
-## 4.2. Gestion de la recherche de NEO (Diagramme de séquence pour search neo)
-
-## 4.3. Gestion de la synchronisation avec l'API de la NASA (Diagramme de séquence pour update des données de la base) 
-
-# 5. Interface utilisateur (diagramme des menus)
-
-# 6. Planification et pilotage (diagramme de Gantt)
-
-# 7. Conclusion et perspectives
-
-
+![Title](../diagram/total_class_diagram.png)
