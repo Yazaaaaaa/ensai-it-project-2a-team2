@@ -115,8 +115,13 @@ The application will be developed in Python and version-controlled via Git, to r
 
 ## 4.1. Authentication and Role Management (Login Sequence Diagram) - Y
 
-![Title](../diagram/sequency_diagram_login.png)
+![Sequency diagram for login](../diagram/sequency_diagram_login.png)
 
+In the application's architecture, we implement several features, the first one is illustrated with a sequence diagram for the login process.
+
+The diagram involves four layers: the user, the frontend, the backend, and the PostgreSQL database.
+
+The user enters their login credentials on the frontend page, which triggers a POST request sent to the backend. The backend queries the PostgreSQL database to search for the user, and the database returns the user record along with the hashed password. The backend then verifies the password. If the credentials are valid, the backend issues a JWT token and a success response, allowing the user to access the dashboard. Otherwise, the backend returns an error, and an incorrect credentials message is displayed to the user.
 
 ## 4.2. NEO Search Management (Search NEO Sequence Diagram) - A
 
@@ -133,10 +138,14 @@ The application will be developed in Python and version-controlled via Git, to r
 ![Title](../diagram/menu_diagram.png)
 
 
-# 6. Planning and Project Management (Gantt Chart) - Y
+# 6. Project Management and Planning (Gantt Chart) - Y
+
+We have not yet assigned specific roles or functions within the team. Since we are a group of four and currently communicate very well, we haven't felt the need to formalize them yet. However, we may define specific responsibilities once we reach the coding phase.
+
 
 ![Title](../diagram/gantt_diagram.png)
 
+The Gantt diagram above illustrates how we plan to organize our workflow moving forward, as well as how we coordinated the writing of the analysis document. Due to the significant time gap between Mentoring 4 and the immersion session, our exact schedule is subject to minor adjustments as the project progresses.
 
 # 7. Conclusion and Perspectives
 
