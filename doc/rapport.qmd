@@ -22,5 +22,3 @@ Once logged in, the user will access the main menu, which offers the app’s mai
 To search for a NEO, there are a variety of characteristics associated with the asteroid. The user can choose to select one or more search criteria.
 
 We can access the settings through the main menu. For users, this menu primarily allows you to change the dashboard's visual preferences. Additional features are available to administrators in the settings menu, such as updating data or performing account management tasks.
-
-The user interface will be implemented using Streamlit or exclusively via the VS Code terminal, depending on the project's progress and the delivery date.
