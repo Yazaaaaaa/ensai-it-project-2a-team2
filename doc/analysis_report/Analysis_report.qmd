@@ -74,8 +74,6 @@ ENSAI\\
 
 ## 2.2. Application Features (Use Case Diagram). - F
 
-![Use case diagram](../diagram/use_case_diagram.png)
-
 ## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram). - Y
 
 ![Activity diagram](../diagram/activity_diagram.png)
@@ -87,28 +85,27 @@ When the user is logging, he enter in the main application. We list all the feat
 
 This figure focuses on the settings section. There are two different parts: one for the user and the other for the administrator. The administrator is also a user, so they can access both parts.
 
-The user has a personal section where they can change the theme color, such as switching to dark mode or light mode.
+Users has a personal section where they can change the theme color, such as switching to dark mode or light mode.
 
 They can also customize the dashboard, meaning they can choose which features they want to display on the dashboard page.
 
 The administrator can use these features in their designated section. 
 
 Additionally, when a user logs out, the application automatically redirects them to the home page.
+
 # 3. Technical Design and Data Structure
 
 ### In introduction put here the technical characteristics - Y 
 
 
-The application will be developed in Python and version-controlled via Git, to run a FastAPI backend coupled with a PostgreSQL database for reliable data persistence. It will dynamically integrate with NASA’s Near Earth Object Web Service (NeoWs) REST API using secure authentication keys. Code quality and system reliability will be ensured by comprehensive automated testing with pytest, while the frontend layer will be flexibly built using Python frameworks like Streamlit or standard web technologies such as React or Vue.
+The application will be developed in Python and version-controlled via Git, to run a FastAPI backend coupled with a PostgreSQL database for reliable data persistence. It will dynamically integrate with NASA’s Near Earth Object Web Service (NeoWs) REST API using secure authentication keys. Code quality and system reliability will be ensured by comprehensive automated testing with pytest, while the frontend layer will be flexibly built using Python frameworks or standard web technologies.
 
 ## 3.1. Class Architecture (Class Diagram). - J
 
-![Title](../diagram/service_layer_class_diagram.png)
 
 
 ## 3.2. Table Organization (Database Diagram). - J 
 
-![Title](../diagram/diagram_bdd.png)
 
 
 # 4. Modeling the Application's Layered Structure
@@ -121,21 +118,18 @@ In the application's architecture, we implement several features, the first one 
 
 The diagram involves four layers: the user, the frontend, the backend, and the PostgreSQL database.
 
-The user enters their login credentials on the frontend page, which triggers a POST request sent to the backend. The backend queries the PostgreSQL database to search for the user, and the database returns the user record along with the hashed password. The backend then verifies the password. If the credentials are valid, the backend issues a JWT token and a success response, allowing the user to access the dashboard. Otherwise, the backend returns an error, and an incorrect credentials message is displayed to the user.
+Users enter their login credentials on the frontend page, which triggers a POST request sent to the backend. The backend queries the PostgreSQL database to search for the user, and the database returns the user record along with the hashed password. The backend then verifies the password. If the credentials are valid, the backend issues a JWT token and a success response, allowing the user to access the dashboard. Otherwise, the backend returns an error, and an incorrect credentials message is displayed to the user.
 
 ## 4.2. NEO Search Management (Search NEO Sequence Diagram) - A
 
-![Title](../diagram/sequency_diagram_search_neo.png)
 
 
 ## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram) - A
 
-![Title](../diagram/sequency_diragram_update_nasa.png)
 
 
 # 5. User Interface (Menu Diagram) - F
 
-![Title](../diagram/menu_diagram.png)
 
 
 # 6. Project Management and Planning (Gantt Chart) - Y
@@ -143,7 +137,7 @@ The user enters their login credentials on the frontend page, which triggers a P
 We have not yet assigned specific roles or functions within the team. Since we are a group of four and currently communicate very well, we haven't felt the need to formalize them yet. However, we may define specific responsibilities once we reach the coding phase.
 
 
-![Title](../diagram/gantt_diagram.png)
+![Gantt diagram](../diagram/gantt_diagram.png)
 
 The Gantt diagram above illustrates how we plan to organize our workflow moving forward, as well as how we coordinated the writing of the analysis document. Due to the significant time gap between Mentoring 4 and the immersion session, our exact schedule is subject to minor adjustments as the project progresses.
 
@@ -151,4 +145,3 @@ The Gantt diagram above illustrates how we plan to organize our workflow moving 
 
 # Annexe
 
-![Title](../diagram/total_class_diagram.png)
