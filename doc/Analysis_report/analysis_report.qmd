@@ -121,12 +121,30 @@ Additionally, when a user logs out, the application automatically redirects them
 
 The application will be developed in Python and version-controlled via Git, to run a FastAPI backend coupled with a PostgreSQL database for reliable data persistence. It will dynamically integrate with NASA’s Near Earth Object Web Service (NeoWs) REST API using secure authentication keys. Code quality and system reliability will be ensured by comprehensive automated testing with pytest, while the frontend layer will be flexibly built using Python frameworks or standard web technologies.
 
-## 3.1. Class Architecture (Class Diagram). - J
+## 3.1. Class Architecture (Class Diagram). 
+
+
+To build our class diagram, we chose to have classes for each layer: the controller layer, the service layer, the DAO layer, and the business layer.
+
+The global diagram is very large, and some parts of it are very simple and repetitive. The DAO classes contain only the basic functions (CRUD functions). The controller layer is, in our case, very simple — we use it only to check whether the user issuing a request has the permission to do so. Since these layers are not the most important, and in order to keep the diagram readable, we put them in the annex at the end of the document.
+
+For the business layer, we decided to create a class for each important object in the project. A class User, which is abstract, is the parent of two different roles, Admin and ClassicMember, useful for handling different permissions later on. A class NEO is at the center of our project and stores all the information we need about them. Classes Alert, Fav (favorite NEOs), and Connection store information related to users.
+
+![Business layer Class diagram](../diagram/diagram_business_layer.png)
+
+For the services, we have a BaseService class containing the basic functions (CRUD) needed by all the other service classes. We then added one service class per business object created above, each with its own adapted functions.
+
+![Services Class diagram](../diagram/service_layer_class_diagram.png)
 
 
 
-## 3.2. Table Organization (Database Diagram). - J 
+## 3.2. Table Organization (Database Diagram).
 
+For the data diagram, we reused the business objects created above and translated each class into a table, storing every attribute needed. Each table has a primary key (marked PK) and, when relevant, one or more foreign keys (marked FK) to represent relationships between tables.
+
+Compared to the class diagram, the data diagram makes the multiplicities explicit through foreign keys: for instance, a foreign key user_id in the Alert, Fav, and Connection tables represents the "1" side of the relationship with User, since each of these records belongs to exactly one user, while a user can have several alerts, favorites, or connections. Similarly, the neo_id foreign key in Alert and Fav links them to a single NEO.
+
+![Services Class diagram](../diagram/diagram_bdd.png)
 
 
 # 4. Modeling the Application's Layered Structure
@@ -173,4 +191,9 @@ The Gantt diagram above illustrates how we plan to organize our workflow moving 
 # 7. Conclusion and Perspectives
 
 # Annexe
+
+Here there is the complete class diagram with the links between each layers.
+
+![Services Class diagram](../diagram/total_class_diagram.png)
+
 
