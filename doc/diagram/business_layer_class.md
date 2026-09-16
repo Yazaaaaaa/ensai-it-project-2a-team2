@@ -1,4 +1,4 @@
-```mermaid
+classDiagram
 class User {
         <<abstract>>
         +int id
@@ -39,9 +39,4 @@ class User {
     User "1" --> "*" Alert : definit
     Fav "*" --> "1" NEO : concerne
     Alert "*" --> "0..1" NEO : cible
-
-    UserDAO ..> User : crée
-    NeoDAO ..> NEO : crée
-    FavDAO ..> Fav : crée
-    AlertDAO ..> Alert : crée
 ```
