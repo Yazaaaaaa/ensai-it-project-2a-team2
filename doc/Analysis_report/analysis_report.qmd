@@ -28,9 +28,9 @@ editor:
 \centering
 
 
-{\LARGE\textsc{Informatic project}}\\
+{\LARGE\textsc{IT project}}\\
 \vspace{0.5cm}
-{\large Studient 2nd year}
+{\large Student 2nd year}
 
 \vspace{2.5cm}
 
