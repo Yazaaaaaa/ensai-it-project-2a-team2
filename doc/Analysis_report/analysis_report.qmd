@@ -69,6 +69,15 @@ ENSAI\\
 
 # 1. Introduction and Context 
 
+The solar system formed a little less than 4.6 billion years ago. Since then, many meteoroids and comets have orbited the Sun. Among them, some follow trajectories that bring them close to Earth's orbit: these are the NEOs, Near-Earth Objects. Although the vast majority of them pose no danger, history reminds us that these bodies can represent major threats. Tracking these objects is therefore a crucial scientific issue, and NASA handles their listing with a regularly updated catalogue.
+
+This data is accessible through an API (Application Programming Interface) provided by the agency. However, in their raw form, it is difficult to use for a user wishing to know which objects are likely to approach Earth, or to follow the trajectory of an asteroid.
+There is therefore a concrete need: to obtain a tool capable of making this information consultable, and even customizable.
+
+It is this need that our application Neo-Watch answers: its goal is to allow users, once authenticated, to monitor the near-Earth objects listed by NASA from its data. The application distinguishes between two types of profiles: the standard user, who has their personal space, and the administrator, in charge of managing accounts and updating the data. Each user has a dashboard that allows them to display upcoming approaches, search and sort objects according to various criteria, track their favorite asteroids and the evolution of their distance from Earth, or set personalized alerts, and even add a near-Earth object that they observed themselves. The features also cover viewing statistics (the number of asteroids observed per month, the size distribution) as well as the search history and access to the astronomy picture of the day.
+
+Designing such an application thus presumes translating these needs into coherent technical decisions. We will strive to ensure that our application meets the scope of the constraints set by the subject while remaining flexible with regard to future developments.
+
 # 2. Requirements Analysis and Main Features
 
 ## 2.1 Functional Requirements
