@@ -67,7 +67,7 @@ ENSAI\\
 \tableofcontents
 
 
-# 1. Introduction and Context - A 
+# 1. Introduction and Context 
 
 # 2. Requirements Analysis and Main Features
 
@@ -82,6 +82,7 @@ Before detailing the technical design, it is worth specifying the main functiona
 **Alerts.** A user cannot continuously monitor the entire catalogue, so they need to be notified automatically when a relevant event occurs. The application therefore lets them define personalised alerts, expressing a condition of their choice (for example, being notified when an asteroid larger than a certain size passes within a certain distance of Earth). These alerts are evaluated when the user logs in: if an event matches one of their conditions, a notification is presented to them. This login-based approach avoids continuous monitoring while ensuring that the user is informed as soon as they return to the application.
 
 **Use of NASA's API.** The data on near-Earth objects comes from NASA's public API. Rather than querying this API at each user action, the application keeps a copy of it in its own database, updated by the administrator. This choice ensures fast response times and limits the number of requests sent to NASA. It does, however, imply a particular requirement: the application must distinguish objects originating from NASA from those added by the users themselves, so that the latter are never overwritten during updates.
+
 ## 2.2 Use case diagram
 
 ![Use Case Diagram](../diagram/use_case_diagram.png)
@@ -95,7 +96,7 @@ As app users are likely to observe NEOs, they can discover new ones and add them
 
 The administrator is a user with additional functions. They can update data relating to NEOs and manage the app’s accounts. This management function involves viewing the various accounts and allows them to delete accounts.
 
-## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram). - Y
+## 2.3. Application Workflow (Activity Diagram + Settings Activity Diagram).
 
 ![Activity diagram](../diagram/activity_diagram.png)
 
@@ -116,13 +117,9 @@ Additionally, when a user logs out, the application automatically redirects them
 
 # 3. Technical Design and Data Structure
 
-### In introduction put here the technical characteristics - Y 
-
-
 The application will be developed in Python and version-controlled via Git, to run a FastAPI backend coupled with a PostgreSQL database for reliable data persistence. It will dynamically integrate with NASA’s Near Earth Object Web Service (NeoWs) REST API using secure authentication keys. Code quality and system reliability will be ensured by comprehensive automated testing with pytest, while the frontend layer will be flexibly built using Python frameworks or standard web technologies.
 
 ## 3.1. Class Architecture (Class Diagram). 
-
 
 To build our class diagram, we chose to have classes for each layer: the controller layer, the service layer, the DAO layer, and the business layer.
 
@@ -149,7 +146,7 @@ Compared to the class diagram, the data diagram makes the multiplicities explici
 
 # 4. Modeling the Application's Layered Structure
 
-## 4.1. Authentication and Role Management (Login Sequence Diagram) - Y
+## 4.1. Authentication and Role Management (Login Sequence Diagram)
 
 ![Sequency diagram for login](../diagram/sequency_diagram_login.png)
 
@@ -159,17 +156,23 @@ The diagram involves four layers: the user, the frontend, the backend, and the P
 
 Users enter their login credentials on the frontend page, which triggers a POST request sent to the backend. The backend queries the PostgreSQL database to search for the user, and the database returns the user record along with the hashed password. The backend then verifies the password. If the credentials are valid, the backend issues a JWT token and a success response, allowing the user to access the dashboard. Otherwise, the backend returns an error, and an incorrect credentials message is displayed to the user.
 
-## 4.2. NEO Search Management (Search NEO Sequence Diagram) - A
+## 4.2. NEO Search Management (Search NEO Sequence Diagram)
 
+![Sequency diagram for search for a NEO](../diagram/sequency_diagram_search_neo.png)
 
+Searching for near-Earth objects is one of the core features expected by the user. The sequence diagram below describes the exchanges between the application's components during such a search. The user enters their criteria in the interface; the frontend forwards the request to the backend, which queries the local database rather than NASA's API, in order to ensure a fast response. The database returns the matching objects, which the backend then passes to the frontend for display, sorted according to the chosen criterion. The diagram distinguishes two cases: one where results exist, and one where no object matches, in which case the user is informed that no NEO was found.
 
-## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram) - A
+## 4.3. Synchronization with the NASA API (Database Update Sequence Diagram)
 
+![Sequency diagram for database update](../diagram/sequency_diragram_update_nasa.png)
 
+Updating the data is an operation reserved for the administrator. The sequence diagram below illustrates the synchronization between the application and NASA's API. When the administrator starts this operation, the backend queries NASA's API over a date range, then updates the local database. This update only concerns objects originating from NASA: asteroids added by users are preserved, in line with the requirement identified earlier. The diagram distinguishes the case where NASA responds correctly from the one where the service is unavailable, in which case the administrator is informed of the update's failure.
 
 ## 5. User interface (Menu diagram)
 
 We decided to provide a user interface that makes the app easier to use and more accessible for asteroid enthusiasts. Various menus will be displayed. 
+
+![Menu diagram](../diagram/menu_diagram.png)
 
 First, the user will go to the home menu to log in, create an account, or exit the app. 
 
@@ -179,7 +182,7 @@ To search for a NEO, there are a variety of characteristics associated with the 
 
 We can access the settings through the main menu. For users, this menu primarily allows you to change the dashboard's visual preferences. Additional features are available to administrators in the settings menu, such as updating data or performing account management tasks.
 
-# 6. Project Management and Planning (Gantt Chart) - Y
+# 6. Project Management and Planning (Gantt Chart) 
 
 We have not yet assigned specific roles or functions within the team. Since we are a group of four and currently communicate very well, we haven't felt the need to formalize them yet. However, we may define specific responsibilities once we reach the coding phase.
 
@@ -190,7 +193,7 @@ The Gantt diagram above illustrates how we plan to organize our workflow moving 
 
 # 7. Conclusion and Perspectives
 
-# Annexe
+# Appendix
 
 Here there is the complete class diagram with the links between each layers.
 
