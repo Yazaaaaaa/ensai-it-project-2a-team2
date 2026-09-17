@@ -96,7 +96,7 @@ Before detailing the technical design, it is worth specifying the main functiona
 
 ![Use Case Diagram](../diagram/use_case_diagram.png)
 
-The NEO-Watch app is available to users and administrators with a personal account. To start using the app, visitors can register or log in. Once this first step has been completed, the various features are shown in Figure ?.
+The NEO-Watch app is available to users and administrators with a personal account. To start using the app, visitors can register or log in. Once this first step has been completed, the various features are shown in Figure 1.
 
 Several features are available to users.
 
@@ -199,8 +199,6 @@ We have not yet assigned specific roles or functions within the team. Since we a
 ![Gantt diagram](../diagram/gantt_diagram.png)
 
 The Gantt diagram above illustrates how we plan to organize our workflow moving forward, as well as how we coordinated the writing of the analysis document. Due to the significant time gap between Mentoring 4 and the immersion session, our exact schedule is subject to minor adjustments as the project progresses.
-
-# 7. Conclusion and Perspectives
 
 # Appendix
 
