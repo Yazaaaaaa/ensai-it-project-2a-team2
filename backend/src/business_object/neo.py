@@ -8,6 +8,9 @@ class Neo:
         diameter_min_m: float = None,
         diameter_max_m: float = None,
         absolute_magnitude: float = None,
+        approach_date: str = None,
+        miss_distance_km: float = None,
+        relative_velocity_kmh: float = None,
         is_hazardous: bool = False,
         is_custom: bool = False,
         created_by_user_id: int = None,
@@ -19,9 +22,12 @@ class Neo:
         self.diameter_min_m = diameter_min_m
         self.diameter_max_m = diameter_max_m
         self.absolute_magnitude = absolute_magnitude
+        self.approach_date = approach_date
+        self.miss_distance_km = miss_distance_km
+        self.relative_velocity_kmh = relative_velocity_kmh
         self.is_hazardous = is_hazardous
         self.is_custom = is_custom
         self.created_by_user_id = created_by_user_id
 
     def __str__(self):
-        return f"Neo({self.nasa_id}: {self.name_neo}, Hazardous: {self.is_hazardous})"
+        return f"Neo({self.nasa_id}: {self.name_neo}, Approach: {self.approach_date}, Hazardous: {self.is_hazardous})"

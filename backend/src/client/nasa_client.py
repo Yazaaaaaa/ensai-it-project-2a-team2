@@ -54,9 +54,9 @@ class NasaClient:
                             (app for app in approach_data_list if app.get("close_approach_date") == date_str),
                             approach_data_list[0]
                         )
-                        
+
                         approach_date = approach_item.get("close_approach_date")
-                        
+
                         # Distance de raté en kilomètres
                         miss_distance_data = approach_item.get("miss_distance", {})
                         miss_distance_km = miss_distance_data.get("kilometers")
@@ -81,7 +81,7 @@ class NasaClient:
                         is_hazardous=item.get("is_potentially_hazardous_asteroid", False),
                         is_custom=False
                     )
-                    
+
                     # Évite d'ajouter plusieurs fois le même astéroïde s'il apparaît sur plusieurs jours
                     if not any(n.nasa_id == neo.nasa_id for n in neos):
                         neos.append(neo)
