@@ -25,7 +25,7 @@ CREATE TABLE NEOW.neo (
     absolute_magnitude    FLOAT,
 	approach_date         DATE,
     miss_distance_km      FLOAT,
-    relative_velocity_kmh FLOAT
+    relative_velocity_kmh FLOAT,
     is_hazardous          BOOLEAN,
     is_custom             BOOLEAN,
     created_by_user_id    INT REFERENCES NEOW.users(id_user)
