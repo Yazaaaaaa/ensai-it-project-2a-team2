@@ -42,16 +42,46 @@ class NasaClient:
                     diam_min = diameter_data.get("estimated_diameter_min")
                     diam_max = diameter_data.get("estimated_diameter_max")
 
+                    # Extraction des données d'approche (on prend le premier élément de la liste s'il existe)
+                    approach_data_list = item.get("close_approach_data", [])
+                    approach_date = None
+                    miss_distance_km = None
+                    relative_velocity_kmh = None
+
+                    if approach_data_list:
+                        # On cherche l'approche correspondant à la date courante ou on prend la première
+                        approach_item = next(
+                            (app for app in approach_data_list if app.get("close_approach_date") == date_str),
+                            approach_data_list[0]
+                        )
+
+                        approach_date = approach_item.get("close_approach_date")
+
+                        # Distance de raté en kilomètres
+                        miss_distance_data = approach_item.get("miss_distance", {})
+                        miss_distance_km = miss_distance_data.get("kilometers")
+                        if miss_distance_km is not None:
+                            miss_distance_km = float(miss_distance_km)
+
+                        # Vitesse relative en km/h
+                        velocity_data = approach_item.get("relative_velocity", {})
+                        relative_velocity_kmh = velocity_data.get("kilometers_per_hour")
+                        if relative_velocity_kmh is not None:
+                            relative_velocity_kmh = float(relative_velocity_kmh)
+
                     neo = Neo(
                         nasa_id=str(item.get("id")),
                         name_neo=item.get("name"),
                         diameter_min_m=diam_min,
                         diameter_max_m=diam_max,
                         absolute_magnitude=item.get("absolute_magnitude_h"),
+                        approach_date=approach_date,
+                        miss_distance_km=miss_distance_km,
+                        relative_velocity_kmh=relative_velocity_kmh,
                         is_hazardous=item.get("is_potentially_hazardous_asteroid", False),
                         is_custom=False
                     )
-                    
+
                     # Évite d'ajouter plusieurs fois le même astéroïde s'il apparaît sur plusieurs jours
                     if not any(n.nasa_id == neo.nasa_id for n in neos):
                         neos.append(neo)
