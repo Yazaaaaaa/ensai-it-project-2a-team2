@@ -7,19 +7,90 @@ class NasaClient:
     """Client responsible for fetching NEO data from the NASA external API."""
 
     def __init__(self):
-        self.api_key = os.getenv("NASA_API_KEY", "DEMO_KEY")
-        self.base_url = "https://api.nasa.gov/neo/rest/v1/feed"
+        self.api_key = os.getenv("NASA_API_KEY")
+        self.browse_url = "https://api.nasa.gov/neo/rest/v1/neo/browse"
+        self.feed_url = "https://api.nasa.gov/neo/rest/v1/feed"
 
-    def get_neos(self, start_date: str, end_date: str) -> list[Neo]:
+    def get_neos_page(self, page: int = 0, size: int = 20) -> list[Neo]:
         """
-        Fetches NEOs from the NASA API and converts them into Neo business objects.
-
+        Récupère une page spécifique d'astéroïdes via l'endpoint /browse.
+        
         Args:
-            start_date (str): Start date (YYYY-MM-DD).
-            end_date (str): End date (YYYY-MM-DD).
-
+            page (int): Numéro de la page (commence à 0).
+            size (int): Nombre d'éléments par page.
+            
         Returns:
-            list[Neo]: A list of Neo objects.
+            list[Neo]: Liste d'objets Neo convertis avec leurs approches multiples.
+        """
+        params = {
+            "page": page,
+            "size": size,
+            "api_key": self.api_key
+        }
+
+        try:
+            response = requests.get(self.browse_url, params=params, timeout=15)
+            response.raise_for_status()
+            data = response.json()
+
+            neo_list = data.get("near_earth_objects", [])
+            neos = []
+
+            for item in neo_list:
+                # Extraction des diamètres en mètres
+                diameter_data = item.get("estimated_diameter", {}).get("meters", {})
+                diam_min = diameter_data.get("estimated_diameter_min")
+                diam_max = diameter_data.get("estimated_diameter_max")
+
+                # Extraction de TOUTES les données d'approche (close_approach_data)
+                approach_data_list = item.get("close_approach_data", [])
+                close_approaches = []
+
+                for approach_item in approach_data_list:
+                    app_date = approach_item.get("close_approach_date")
+                    orbiting_body = approach_item.get("orbiting_body")
+                    
+                    miss_distance_km = None
+                    miss_dist_str = approach_item.get("miss_distance", {}).get("kilometers")
+                    if miss_dist_str:
+                        miss_distance_km = float(miss_dist_str)
+
+                    relative_velocity_kmh = None
+                    vel_str = approach_item.get("relative_velocity", {}).get("kilometers_per_hour")
+                    if vel_str:
+                        relative_velocity_kmh = float(vel_str)
+
+                    close_approaches.append({
+                        "approach_date": app_date,
+                        "orbiting_body": orbiting_body,
+                        "miss_distance_km": miss_distance_km,
+                        "relative_velocity_kmh": relative_velocity_kmh
+                    })
+
+                # Instanciation correspondant au nouveau Business Object Neo
+                neo = Neo(
+                    nasa_id=str(item.get("id")),
+                    name_neo=item.get("name"),
+                    diameter_min_m=diam_min,
+                    diameter_max_m=diam_max,
+                    absolute_magnitude=item.get("absolute_magnitude_h"),
+                    is_hazardous=item.get("is_potentially_hazardous_asteroid", False),
+                    is_custom=False
+                )
+                
+                # On attache la liste complète des approches à l'objet Neo
+                neo.close_approaches = close_approaches
+                neos.append(neo)
+
+            return neos
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching page {page}: {e}")
+            return []
+
+    def get_weekly_feed(self, start_date: str, end_date: str) -> list[Neo]:
+        """
+        Récupère les astéroïdes via l'endpoint /feed pour une période donnée (max 7 jours).
         """
         params = {
             "start_date": start_date,
@@ -28,7 +99,7 @@ class NasaClient:
         }
 
         try:
-            response = requests.get(self.base_url, params=params, timeout=10)
+            response = requests.get(self.feed_url, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
 
@@ -37,37 +108,33 @@ class NasaClient:
 
             for date_str, neo_list in neos_data.items():
                 for item in neo_list:
-                    # Extraction des diamètres en mètres
                     diameter_data = item.get("estimated_diameter", {}).get("meters", {})
                     diam_min = diameter_data.get("estimated_diameter_min")
                     diam_max = diameter_data.get("estimated_diameter_max")
 
-                    # Extraction des données d'approche (on prend le premier élément de la liste s'il existe)
                     approach_data_list = item.get("close_approach_data", [])
-                    approach_date = None
-                    miss_distance_km = None
-                    relative_velocity_kmh = None
+                    close_approaches = []
 
-                    if approach_data_list:
-                        # On cherche l'approche correspondant à la date courante ou on prend la première
-                        approach_item = next(
-                            (app for app in approach_data_list if app.get("close_approach_date") == date_str),
-                            approach_data_list[0]
-                        )
+                    for approach_item in approach_data_list:
+                        app_date = approach_item.get("close_approach_date")
+                        orbiting_body = approach_item.get("orbiting_body")
+                        
+                        miss_distance_km = None
+                        miss_dist_str = approach_item.get("miss_distance", {}).get("kilometers")
+                        if miss_dist_str:
+                            miss_distance_km = float(miss_dist_str)
 
-                        approach_date = approach_item.get("close_approach_date")
+                        relative_velocity_kmh = None
+                        vel_str = approach_item.get("relative_velocity", {}).get("kilometers_per_hour")
+                        if vel_str:
+                            relative_velocity_kmh = float(vel_str)
 
-                        # Distance de raté en kilomètres
-                        miss_distance_data = approach_item.get("miss_distance", {})
-                        miss_distance_km = miss_distance_data.get("kilometers")
-                        if miss_distance_km is not None:
-                            miss_distance_km = float(miss_distance_km)
-
-                        # Vitesse relative en km/h
-                        velocity_data = approach_item.get("relative_velocity", {})
-                        relative_velocity_kmh = velocity_data.get("kilometers_per_hour")
-                        if relative_velocity_kmh is not None:
-                            relative_velocity_kmh = float(relative_velocity_kmh)
+                        close_approaches.append({
+                            "approach_date": app_date,
+                            "orbiting_body": orbiting_body,
+                            "miss_distance_km": miss_distance_km,
+                            "relative_velocity_kmh": relative_velocity_kmh
+                        })
 
                     neo = Neo(
                         nasa_id=str(item.get("id")),
@@ -75,19 +142,17 @@ class NasaClient:
                         diameter_min_m=diam_min,
                         diameter_max_m=diam_max,
                         absolute_magnitude=item.get("absolute_magnitude_h"),
-                        approach_date=approach_date,
-                        miss_distance_km=miss_distance_km,
-                        relative_velocity_kmh=relative_velocity_kmh,
                         is_hazardous=item.get("is_potentially_hazardous_asteroid", False),
                         is_custom=False
                     )
+                    
+                    neo.close_approaches = close_approaches
 
-                    # Évite d'ajouter plusieurs fois le même astéroïde s'il apparaît sur plusieurs jours
                     if not any(n.nasa_id == neo.nasa_id for n in neos):
                         neos.append(neo)
 
             return neos
 
         except requests.exceptions.RequestException as e:
-            print(f"Error fetching NASA NEOs: {e}")
+            print(f"Error fetching weekly feed from {start_date} to {end_date}: {e}")
             return []
