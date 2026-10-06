@@ -32,6 +32,7 @@ CREATE TABLE NEOW.neo (
 CREATE TABLE NEOW.close_approach (
     id_close_approach       SERIAL PRIMARY KEY,
     id_neo                  INT REFERENCES NEOW.neo(id_neo),
+    orbiting_body           VARCHAR(30),
     approach_date           DATE,
     miss_distance_km        FLOAT,
     relative_velocity_kmh   FLOAT);

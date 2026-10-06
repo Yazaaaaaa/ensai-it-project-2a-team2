@@ -5,7 +5,7 @@ class CloseApproach:
         self,
         id_neo: int,
         approach_date: str,
-        orbiting_body: str,
+        orbiting_body: str = None ,
         miss_distance_km: float = None,
         relative_velocity_kmh: float = None,
         id_approach: int = None,

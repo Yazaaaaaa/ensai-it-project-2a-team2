@@ -37,7 +37,7 @@ class NeoDao(metaclass=Singleton):
             approach_date = str(approach_date)
 
         return CloseApproach(
-            id_approach=row.get("id_approach"),
+            id_approach=row.get("id_close_approach"),
             id_neo=row.get("id_neo"),
             approach_date=approach_date,
             orbiting_body=row.get("orbiting_body"),
@@ -59,7 +59,30 @@ class NeoDao(metaclass=Singleton):
 
                     if existing:
                         neo.id_neo = existing["id_neo"]
-                        self.update(neo)
+                        # On fait l'update directement ici avec le même curseur actif
+                        cursor.execute(
+                            """
+                            UPDATE NEOW.neo 
+                            SET name_neo = %(name)s, 
+                                diameter_min_m = %(d_min)s, 
+                                diameter_max_m = %(d_max)s, 
+                                absolute_magnitude = %(mag)s, 
+                                is_hazardous = %(haz)s,
+                                is_custom = %(cust)s,
+                                created_by_user_id = %(user_id)s
+                            WHERE id_neo = %(id)s;
+                            """,
+                            {
+                                "name": neo.name_neo,
+                                "d_min": neo.diameter_min_m,
+                                "d_max": neo.diameter_max_m,
+                                "mag": neo.absolute_magnitude,
+                                "haz": neo.is_hazardous,
+                                "cust": neo.is_custom,
+                                "user_id": neo.created_by_user_id,
+                                "id": neo.id_neo
+                            }
+                        )
                     else:
                         cursor.execute(
                             """
@@ -107,22 +130,6 @@ class NeoDao(metaclass=Singleton):
                     return self._row_to_neo(row)
         except Exception as e:
             logger.error(f"Error finding NEO by id_neo {id_neo}: {e}")
-            raise
-
-    @log
-    def find_close_approaches_by_id_neo(self, id_neo: int) -> list[CloseApproach]:
-        """Retrieves all close approach records associated with a specific NEO ID."""
-        try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT * FROM NEOW.close_approach WHERE id_neo = %(id_neo)s;",
-                        {"id_neo": id_neo}
-                    )
-                    rows = cursor.fetchall()
-                    return [self._row_to_approach(row) for row in rows]
-        except Exception as e:
-            logger.error(f"Error finding close approaches for neo {id_neo}: {e}")
             raise
 
     @log

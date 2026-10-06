@@ -19,7 +19,7 @@ class CloseApproachDao(metaclass=Singleton):
             approach_date = str(approach_date)
 
         return CloseApproach(
-            id_approach=row.get("id_approach"),
+            id_approach=row.get("id_close_approach"),  # Correspond à la colonne SQL id_close_approach
             id_neo=row.get("id_neo"),
             approach_date=approach_date,
             orbiting_body=row.get("orbiting_body"),
@@ -33,7 +33,6 @@ class CloseApproachDao(metaclass=Singleton):
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
-                    # Optionnel : éviter les doublons pour le même astéroïde à la même date
                     cursor.execute(
                         """
                         INSERT INTO NEOW.close_approach (
@@ -43,7 +42,7 @@ class CloseApproachDao(metaclass=Singleton):
                             %(id_neo)s, %(date)s, %(body)s, %(miss_dist)s, %(rel_vel)s
                         )
                         ON CONFLICT DO NOTHING
-                        RETURNING id_approach;
+                        RETURNING id_close_approach;
                         """,
                         {
                             "id_neo": approach.id_neo,
@@ -55,7 +54,7 @@ class CloseApproachDao(metaclass=Singleton):
                     )
                     res = cursor.fetchone()
                     if res:
-                        approach.id_approach = res["id_approach"]
+                        approach.id_approach = res["id_close_approach"]
             return True
         except Exception as e:
             logger.error(f"Error saving close approach for neo {approach.id_neo}: {e}")
@@ -75,4 +74,20 @@ class CloseApproachDao(metaclass=Singleton):
                     return [self._row_to_approach(row) for row in rows]
         except Exception as e:
             logger.error(f"Error finding close approaches for neo {id_neo}: {e}")
+            raise
+
+    @log
+    def find_by_orbit(self, orbiting_body: str) -> list[CloseApproach]:
+        """Retrieves all close approaches filtered by the orbiting body (e.g., 'Earth')."""
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT * FROM NEOW.close_approach WHERE orbiting_body = %(body)s;",
+                        {"body": orbiting_body}
+                    )
+                    rows = cursor.fetchall()
+                    return [self._row_to_approach(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error finding close approaches by orbit {orbiting_body}: {e}")
             raise

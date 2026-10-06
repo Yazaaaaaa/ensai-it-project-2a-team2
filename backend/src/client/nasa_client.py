@@ -1,6 +1,7 @@
 import os
 import requests
 from business_object.neo import Neo
+from business_object.close_approach import CloseApproach
 
 
 class NasaClient:
@@ -60,12 +61,16 @@ class NasaClient:
                     if vel_str:
                         relative_velocity_kmh = float(vel_str)
 
-                    close_approaches.append({
-                        "approach_date": app_date,
-                        "orbiting_body": orbiting_body,
-                        "miss_distance_km": miss_distance_km,
-                        "relative_velocity_kmh": relative_velocity_kmh
-                    })
+                    # Instanciation directe de l'objet CloseApproach (id_neo sera assigné lors de l'insertion)
+                    close_approaches.append(
+                        CloseApproach(
+                            id_neo=None,
+                            approach_date=app_date,
+                            orbiting_body=orbiting_body,
+                            miss_distance_km=miss_distance_km,
+                            relative_velocity_kmh=relative_velocity_kmh
+                        )
+                    )
 
                 # Instanciation correspondant au nouveau Business Object Neo
                 neo = Neo(
@@ -78,7 +83,7 @@ class NasaClient:
                     is_custom=False
                 )
                 
-                # On attache la liste complète des approches à l'objet Neo
+                # On attache la liste complète des objets CloseApproach à l'objet Neo
                 neo.close_approaches = close_approaches
                 neos.append(neo)
 
@@ -129,12 +134,15 @@ class NasaClient:
                         if vel_str:
                             relative_velocity_kmh = float(vel_str)
 
-                        close_approaches.append({
-                            "approach_date": app_date,
-                            "orbiting_body": orbiting_body,
-                            "miss_distance_km": miss_distance_km,
-                            "relative_velocity_kmh": relative_velocity_kmh
-                        })
+                        close_approaches.append(
+                            CloseApproach(
+                                id_neo=None,
+                                approach_date=app_date,
+                                orbiting_body=orbiting_body,
+                                miss_distance_km=miss_distance_km,
+                                relative_velocity_kmh=relative_velocity_kmh
+                            )
+                        )
 
                     neo = Neo(
                         nasa_id=str(item.get("id")),
