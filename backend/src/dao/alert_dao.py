@@ -1,146 +1,155 @@
-from business_object.game import Game
+from business_object.alert import Alert
 from dao.db_connection import DBConnection
-from dao.player_dao import PlayerDao
-from utils.log_utils import get_logger, log
+from utils.log_utils import log
 from utils.singleton import Singleton
 
-logger = get_logger(__name__)
 
-
-class GameDao(metaclass=Singleton):
-    """Class containing methods to access Games in the database."""
+class AlertDao(metaclass=Singleton):
+    """Class containing methods to access alerts in the database."""
 
     @log
-    def create(self, game: Game) -> bool:
+    def create(self, alert: Alert) -> bool:
         """
-        Inserts a new game record.
+        Creates an alert for a user on a NEO.
+
         Args:
-            game (Game): The game object to persist.
+            alert (Alert): The alert to persist (user_id, neo_id, threshold_km, is_active).
+
         Returns:
-            bool: True if insertion is successful, False otherwise.
+            bool: True if the insertion is successful, False otherwise.
         """
         res = None
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO game (id_player1, id_player2, game_mode, id_winner, detail) "
-                        "VALUES (%(id_p1)s, %(id_p2)s, %(mode)s, %(id_w)s, %(detail)s) "
-                        "RETURNING id_game;",
+                        """
+                        INSERT INTO NEOW.alert (id_user, id_neo, threshold_km, is_active)
+                        VALUES (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(is_active)s)
+                        RETURNING id_alert, created_at;
+                        """,
                         {
-                            "id_p1": game.player1.id_player,
-                            "id_p2": game.player2.id_player,
-                            "mode": game.game_mode,
-                            "id_w": game.winner.id_player if game.winner else None,
-                            "detail": game.description,
+                            "id_user": alert.user_id,
+                            "id_neo": alert.neo_id,
+                            "threshold_km": alert.threshold_km,
+                            "is_active": alert.is_active,
                         },
                     )
                     res = cursor.fetchone()
         except Exception as e:
-            logger.error(f"Error creating game: {e}")
+            logger.error(f"Error creating alert {alert}: {e}")
             raise
 
         created = False
         if res:
-            game.id_game = res["id_game"]
+            alert.id = res["id_alert"]
+            alert.created_at = res["created_at"]
             created = True
 
         return created
 
     @log
-    def find_by_id(self, id_game: int) -> Game | None:
+    def get_by_userid(self, user_id: int) -> list[Alert]:
         """
-        Retrieves a specific game and converts the database row into a Game object.
-        Args:
-            id_game (int): The ID of the game to find.
-        Returns:
-            Game: The game object if found, otherwise None.
-        """
-        res = None
+        Retrieves all alerts of a user.
 
+        Args:
+            user_id (int): The id of the user.
+
+        Returns:
+            list[Alert]: The user's alerts (empty list if none).
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        SELECT *
-                          FROM game
-                         WHERE id_game = %(id_game)s;
+                        SELECT id_alert, id_user, id_neo, threshold_km, is_active, created_at
+                        FROM NEOW.alert
+                        WHERE id_user = %(id_user)s
+                        ORDER BY created_at DESC;
                         """,
-                        {"id_game": id_game},
-                    )
-                    res = cursor.fetchone()
-        except Exception as e:
-            logger.error(f"Error finding game {id_game}: {e}")
-            raise
-
-        if not res:
-            return None
-
-        p1 = PlayerDao().find_by_id(res["id_player1"])
-        p2 = PlayerDao().find_by_id(res["id_player2"])
-
-        winner = None
-        if res["id_winner"]:
-            winner = PlayerDao().find_by_id(res["id_winner"])
-
-        return Game(
-            id_game=res["id_game"],
-            player1=p1,
-            player2=p2,
-            game_mode=res["game_mode"],
-            winner=winner,
-            description=res["detail"],
-            timestamp=res["timestamp"],
-        )
-
-    @log
-    def find_all_by_player(self, id_player: int) -> list[Game]:
-        """
-        Returns all games involving a specific player.
-        Args:
-            id_player (int): The ID of the player to search for.
-        Returns:
-            list[Game]: A list of Game objects.
-        """
-        rows = []
-
-        try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        SELECT *
-                          FROM game
-                         WHERE id_player1 = %(id_p)s OR id_player2 = %(id_p)s
-                         ORDER BY timestamp DESC;
-                        """,
-                        {"id_p": id_player},
+                        {"id_user": user_id},
                     )
                     rows = cursor.fetchall()
         except Exception as e:
-            logger.error(f"Error finding games for player {id_player}: {e}")
+            logger.error(f"Error retrieving alerts for user {user_id}: {e}")
             raise
 
-        games = []
-        for row in rows:
-            p1 = PlayerDao().find_by_id(row["id_player1"])
-            p2 = PlayerDao().find_by_id(row["id_player2"])
-
-            winner = None
-            if row["id_winner"]:
-                winner = PlayerDao().find_by_id(row["id_winner"])
-
-            games.append(
-                Game(
-                    id_game=row["id_game"],
-                    player1=p1,
-                    player2=p2,
-                    game_mode=row["game_mode"],
-                    winner=winner,
-                    description=row["detail"],
-                    timestamp=row["timestamp"],
-                )
+        return [
+            Alert(
+                id=row["id_alert"],
+                user_id=row["id_user"],
+                neo_id=row["id_neo"],
+                threshold_km=row["threshold_km"],
+                is_active=row["is_active"],
+                created_at=row["created_at"],
             )
+            for row in rows
+        ]
 
-        return games
+    @log
+    def update(self, alert: Alert) -> bool:
+        """
+        Updates an existing alert (threshold and activation status).
+
+        Args:
+            alert (Alert): The alert to update (its id must be set).
+
+        Returns:
+            bool: True if an alert was updated, False otherwise.
+        """
+        res = None
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE NEOW.alert
+                        SET threshold_km = %(threshold_km)s,
+                            is_active = %(is_active)s
+                        WHERE id_alert = %(id_alert)s
+                        RETURNING id_alert;
+                        """,
+                        {
+                            "threshold_km": alert.threshold_km,
+                            "is_active": alert.is_active,
+                            "id_alert": alert.id,
+                        },
+                    )
+                    res = cursor.fetchone()
+        except Exception as e:
+            logger.error(f"Error updating alert {alert}: {e}")
+            raise
+
+        return res is not None
+
+    @log
+    def delete(self, alert_id: int) -> bool:
+        """
+        Deletes an alert.
+
+        Args:
+            alert_id (int): The id of the alert to delete.
+
+        Returns:
+            bool: True if an alert was deleted, False otherwise.
+        """
+        res = None
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        DELETE FROM NEOW.alert
+                        WHERE id_alert = %(id_alert)s
+                        RETURNING id_alert;
+                        """,
+                        {"id_alert": alert_id},
+                    )
+                    res = cursor.fetchone()
+        except Exception as e:
+            logger.error(f"Error deleting alert {alert_id}: {e}")
+            raise
+
+        return res is not None
