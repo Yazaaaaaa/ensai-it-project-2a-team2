@@ -1,0 +1,107 @@
+import logging
+
+from utils.log_decorator import log
+
+from business_object.user import User
+from dao.db_connection import DBConnection
+from utils.singleton import Singleton
+
+
+class UserDao(metaclass=Singleton):
+    """Accès aux données de la table neow.users"""
+
+    @log
+    def create(self, user: User) -> bool:
+        """Insère un utilisateur et renseigne son id et sa date de création."""
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "INSERT INTO neow.users (email, password_hash, role) "
+                        "VALUES (%(email)s, %(password_hash)s, %(role)s) "
+                        "RETURNING id, created_at;",
+                        {
+                            "email": user.email,
+                            "password_hash": user.password_hash,
+                            "role": user.role,
+                        },
+                    )
+                    res = cursor.fetchone()
+        except Exception as e:
+            logging.info(e)
+            return False
+
+        if res:
+            user.id = res["id"]
+            user.created_at = res["created_at"]
+            return True
+        return False
+
+    @log
+    def find_by_id(self, id: int) -> User | None:
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT * FROM neow.users WHERE id = %(id)s;",
+                    {"id": id},
+                )
+                res = cursor.fetchone()
+        return self._to_user(res)
+
+    @log
+    def find_by_email(self, email: str) -> User | None:
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT * FROM neow.users WHERE email = %(email)s;",
+                    {"email": email},
+                )
+                res = cursor.fetchone()
+        return self._to_user(res)
+
+    @log
+    def find_all(self) -> list[User]:
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM neow.users ORDER BY id;")
+                res = cursor.fetchall()
+        return [self._to_user(row) for row in res]
+
+    @log
+    def update(self, user: User) -> bool:
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE neow.users "
+                    "SET email = %(email)s, password_hash = %(password_hash)s, role = %(role)s "
+                    "WHERE id = %(id)s;",
+                    {
+                        "id": user.id,
+                        "email": user.email,
+                        "password_hash": user.password_hash,
+                        "role": user.role,
+                    },
+                )
+                return cursor.rowcount == 1
+
+    @log
+    def delete(self, user: User) -> bool:
+        with DBConnection().connection as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "DELETE FROM neow.users WHERE id = %(id)s;",
+                    {"id": user.id},
+                )
+                return cursor.rowcount > 0
+
+    @staticmethod
+    def _to_user(row: dict | None) -> User | None:
+        if row is None:
+            return None
+        return User(
+            id=row["id"],
+            email=row["email"],
+            password_hash=row["password_hash"],
+            role=row["role"],
+            created_at=row["created_at"],
+        )
