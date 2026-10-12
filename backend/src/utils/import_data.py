@@ -19,7 +19,7 @@ def sync_all_database():
     approach_dao = CloseApproachDao()
 
     size = 20  # Nombre d'éléments par page
-    total_pages = 3129  # D'après vos chiffres
+    total_pages = 3135  # D'après vos chiffres
     
     total_inserted = 0
     total_approaches = 0
