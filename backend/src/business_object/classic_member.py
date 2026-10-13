@@ -1,11 +1,12 @@
 from business_object.user import User
+from datetime import datetime
 
 
 class ClassicMember(User):
     """Business object representing a user with an classic member role (a user with no admin role)"""
 
-    def __init__(self, id: int, email: str, password_hash: str, role: str, created_at: datetime):
-        super().__init__(id)
+    def __init__(self, id_user: int, email: str, password_hash: str, role: str, created_at: datetime):
+        super().__init__(id_user)
         super().__init__(email)
         super().__init__(password_hash)
         super().__init__(role)
