@@ -42,3 +42,39 @@ def test_create_ko():
     # WHEN / THEN
     with pytest.raises(psycopg2.Error):
         LoginHistoryDao().create(login)
+
+def test_find_by_id_user_existing():
+    """Find connections by an existing user id"""
+
+    # GIVEN
+    id_user = 998
+
+    # WHEN
+    connections = LoginHistoryDao().find_by_id_user(id_user)
+
+    # THEN
+    assert connections is not None
+
+
+def test_find_by_id_user_non_existing():
+    """Find connections by a non-existing user id"""
+
+    # GIVEN
+    id_user = 9999999999999
+
+    # WHEN
+    connections = LoginHistoryDao().find_by_id_user(id_user)
+
+    # THEN
+    assert connections is None
+
+def test_find_all():
+    """Verify the method returns a list of Connections objects"""
+
+    # WHEN
+    connections = LoginHistoryDao().find_all()
+
+    # THEN
+    assert isinstance(connections, list)
+    for c in connections:
+        assert isinstance(c, Connection)
