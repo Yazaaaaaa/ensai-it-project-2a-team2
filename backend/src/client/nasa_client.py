@@ -156,7 +156,10 @@ class NasaClient:
                     
                     neo.close_approaches = close_approaches
 
-                    if not any(n.nasa_id == neo.nasa_id for n in neos):
+                    existing = next((n for n in neos if n.nasa_id == neo.nasa_id), None)
+                    if existing:
+                        existing.close_approaches.extend(close_approaches)
+                    else:
                         neos.append(neo)
 
             return neos

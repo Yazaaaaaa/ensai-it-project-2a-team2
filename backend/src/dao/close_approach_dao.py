@@ -29,10 +29,30 @@ class CloseApproachDao(metaclass=Singleton):
 
     @log
     def create(self, approach: CloseApproach) -> bool:
-        """Inserts a new close approach record into the database."""
+        """Inserts a new close approach record if it doesn't already exist."""
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT id_close_approach
+                        FROM NEOW.close_approach
+                        WHERE id_neo = %(id_neo)s
+                        AND orbiting_body = %(body)s
+                        AND approach_date = %(date)s;
+                        """,
+                        {
+                            "id_neo": approach.id_neo,
+                            "body": approach.orbiting_body,
+                            "date": approach.approach_date
+                        }
+                    )
+                    existing = cursor.fetchone()
+
+                    if existing:
+                        approach.id_approach = existing["id_close_approach"]
+                        return False  # déjà présent, rien n'est inséré
+
                     cursor.execute(
                         """
                         INSERT INTO NEOW.close_approach (
@@ -41,7 +61,6 @@ class CloseApproachDao(metaclass=Singleton):
                         VALUES (
                             %(id_neo)s, %(date)s, %(body)s, %(miss_dist)s, %(rel_vel)s
                         )
-                        ON CONFLICT DO NOTHING
                         RETURNING id_close_approach;
                         """,
                         {
