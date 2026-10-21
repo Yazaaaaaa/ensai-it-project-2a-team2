@@ -28,7 +28,7 @@ def test_get_found():
     NeoDao().find_by_id_neo = MagicMock(return_value=neos[0])
 
     # WHEN
-    res = NeoService().get(1)
+    res = NeoService().get_by_id_neo(1)
 
     # THEN
     assert res.name_neo == "Eros"
@@ -40,7 +40,33 @@ def test_get_not_found():
     NeoDao().find_by_id_neo = MagicMock(return_value=None)
 
     # WHEN
-    res = NeoService().get(999)
+    res = NeoService().get_by_id_neo(999)
+
+    # THEN
+    assert res is None
+
+
+# ---------------------------------------------------------------- get_by_nasa_id
+def test_get_by_nasa_id_found():
+
+    # GIVEN
+    NeoDao().find_by_id_nasa = MagicMock(return_value=neos[0])
+
+    # WHEN
+    res = NeoService().get_by_nasa_id("2000433")
+
+    # THEN
+    assert res.name_neo == "Eros"
+    NeoDao().find_by_id_nasa.assert_called_once_with("2000433")
+
+
+def test_get_by_nasa_id_not_found():
+
+    # GIVEN
+    NeoDao().find_by_id_nasa = MagicMock(return_value=None)
+
+    # WHEN
+    res = NeoService().get_by_nasa_id("UNKNOWN")
 
     # THEN
     assert res is None
@@ -142,6 +168,70 @@ def test_search_neos_by_user():
     # THEN
     assert len(res) == 1
     assert res[0].created_by_user_id == 7
+
+
+def test_search_neos_by_nasa_id():
+
+    # GIVEN
+    NeoDao().find_by_id_nasa = MagicMock(return_value=neos[1])
+
+    # WHEN
+    res = NeoService().search_neos({"nasa_id": "2099942"})
+
+    # THEN
+    assert [n.name_neo for n in res] == ["Apophis"]
+
+
+def test_search_neos_by_nasa_id_not_found():
+
+    # GIVEN
+    NeoDao().find_by_id_nasa = MagicMock(return_value=None)
+
+    # WHEN
+    res = NeoService().search_neos({"nasa_id": "UNKNOWN"})
+
+    # THEN
+    assert res == []
+
+
+def test_search_neos_nasa_id_has_priority_over_other_sql_sources():
+
+    # GIVEN
+    NeoDao().find_by_id_nasa = MagicMock(return_value=neos[1])
+    NeoDao().find_all = MagicMock(return_value=neos)
+    NeoDao().find_by_hazardous = MagicMock(return_value=[neos[1], neos[2]])
+
+    # WHEN
+    res = NeoService().search_neos({"nasa_id": "2099942", "is_hazardous": True})
+
+    # THEN : only the nasa_id query is used
+    assert [n.name_neo for n in res] == ["Apophis"]
+    NeoDao().find_all.assert_not_called()
+    NeoDao().find_by_hazardous.assert_not_called()
+
+
+def test_search_neos_nasa_id_and_other_user_id():
+
+    # GIVEN : Apophis has no creator, so it must be excluded by the user_id filter
+    NeoDao().find_by_id_nasa = MagicMock(return_value=neos[1])
+
+    # WHEN
+    res = NeoService().search_neos({"nasa_id": "2099942", "user_id": 7})
+
+    # THEN
+    assert res == []
+
+
+def test_search_neos_nasa_id_and_matching_user_id():
+
+    # GIVEN
+    NeoDao().find_by_id_nasa = MagicMock(return_value=neos[3])
+
+    # WHEN
+    res = NeoService().search_neos({"nasa_id": "CUSTOM-1", "user_id": 7})
+
+    # THEN
+    assert [n.name_neo for n in res] == ["Custom"]
 
 
 def test_search_neos_by_name():

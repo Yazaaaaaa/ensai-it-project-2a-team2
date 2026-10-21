@@ -33,7 +33,7 @@ class NeoService:
     """Service that manages NEOs."""
 
     @log
-    def get(self, id_neo: int) -> Neo | None:
+    def get_by_id_neo(self, id_neo: int) -> Neo | None:
         """Find a specific NEO by its id.
         Args:
             id_neo (int): The unique identifier of the NEO.
@@ -41,6 +41,16 @@ class NeoService:
             Neo object if found, otherwise None.
         """
         return NeoDao().find_by_id_neo(id_neo)
+
+    @log
+    def get_by_nasa_id(self, nasa_id: str) -> Neo | None:
+        """Find a specific NEO by its NASA identifier.
+        Args:
+            nasa_id (str): The NASA identifier of the NEO.
+        Returns:
+            Neo object if found, otherwise None.
+        """
+        return NeoDao().find_by_id_nasa(nasa_id)
 
     @log
     def create(self, neo: Neo) -> Neo:
@@ -78,6 +88,7 @@ class NeoService:
         """Searches NEOs from a criteria dictionary.
         Args:
             criteria (dict, optional): Supported keys, all optional:
+                nasa_id (str): exact NASA identifier of the NEO.
                 name (str): case-insensitive substring of the NEO name.
                 is_hazardous (bool): hazardous status.
                 user_id (int): custom NEOs created by this user.
@@ -91,12 +102,18 @@ class NeoService:
         dao = NeoDao()
 
         # Coarse filtering in SQL, the rest in Python
-        if criteria.get("user_id") is not None:
+        if criteria.get("nasa_id") is not None:
+            neo = dao.find_by_id_nasa(criteria["nasa_id"])
+            neos = [neo] if neo is not None else []
+        elif criteria.get("user_id") is not None:
             neos = dao.find_all_by_id_user(criteria["user_id"])
         elif criteria.get("is_hazardous") is not None:
             neos = dao.find_by_hazardous(criteria["is_hazardous"])
         else:
             neos = dao.find_all()
+
+        if criteria.get("user_id") is not None:
+            neos = [n for n in neos if n.created_by_user_id == criteria["user_id"]]
 
         if criteria.get("is_hazardous") is not None:
             neos = [n for n in neos if n.is_hazardous == criteria["is_hazardous"]]
