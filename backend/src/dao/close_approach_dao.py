@@ -99,14 +99,14 @@ class CloseApproachDao(metaclass=Singleton):
     def find_by_orbit(self, orbiting_body: str) -> list[CloseApproach]:
         """Retrieves all close approaches filtered by the orbiting body (e.g., 'Earth')."""
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT * FROM NEOW.close_approach WHERE orbiting_body = %(body)s;",
-                        {"body": orbiting_body}
-                    )
-                    rows = cursor.fetchall()
-                    return [self._row_to_approach(row) for row in rows]
+            connection = DBConnection().connection
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT * FROM NEOW.close_approach WHERE orbiting_body = %(body)s;",
+                    {"body": orbiting_body}
+                )
+                rows = cursor.fetchall()
+                return [self._row_to_approach(row) for row in rows]
         except Exception as e:
             logger.error(f"Error finding close approaches by orbit {orbiting_body}: {e}")
             raise

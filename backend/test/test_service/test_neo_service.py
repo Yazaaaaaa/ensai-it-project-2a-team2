@@ -5,7 +5,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi import HTTPException
 
+from business_object.close_approach import CloseApproach
 from business_object.neo import Neo
+from dao.close_approach_dao import CloseApproachDao
 from dao.neo_dao import NeoDao
 from service.neo_service import NeoService
 
@@ -18,6 +20,13 @@ neos = [
         absolute_magnitude=21.0, is_hazardous=True, is_custom=False, created_by_user_id=None),
     Neo(id_neo=4, nasa_id="CUSTOM-1", name_neo="Custom", diameter_min_m=None, diameter_max_m=None,
         absolute_magnitude=None, is_hazardous=False, is_custom=True, created_by_user_id=7),
+]
+
+approaches = [
+    CloseApproach(id_approach=101, id_neo=1, approach_date="2026-10-15", orbiting_body="Earth",
+                  miss_distance_km=1500000.0, relative_velocity_kmh=50000.0),
+    CloseApproach(id_approach=102, id_neo=1, approach_date="2027-01-20", orbiting_body="Mars",
+                  miss_distance_km=3000000.0, relative_velocity_kmh=42000.0),
 ]
 
 
@@ -340,19 +349,64 @@ def test_export_unsupported_format(tmp_path):
     assert exc.value.status_code == 400
 
 
+# ---------------------------------------------------------------- close approaches
+def test_get_close_approaches_found():
+
+    # GIVEN
+    NeoDao().find_by_id_neo = MagicMock(return_value=neos[0])
+    CloseApproachDao().find_by_id_neo = MagicMock(return_value=approaches)
+
+    # WHEN
+    res = NeoService().get_close_approaches(1)
+
+    # THEN
+    assert len(res) == 2
+    assert res[0].orbiting_body == "Earth"
+    CloseApproachDao().find_by_id_neo.assert_called_once_with(1)
+
+
+def test_get_close_approaches_neo_not_found():
+
+    # GIVEN
+    NeoDao().find_by_id_neo = MagicMock(return_value=None)
+    CloseApproachDao().find_by_id_neo = MagicMock()
+
+    # WHEN / THEN
+    with pytest.raises(HTTPException) as exc:
+        NeoService().get_close_approaches(999)
+
+    assert exc.value.status_code == 404
+    CloseApproachDao().find_by_id_neo.assert_not_called()
+
+
+def test_get_close_approaches_by_orbit():
+
+    # GIVEN
+    CloseApproachDao().find_by_orbit = MagicMock(return_value=[approaches[0]])
+
+    # WHEN
+    res = NeoService().get_close_approaches_by_orbit("Earth")
+
+    # THEN
+    assert len(res) == 1
+    assert res[0].orbiting_body == "Earth"
+    CloseApproachDao().find_by_orbit.assert_called_once_with("Earth")
+
+
 # ---------------------------------------------------------------- synchronisation
 def test_sync_nasa_data_ok():
 
     # GIVEN
     neo = MagicMock()
-    neo.close_approaches = [MagicMock(), MagicMock()]
+    app1 = MagicMock(id_approach=101)
+    app2 = MagicMock(id_approach=102)
+    neo.close_approaches = [app1, app2]
 
     with patch("service.neo_service.NasaClient") as nasa, \
             patch("service.neo_service.NeoDao") as neo_dao, \
             patch("service.neo_service.CloseApproachDao") as approach_dao:
         nasa.return_value.get_weekly_feed.return_value = [neo]
         neo_dao.return_value.create.return_value = True
-        approach_dao.return_value.create.return_value = True
 
         # WHEN
         res = NeoService().sync_nasa_data("2026-10-01", "2026-10-07")

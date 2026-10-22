@@ -3,10 +3,11 @@ import json
 
 from fastapi import HTTPException
 
+from business_object.close_approach import CloseApproach
 from business_object.neo import Neo
 from client.nasa_client import NasaClient
-from dao.neo_dao import NeoDao
 from dao.close_approach_dao import CloseApproachDao
+from dao.neo_dao import NeoDao
 from utils.log_utils import get_logger, log
 
 logger = get_logger(__name__)
@@ -30,38 +31,21 @@ EXPORT_FIELDS = [
 
 
 class NeoService:
-    """Service that manages NEOs."""
+    """Service that manages NEOs and their close approaches."""
 
     @log
     def get_by_id_neo(self, id_neo: int) -> Neo | None:
-        """Find a specific NEO by its id.
-        Args:
-            id_neo (int): The unique identifier of the NEO.
-        Returns:
-            Neo object if found, otherwise None.
-        """
+        """Find a specific NEO by its id."""
         return NeoDao().find_by_id_neo(id_neo)
 
     @log
     def get_by_nasa_id(self, nasa_id: str) -> Neo | None:
-        """Find a specific NEO by its NASA identifier.
-        Args:
-            nasa_id (str): The NASA identifier of the NEO.
-        Returns:
-            Neo object if found, otherwise None.
-        """
+        """Find a specific NEO by its NASA identifier."""
         return NeoDao().find_by_id_nasa(nasa_id)
 
     @log
     def create(self, neo: Neo) -> Neo:
-        """Creates a NEO (or updates it if its nasa_id already exists).
-        Args:
-            neo (Neo): The NEO to save.
-        Returns:
-            Neo: The saved NEO, with its id_neo filled in.
-        Raises:
-            HTTPException: 400 if the NEO has no name.
-        """
+        """Creates a NEO (or updates it if its nasa_id already exists)."""
         if not neo.name_neo:
             raise HTTPException(status_code=400, detail="A NEO must have a name")
 
@@ -70,14 +54,7 @@ class NeoService:
 
     @log
     def remove(self, id_neo: int) -> bool:
-        """Removes a NEO by its id.
-        Args:
-            id_neo (int): The unique identifier of the NEO.
-        Returns:
-            bool: True if the NEO was deleted.
-        Raises:
-            HTTPException: 404 if the NEO does not exist.
-        """
+        """Removes a NEO by its id."""
         if NeoDao().find_by_id_neo(id_neo) is None:
             raise HTTPException(status_code=404, detail="NEO not found")
 
@@ -85,23 +62,11 @@ class NeoService:
 
     @log
     def search_neos(self, criteria: dict | None = None) -> list[Neo]:
-        """Searches NEOs from a criteria dictionary.
-        Args:
-            criteria (dict, optional): Supported keys, all optional:
-                nasa_id (str): exact NASA identifier of the NEO.
-                name (str): case-insensitive substring of the NEO name.
-                is_hazardous (bool): hazardous status.
-                user_id (int): custom NEOs created by this user.
-                min_diameter_m (float): lower bound on the mean diameter.
-                max_diameter_m (float): upper bound on the mean diameter.
-                max_magnitude (float): upper bound on the absolute magnitude.
-        Returns:
-            list[Neo] containing all NEOs matching the criteria.
-        """
+        """Searches NEOs from a criteria dictionary."""
         criteria = criteria or {}
         dao = NeoDao()
 
-        # Coarse filtering in SQL, the rest in Python
+        # Coarse filtering in SQL
         if criteria.get("nasa_id") is not None:
             neo = dao.find_by_id_nasa(criteria["nasa_id"])
             neos = [neo] if neo is not None else []
@@ -112,12 +77,7 @@ class NeoService:
         else:
             neos = dao.find_all()
 
-        if criteria.get("user_id") is not None:
-            neos = [n for n in neos if n.created_by_user_id == criteria["user_id"]]
-
-        if criteria.get("is_hazardous") is not None:
-            neos = [n for n in neos if n.is_hazardous == criteria["is_hazardous"]]
-
+        # Refined filtering in Python
         if criteria.get("name"):
             needle = criteria["name"].lower()
             neos = [n for n in neos if needle in (n.name_neo or "").lower()]
@@ -127,6 +87,7 @@ class NeoService:
             neos = [n for n in neos
                     if mean_diameter(n) is not None
                     and mean_diameter(n) >= criteria["min_diameter_m"]]
+
         if criteria.get("max_diameter_m") is not None:
             neos = [n for n in neos
                     if mean_diameter(n) is not None
@@ -141,16 +102,7 @@ class NeoService:
 
     @log
     def sorting_neo_by(self, neos: list[Neo], criteria: str, descending: bool = False) -> list[Neo]:
-        """Sorts a list of NEOs. NEOs with a missing value are placed last.
-        Args:
-            neos (list[Neo]): The NEOs to sort.
-            criteria (str): 'name', 'diameter', 'magnitude' or 'hazardous'.
-            descending (bool, optional): Sort in descending order. Defaults to False.
-        Returns:
-            list[Neo]: The sorted NEOs.
-        Raises:
-            HTTPException: 400 if the sort criteria is unknown.
-        """
+        """Sorts a list of NEOs. NEOs with a missing value are placed last."""
         if criteria not in SORT_KEYS:
             raise HTTPException(
                 status_code=400,
@@ -164,16 +116,7 @@ class NeoService:
 
     @log
     def export(self, neos: list[Neo], path: str, file_format: str = "csv") -> str:
-        """Exports a list of NEOs to a CSV or JSON file.
-        Args:
-            neos (list[Neo]): The NEOs to export.
-            path (str): Destination file path.
-            file_format (str, optional): 'csv' or 'json'. Defaults to 'csv'.
-        Returns:
-            str: The path of the written file.
-        Raises:
-            HTTPException: 400 if the format is not supported.
-        """
+        """Exports a list of NEOs to a CSV or JSON file."""
         if file_format not in ("csv", "json"):
             raise HTTPException(status_code=400, detail="Unsupported format, use 'csv' or 'json'")
 
@@ -190,31 +133,34 @@ class NeoService:
 
         return path
 
+    # ------------------------------------------------------------ close approaches
+    @log
+    def get_close_approaches(self, id_neo: int) -> list[CloseApproach]:
+        """Retrieves all close approaches of a NEO."""
+        if NeoDao().find_by_id_neo(id_neo) is None:
+            raise HTTPException(status_code=404, detail="NEO not found")
+
+        return CloseApproachDao().find_by_id_neo(id_neo)
+
+    @log
+    def get_close_approaches_by_orbit(self, orbiting_body: str) -> list[CloseApproach]:
+        """Retrieves all close approaches around a given body (e.g. 'Earth')."""
+        return CloseApproachDao().find_by_orbit(orbiting_body)
+
+    # ------------------------------------------------------------ NASA synchronisation
     @log
     def sync_nasa_data(self, start_date: str, end_date: str) -> dict:
-        """Synchronizes the NEOs of a date window via the /feed endpoint.
-        Args:
-            start_date (str): Start of the window (YYYY-MM-DD).
-            end_date (str): End of the window (YYYY-MM-DD), 7 days max after start_date.
-        Returns:
-            dict: Summary with the number of synchronized NEOs, approaches and errors.
-        """
+        """Synchronizes the NEOs of a date window via the /feed endpoint."""
         neos = NasaClient().get_weekly_feed(start_date, end_date)
         return self._save_neos(neos)
 
     @log
     def sync_page(self, page: int, size: int = 20) -> dict:
-        """Synchronizes one page of the full NASA catalog via the /browse endpoint.
-        Args:
-            page (int): The page number to fetch.
-            size (int, optional): Number of NEOs per page. Defaults to 20.
-        Returns:
-            dict: Summary with the number of synchronized NEOs, approaches and errors.
-        """
+        """Synchronizes one page of the full NASA catalog via the /browse endpoint."""
         neos = NasaClient().get_neos_page(page=page, size=size)
         return self._save_neos(neos)
 
-    def _save_neos(self, neos: list) -> dict:
+    def _save_neos(self, neos: list[Neo]) -> dict:
         """Saves NEOs and their close approaches, and returns a summary."""
         neo_dao = NeoDao()
         approach_dao = CloseApproachDao()
@@ -230,7 +176,9 @@ class NeoService:
 
                 for approach in neo.close_approaches:
                     approach.id_neo = neo.id_neo
-                    if approach_dao.create(approach):
+                    approach_dao.create(approach)
+                    # On vérifie si un ID a bien été assigné (nouvel insert)
+                    if approach.id_approach is not None:
                         approach_count += 1
 
             except Exception as e:
