@@ -11,10 +11,7 @@ class ConnectionHistoryService:
     @log
     def create(self, id_user: int) -> Connection:
         """Creates a new connection"""
-        new_connection = Connection(
-            id_user=id_user,
-            timestamp=datetime.now()
-        )
+        new_connection = Connection(id_user=id_user)
         return new_connection if LoginHistoryDao().create(new_connection) else None
 
     @log

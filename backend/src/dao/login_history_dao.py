@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 class LoginHistoryDao(metaclass=Singleton):
     """Class containing methods to access the login history of users by the login_history table"""
     @log
-    def create(self, login: Connection) -> bool:
+    def create(self, connection: Connection) -> bool:
         """
         Inserts a new connection record.
         When a user log in the app, a new connection record is create to monitor date
@@ -24,14 +24,14 @@ class LoginHistoryDao(metaclass=Singleton):
         """
         res = None
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
+            with DBConnection().connection as conn:
+                with conn.cursor() as cursor:
                     cursor.execute(
                         "INSERT INTO NEOW.login_history(id_user) "
                         "VALUES (%(id_user)s) "
                         "RETURNING id_login, login_at;",
                         {
-                            "id_user": login.id_user,
+                            "id_user": connection.id_user,
                         },
                     )
                     res = cursor.fetchone()
@@ -41,8 +41,8 @@ class LoginHistoryDao(metaclass=Singleton):
 
         created = False
         if res:
-            login.id_login = res["id_login"]
-            login.timestamp = res["login_at"]
+            connection.id_login = res["id_login"]
+            connection.login_at = res["login_at"]
             created = True
 
         return created
@@ -59,14 +59,14 @@ class LoginHistoryDao(metaclass=Singleton):
         rows = []
 
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
+            with DBConnection().connection as conn:
+                with conn.cursor() as cursor:
                     cursor.execute(
                         """
                         SELECT *
                         FROM NEOW.login_history
                         WHERE id_user = %(id_user)s
-                        ORDER BY timestamp DESC;
+                        ORDER BY login_at DESC;
                         """,
                         {"id_user": id_user},
                     )
@@ -84,8 +84,8 @@ class LoginHistoryDao(metaclass=Singleton):
             connections.append(
                 Connection(
                     id_login=row["id_login"],
-                    id_user=row[id_user],
-                    timestamp=row["timestamp"],
+                    id_user=row["id_user"],
+                    login_at=row["login_at"],
                 )
             )
 
@@ -100,8 +100,8 @@ class LoginHistoryDao(metaclass=Singleton):
         """
         rows = []
         try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
+            with DBConnection().connection as conn:
+                with conn.cursor() as cursor:
                     cursor.execute(
                         """
                         SELECT *
@@ -124,7 +124,7 @@ class LoginHistoryDao(metaclass=Singleton):
                 Connection(
                     id_login=row["id_login"],
                     id_user=row["id_user"],
-                    timestamp=row["timestamp"],
+                    login_at=row["login_at"],
                 )
             )
 

@@ -42,7 +42,6 @@ CREATE TABLE NEOW.login_history (
     id_login    SERIAL PRIMARY KEY,
     id_user     INT REFERENCES NEOW.users(id_user),
     login_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ip_address  VARCHAR(20)
 );
 
 CREATE TABLE NEOW.alert (

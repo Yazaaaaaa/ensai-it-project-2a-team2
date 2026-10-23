@@ -1,8 +1,34 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
-from schema.player_model import PlayerModel, PlayerReadModel
+from schema.user_model import ConnectionReadModel
 from service.connection_history_service import ConnectionHistoryService
 from utils.log_utils import get_logger
+
+router = APIRouter(prefix="/connections", tags=["Connections"])
+logger = get_logger(__name__)
+
+@router.post(
+    "/",
+    response_model=ConnectionReadModel,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new connection",
+    tags=["Connections"])
+async def create_connection(
+    id_user: int,
+    connection_service: ConnectionHistoryService = Depends(get_connection_service)
+) -> ConnectionReadModel:
+    """
+    Crée une nouvelle entrée dans l'historique des connexions.
+    **À appeler depuis le controller de login après une authentification réussie.**
+    """
+    logger.info(f"Création d'une nouvelle connexion pour l'utilisateur {id_user}")
+    connection = connection_service.create(id_user)
+    if not connection:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Échec de la création de la connexion."
+        )
+    return ConnectionReadModel.from_orm(connection)  # Supposons que ConnectionReadModel a un from_orm
 
 
 def get_connection_service():
