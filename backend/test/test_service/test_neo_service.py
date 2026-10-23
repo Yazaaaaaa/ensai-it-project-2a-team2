@@ -27,6 +27,8 @@ approaches = [
                   miss_distance_km=1500000.0, relative_velocity_kmh=50000.0),
     CloseApproach(id_approach=102, id_neo=1, approach_date="2027-01-20", orbiting_body="Mars",
                   miss_distance_km=3000000.0, relative_velocity_kmh=42000.0),
+    CloseApproach(id_approach=103, id_neo=2, approach_date="2026-10-15", orbiting_body="Earth",
+                  miss_distance_km=2000000.0, relative_velocity_kmh=60000.0),
 ]
 
 
@@ -280,6 +282,34 @@ def test_search_neos_max_magnitude():
     assert [n.name_neo for n in res] == ["Eros", "Apophis"]
 
 
+def test_search_neos_by_orbiting_body():
+
+    # GIVEN
+    NeoDao().find_all = MagicMock(return_value=neos)
+    CloseApproachDao().find_by_orbit = MagicMock(return_value=[approaches[0], approaches[2]])
+
+    # WHEN
+    res = NeoService().search_neos({"orbiting_body": "Earth"})
+
+    # THEN : Eros (id 1) and Apophis (id 2)
+    assert [n.name_neo for n in res] == ["Eros", "Apophis"]
+    CloseApproachDao().find_by_orbit.assert_called_once_with("Earth")
+
+
+def test_search_neos_by_approach_date():
+
+    # GIVEN
+    NeoDao().find_all = MagicMock(return_value=neos)
+    CloseApproachDao().find_by_approach_date = MagicMock(return_value=[approaches[0], approaches[2]])
+
+    # WHEN
+    res = NeoService().search_neos({"approach_date": "2026-10-15"})
+
+    # THEN : Eros (id 1) and Apophis (id 2)
+    assert [n.name_neo for n in res] == ["Eros", "Apophis"]
+    CloseApproachDao().find_by_approach_date.assert_called_once_with("2026-10-15")
+
+
 # ---------------------------------------------------------------- sorting_neo_by
 def test_sorting_neo_by_name():
 
@@ -354,7 +384,7 @@ def test_get_close_approaches_found():
 
     # GIVEN
     NeoDao().find_by_id_neo = MagicMock(return_value=neos[0])
-    CloseApproachDao().find_by_id_neo = MagicMock(return_value=approaches)
+    CloseApproachDao().find_by_id_neo = MagicMock(return_value=approaches[:2])
 
     # WHEN
     res = NeoService().get_close_approaches(1)
@@ -377,20 +407,6 @@ def test_get_close_approaches_neo_not_found():
 
     assert exc.value.status_code == 404
     CloseApproachDao().find_by_id_neo.assert_not_called()
-
-
-def test_get_close_approaches_by_orbit():
-
-    # GIVEN
-    CloseApproachDao().find_by_orbit = MagicMock(return_value=[approaches[0]])
-
-    # WHEN
-    res = NeoService().get_close_approaches_by_orbit("Earth")
-
-    # THEN
-    assert len(res) == 1
-    assert res[0].orbiting_body == "Earth"
-    CloseApproachDao().find_by_orbit.assert_called_once_with("Earth")
 
 
 # ---------------------------------------------------------------- synchronisation

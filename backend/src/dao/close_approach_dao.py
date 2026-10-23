@@ -19,7 +19,7 @@ class CloseApproachDao(metaclass=Singleton):
             approach_date = str(approach_date)
 
         return CloseApproach(
-            id_approach=row.get("id_close_approach"),  # Correspond à la colonne SQL id_close_approach
+            id_approach=row.get("id_close_approach"),
             id_neo=row.get("id_neo"),
             approach_date=approach_date,
             orbiting_body=row.get("orbiting_body"),
@@ -51,7 +51,7 @@ class CloseApproachDao(metaclass=Singleton):
 
                     if existing:
                         approach.id_approach = existing["id_close_approach"]
-                        return False  # déjà présent, rien n'est inséré
+                        return False
 
                     cursor.execute(
                         """
@@ -109,4 +109,23 @@ class CloseApproachDao(metaclass=Singleton):
                 return [self._row_to_approach(row) for row in rows]
         except Exception as e:
             logger.error(f"Error finding close approaches by orbit {orbiting_body}: {e}")
+            raise
+
+    @log
+    def find_by_approach_date(self, approach_date: str) -> list[CloseApproach]:
+        """Retrieves all close approaches matching a given approach date (YYYY-MM-DD)."""
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT * FROM NEOW.close_approach 
+                        WHERE approach_date = %(date)s::date;
+                        """,
+                        {"date": approach_date}
+                    )
+                    rows = cursor.fetchall()
+                    return [self._row_to_approach(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error finding close approaches by date {approach_date}: {e}")
             raise

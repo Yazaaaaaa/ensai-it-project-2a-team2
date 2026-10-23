@@ -62,11 +62,27 @@ class NeoService:
 
     @log
     def search_neos(self, criteria: dict | None = None) -> list[Neo]:
-        """Searches NEOs from a criteria dictionary."""
+        """Searches NEOs from a criteria dictionary. All criteria are combined (AND).
+        Args:
+            criteria (dict, optional): Supported keys, all optional:
+                nasa_id (str): exact NASA identifier of the NEO.
+                name (str): case-insensitive substring of the NEO name.
+                is_hazardous (bool): hazardous status.
+                user_id (int): custom NEOs created by this user.
+                orbiting_body (str): NEOs with a close approach around this body
+                    (e.g. 'Earth'), case-sensitive.
+                approach_date (str): NEOs with a close approach on or matching this date
+                    (e.g. '2026-10-23').
+                min_diameter_m (float): lower bound on the mean diameter.
+                max_diameter_m (float): upper bound on the mean diameter.
+                max_magnitude (float): upper bound on the absolute magnitude.
+        Returns:
+            list[Neo] containing all NEOs matching the criteria.
+        """
         criteria = criteria or {}
         dao = NeoDao()
 
-        # Coarse filtering in SQL
+        # Coarse filtering in SQL: only one source is used, the others are applied below
         if criteria.get("nasa_id") is not None:
             neo = dao.find_by_id_nasa(criteria["nasa_id"])
             neos = [neo] if neo is not None else []
@@ -78,6 +94,22 @@ class NeoService:
             neos = dao.find_all()
 
         # Refined filtering in Python
+        if criteria.get("user_id") is not None:
+            neos = [n for n in neos if n.created_by_user_id == criteria["user_id"]]
+
+        if criteria.get("is_hazardous") is not None:
+            neos = [n for n in neos if n.is_hazardous == criteria["is_hazardous"]]
+
+        if criteria.get("orbiting_body"):
+            approaches = CloseApproachDao().find_by_orbit(criteria["orbiting_body"])
+            ids_with_approach = {a.id_neo for a in approaches}
+            neos = [n for n in neos if n.id_neo in ids_with_approach]
+
+        if criteria.get("approach_date"):
+            approaches = CloseApproachDao().find_by_approach_date(criteria["approach_date"])
+            ids_with_approach = {a.id_neo for a in approaches}
+            neos = [n for n in neos if n.id_neo in ids_with_approach]
+
         if criteria.get("name"):
             needle = criteria["name"].lower()
             neos = [n for n in neos if needle in (n.name_neo or "").lower()]
@@ -142,11 +174,6 @@ class NeoService:
 
         return CloseApproachDao().find_by_id_neo(id_neo)
 
-    @log
-    def get_close_approaches_by_orbit(self, orbiting_body: str) -> list[CloseApproach]:
-        """Retrieves all close approaches around a given body (e.g. 'Earth')."""
-        return CloseApproachDao().find_by_orbit(orbiting_body)
-
     # ------------------------------------------------------------ NASA synchronisation
     @log
     def sync_nasa_data(self, start_date: str, end_date: str) -> dict:
@@ -176,9 +203,8 @@ class NeoService:
 
                 for approach in neo.close_approaches:
                     approach.id_neo = neo.id_neo
-                    approach_dao.create(approach)
-                    # On vérifie si un ID a bien été assigné (nouvel insert)
-                    if approach.id_approach is not None:
+                    # create() returns True only for a new insert, False if already present
+                    if approach_dao.create(approach):
                         approach_count += 1
 
             except Exception as e:

@@ -8,7 +8,6 @@ from business_object.close_approach import CloseApproach
 
 class NeoIn(BaseModel):
     """Body for the creation of a custom NEO."""
-
     name_neo: str
     nasa_id: str | None = None
     diameter_min_m: float | None = None
@@ -20,7 +19,6 @@ class NeoIn(BaseModel):
 
 class NeoOut(BaseModel):
     """NEO returned by the API."""
-
     id_neo: int | None
     nasa_id: str | None
     name_neo: str | None
@@ -34,7 +32,6 @@ class NeoOut(BaseModel):
 
 class CloseApproachOut(BaseModel):
     """Close approach returned by the API."""
-
     id_approach: int | None
     id_neo: int | None
     approach_date: str | None
@@ -43,7 +40,7 @@ class CloseApproachOut(BaseModel):
     relative_velocity_kmh: float | None
 
 
-def to_neo_out(neo: Neo) -> NeoOut:
+def _to_out(neo: Neo) -> NeoOut:
     """Converts a Neo business object into its API representation."""
     return NeoOut(
         id_neo=neo.id_neo,
@@ -58,7 +55,7 @@ def to_neo_out(neo: Neo) -> NeoOut:
     )
 
 
-def to_approach_out(approach: CloseApproach) -> CloseApproachOut:
+def _approach_to_out(approach: CloseApproach) -> CloseApproachOut:
     """Converts a CloseApproach business object into its API representation."""
     return CloseApproachOut(
         id_approach=approach.id_approach,
@@ -70,7 +67,7 @@ def to_approach_out(approach: CloseApproach) -> CloseApproachOut:
     )
 
 
-def build_search_criteria(
+def _criteria(
     nasa_id: str | None = Query(None, description="Exact NASA identifier"),
     name: str | None = Query(None, description="Case-insensitive substring of the name"),
     is_hazardous: bool | None = Query(None, description="Hazardous status"),
@@ -78,6 +75,8 @@ def build_search_criteria(
     min_diameter_m: float | None = Query(None, description="Lower bound on the mean diameter"),
     max_diameter_m: float | None = Query(None, description="Upper bound on the mean diameter"),
     max_magnitude: float | None = Query(None, description="Upper bound on the absolute magnitude"),
+    orbiting_body: str | None = Query(None, description="NEOs with a close approach around this body (e.g. Earth)"),
+    approach_date: str | None = Query(None, description="NEOs with a close approach on this date (e.g. YYYY-MM-DD)"),
 ) -> dict:
     """Builds the criteria dictionary expected by NeoService.search_neos."""
     criteria = {
@@ -88,5 +87,7 @@ def build_search_criteria(
         "min_diameter_m": min_diameter_m,
         "max_diameter_m": max_diameter_m,
         "max_magnitude": max_magnitude,
+        "orbiting_body": orbiting_body,
+        "approach_date": approach_date,
     }
     return {k: v for k, v in criteria.items() if v is not None}
