@@ -1,6 +1,6 @@
 import logging
 
-from utils.log_decorator import log
+from utils.log_utils import log
 
 from business_object.user import User
 from dao.db_connection import DBConnection
@@ -12,30 +12,33 @@ class UserDao(metaclass=Singleton):
 
     @log
     def create(self, user: User) -> bool:
-        """Insère un utilisateur et renseigne son id et sa date de création."""
-        try:
-            with DBConnection().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "INSERT INTO neow.users (email, password_hash, role) "
-                        "VALUES (%(email)s, %(password_hash)s, %(role)s) "
-                        "RETURNING id, created_at;",
-                        {
-                            "email": user.email,
-                            "password_hash": user.password_hash,
-                            "role": user.role,
-                        },
-                    )
-                    res = cursor.fetchone()
-        except Exception as e:
-            logging.info(e)
-            return False
+            """Insère un utilisateur et renseigne son id et sa date de création."""
+            try:
+                with DBConnection().connection as connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "INSERT INTO neow.users (email, password_hash, role_user, token) "
+                            "VALUES (%(email)s, %(password_hash)s, %(role_user)s, %(token)s) "
+                            "RETURNING id_user, created_at;",
+                            {
+                                "email": user.email,
+                                "password_hash": user.password_hash,
+                                "role_user": user.role,
+                                "token": user.token,
+                            },
+                        )
+                        res = cursor.fetchone()
+            except Exception as e:
+                print(f"Erreur SQL create user : {e}")
+                return False
 
-        if res:
-            user.id = res["id"]
-            user.created_at = res["created_at"]
-            return True
-        return False
+            created = False
+            if res:
+                user.id = res["id_user"] 
+                user.created_at = res["created_at"]
+                created = True
+
+            return created
 
     @log
     def find_by_id(self, id: int) -> User | None:
@@ -58,6 +61,33 @@ class UserDao(metaclass=Singleton):
                 )
                 res = cursor.fetchone()
         return self._to_user(res)
+
+    @log
+    def find_by_token(self, token: str) -> User | None:
+        """Trouve un utilisateur à partir de son token."""
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT id_user, email, password_hash, role_user, created_at, token "
+                        "FROM neow.users WHERE token = %(token)s;",
+                        {"token": token},
+                    )
+                    row = cursor.fetchone()
+        except Exception as e:
+            print(f"Erreur find_by_token : {e}")
+            return None
+
+        if row:
+            return User(
+                id=row["id_user"],
+                email=row["email"],
+                password_hash=row["password_hash"],
+                role=row["role_user"],
+                created_at=row["created_at"],
+                token=row["token"],
+            )
+        return None
 
     @log
     def find_all(self) -> list[User]:

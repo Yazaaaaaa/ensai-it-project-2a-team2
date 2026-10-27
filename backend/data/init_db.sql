@@ -12,9 +12,10 @@ DROP TABLE IF EXISTS NEOW.users CASCADE;
 CREATE TABLE NEOW.users (
     id_user         SERIAL PRIMARY KEY,
     email           VARCHAR(50) NOT NULL,
-    password_hash   VARCHAR(20),
+    password_hash   VARCHAR(255),
     role_user       VARCHAR(20),
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    token           VARCHAR(255)
 );
 
 CREATE TABLE NEOW.neo (

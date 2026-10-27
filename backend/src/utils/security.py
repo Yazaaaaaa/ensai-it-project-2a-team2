@@ -2,7 +2,8 @@ import hashlib
 
 from fastapi import Header, HTTPException
 
-from dao.player_dao import PlayerDao
+from business_object.user import User
+from dao.user_dao import UserDao
 
 
 def hash_password(password: str, salt: str = "") -> str:
@@ -19,8 +20,8 @@ def hash_password(password: str, salt: str = "") -> str:
     return hash_object.hexdigest()
 
 
-def verify_token(x_auth_token=Header(None)) -> PlayerDao:
-    """Verifies the authenticity of a player via the provided auth token.
+def verify_token(x_auth_token=Header(None)) -> User:
+    """Verifies the authenticity of a user via the provided auth token.
 
     This function checks if a token is present in the request headers and
     validates it against the database.
@@ -28,7 +29,7 @@ def verify_token(x_auth_token=Header(None)) -> PlayerDao:
         x_auth_token (str, optional): The token extracted from the
             'X-Auth-Token' HTTP header. Defaults to None.
     Returns:
-        Player object associated with the valid token.
+        User object associated with the valid token.
     Raises:
         HTTPException: 401 error if the token is missing.
         HTTPException: 401 error if the token is not found in the database.
@@ -36,8 +37,8 @@ def verify_token(x_auth_token=Header(None)) -> PlayerDao:
     if not x_auth_token:
         raise HTTPException(status_code=401, detail="Missing token.")
 
-    player = PlayerDao().find_by_token(x_auth_token)
-    if not player:
+    user = UserDao().find_by_token(x_auth_token)
+    if not user:
         raise HTTPException(status_code=401, detail="Invalid token.")
 
-    return player
+    return user
