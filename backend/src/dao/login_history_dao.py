@@ -39,13 +39,12 @@ class LoginHistoryDao(metaclass=Singleton):
             logger.error(f"Error creating login history: {e}")
             raise
 
-        created = False
         if res:
             connection.id_login = res["id_login"]
             connection.login_at = res["login_at"]
-            created = True
+            return True
 
-        return created
+        return False
 
     @log
     def find_by_id_user(self, id_user: int) -> list[Connection] | None:
