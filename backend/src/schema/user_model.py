@@ -22,7 +22,7 @@ class ConnectionReadModel(BaseModel):
 
     id_login: str | None = None
     id_user: str
-    timestamp: datetime
+    login_at: datetime | None = None
 
-        class Config:
-            from_attributes = True #or orm_mode
+    class Config:
+        from_attributes = True
