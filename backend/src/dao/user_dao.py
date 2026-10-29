@@ -23,7 +23,7 @@ class UserDao(metaclass=Singleton):
                             {
                                 "email": user.email,
                                 "password_hash": user.password_hash,
-                                "role_user": user.role,
+                                "role_user": user.role_user,
                                 "token": user.token,
                             },
                         )
@@ -83,7 +83,7 @@ class UserDao(metaclass=Singleton):
                 id=row["id_user"],
                 email=row["email"],
                 password_hash=row["password_hash"],
-                role=row["role_user"],
+                role_user=row["role_user"],
                 created_at=row["created_at"],
                 token=row["token"],
             )
@@ -104,12 +104,12 @@ class UserDao(metaclass=Singleton):
                 cursor.execute(
                     "UPDATE neow.users "
                     "SET email = %(email)s, password_hash = %(password_hash)s, role = %(role)s "
-                    "WHERE id = %(id)s;",
+                    "WHERE id = %(id_user)s;",
                     {
-                        "id": user.id,
+                        "id_user": user.id_user,
                         "email": user.email,
                         "password_hash": user.password_hash,
-                        "role": user.role,
+                        "role_user": user.role_user,
                     },
                 )
                 return cursor.rowcount == 1
@@ -119,8 +119,8 @@ class UserDao(metaclass=Singleton):
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "DELETE FROM neow.users WHERE id = %(id)s;",
-                    {"id": user.id},
+                    "DELETE FROM neow.users WHERE id_user = %(id_user)s;",
+                    {"id_user": user.id_user},
                 )
                 return cursor.rowcount > 0
 
@@ -129,9 +129,9 @@ class UserDao(metaclass=Singleton):
         if row is None:
             return None
         return User(
-            id=row["id"],
+            id_user=row["id_user"],
             email=row["email"],
             password_hash=row["password_hash"],
-            role=row["role"],
+            role_user=row["role_user"],
             created_at=row["created_at"],
         )

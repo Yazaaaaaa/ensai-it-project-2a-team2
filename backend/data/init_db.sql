@@ -42,7 +42,7 @@ CREATE TABLE NEOW.close_approach (
 CREATE TABLE NEOW.login_history (
     id_login    SERIAL PRIMARY KEY,
     id_user     INT REFERENCES NEOW.users(id_user),
-    login_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    login_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE NEOW.alert (
@@ -51,6 +51,7 @@ CREATE TABLE NEOW.alert (
     id_neo            INT REFERENCES NEOW.neo(id_neo),
     min_size_m        FLOAT,
     max_distance_km   FLOAT,
+    threshold_km         FLOAT,
     is_active         BOOLEAN,
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

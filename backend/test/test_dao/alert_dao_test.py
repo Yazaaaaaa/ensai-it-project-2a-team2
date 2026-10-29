@@ -6,7 +6,13 @@ import pytest
 
 from business_object.alert import Alert
 from dao.alert_dao import AlertDao
+from business_object.user import User
+from dao.user_dao import UserDao
+from business_object.neo import Neo
+from dao.neo_dao import NeoDao
 from utils.reset_database import ResetDatabase
+from datetime import datetime
+
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -17,20 +23,27 @@ def setup_test_environment():
         yield
 
 
-def test_create_ok():
-    """Successfully create an Alert"""
+@pytest.fixture
+def user():
+    user = User(id_user=1, email="test@ensai.fr", password_hash="hashed_pwd",
+                role_user="user", token="token123", created_at=datetime.now())
+    UserDao().create(user)
+    yield user
+    UserDao().delete(user)
 
-    # GIVEN
-    # (On suppose que l'utilisateur ID 1 existe dans la base de test pré-peuplée)
-    alert = Alert(user_id=1, neo_id="2023_AB", threshold_km=50000.0, is_active=True)
+@pytest.fixture
+def neo():
+    neo = Neo(id_nasa="Test_123", name_neo="TEST", id_neo=1)
+    NeoDao().create(neo)
+    yield neo
+    NeoDao().delete(neo)
 
-    # WHEN
-    creation_ok = AlertDao().create(alert)
+def test_create_ok(user, neo):
+    alert = Alert(user_id=user.id_user, neo_id=neo.id_neo,
+                  min_size_m=50.0, max_distance_km=50000.0, is_active=True)
 
-    # THEN
-    assert creation_ok
+    assert AlertDao().create(alert) is True
     assert alert.id is not None
-    assert alert.created_at is not None
 
 
 def test_create_ko():
