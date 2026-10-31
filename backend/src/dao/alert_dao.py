@@ -2,7 +2,9 @@ from business_object.alert import Alert
 from dao.db_connection import DBConnection
 from utils.log_utils import log
 from utils.singleton import Singleton
+import logging
 
+logger = logging.getLogger(__name__)
 
 class AlertDao(metaclass=Singleton):
     """Class containing methods to access alerts in the database."""

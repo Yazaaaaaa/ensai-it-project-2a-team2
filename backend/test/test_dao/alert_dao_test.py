@@ -25,25 +25,36 @@ def setup_test_environment():
 
 @pytest.fixture
 def user():
-    user = User(id_user=1, email="test@ensai.fr", password_hash="hashed_pwd",
-                role_user="user", token="token123", created_at=datetime.now())
+    user = User(id_user=1, email="test@ensai.fr", password_hash="hash", role_user="user", token="tok", created_at=datetime.now())
     UserDao().create(user)
     yield user
     UserDao().delete(user)
 
+
 @pytest.fixture
 def neo():
-    neo = Neo(id_nasa="Test_123", name_neo="TEST", id_neo=1)
+    neo = Neo(nasa_id="TEST_123", name_neo="TEST", diameter_min_m=10, diameter_max_m=20)
     NeoDao().create(neo)
     yield neo
-    NeoDao().delete(neo)
+    NeoDao().delete(neo.id_neo)
+
+
+@pytest.fixture
+def alert(user, neo):
+    alert = Alert(user_id=user.id_user, neo_id=neo.id_neo, min_size_m=10.0, max_distance_km=1000.0)
+    AlertDao().create(alert)
+    yield alert
+    AlertDao().delete(alert.id)
 
 def test_create_ok(user, neo):
     alert = Alert(user_id=user.id_user, neo_id=neo.id_neo,
                   min_size_m=50.0, max_distance_km=50000.0, is_active=True)
-
-    assert AlertDao().create(alert) is True
-    assert alert.id is not None
+    try:
+        assert AlertDao().create(alert) is True
+        assert alert.id is not None
+    finally:
+        if alert.id is not None:
+            AlertDao().delete(alert.id)
 
 
 def test_create_ko():
