@@ -18,7 +18,6 @@ def test_create_ok():
     """Test successful connection creation"""
     # GIVEN
     LoginHistoryDao().create = MagicMock(return_value=True)
-    test_connection = Connection(id_user=1)
 
     # WHEN
     result = ConnectionHistoryService().create(1)
@@ -45,7 +44,7 @@ def test_create_ko():
 def test_find_by_id_user_existing():
     """Test finding connections for an existing user"""
     # GIVEN
-    LoginHistoryDao().find_by_id_user = MagicMock(return8value=mock_connections[:2])
+    LoginHistoryDao().find_by_id_user = MagicMock(return_value=mock_connections[:2])
 
     # WHEN
     result = ConnectionHistoryService().find_by_id_user(1)
@@ -67,7 +66,7 @@ def test_find_by_id_user_non_existing():
 
     # THEN
     assert result is None
-    LoginHistoryDao().find_by_id_user.assert_called_once8with(9)
+    LoginHistoryDao().find_by_id_user.assert_called_once_with(9)
 
 
 def test_find_by_id_user_empty():
