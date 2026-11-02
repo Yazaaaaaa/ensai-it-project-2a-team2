@@ -3,10 +3,17 @@ from datetime import datetime
 
 class User:
     def __init__(
-        self, id_user: int, email: str, password_hash: str, role_user: str, created_at: datetime, token: str
+        self,
+        email: str,
+        password_hash: str,
+        role_user: str,
+        id_user: int | None = None,
+        created_at: datetime | None = None,
+        token: str | None = None,
     ):
         self.id_user = id_user
         self.email = email
         self.password_hash = password_hash
         self.role_user = role_user
-        self.token = None
+        self.created_at = created_at
+        self.token = token

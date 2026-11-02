@@ -1,10 +1,12 @@
+import logging
+
 from business_object.alert import Alert
 from dao.db_connection import DBConnection
 from utils.log_utils import log
 from utils.singleton import Singleton
-import logging
 
 logger = logging.getLogger(__name__)
+
 
 class AlertDao(metaclass=Singleton):
     """Class containing methods to access alerts in the database."""
@@ -15,7 +17,8 @@ class AlertDao(metaclass=Singleton):
         Creates an alert for a user on a NEO.
 
         Args:
-            alert (Alert): The alert to persist (user_id, neo_id, threshold_km, is_active).
+            alert (Alert): The alert to persist
+                (user_id, neo_id, min_size_m, max_distance_km, is_active).
 
         Returns:
             bool: True if the insertion is successful, False otherwise.
@@ -26,14 +29,18 @@ class AlertDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        INSERT INTO NEOW.alert (id_user, id_neo, threshold_km, is_active)
-                        VALUES (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(is_active)s)
+                        INSERT INTO NEOW.alert
+                            (id_user, id_neo, min_size_m, max_distance_km, is_active)
+                        VALUES
+                            (%(id_user)s, %(id_neo)s, %(min_size_m)s,
+                             %(max_distance_km)s, %(is_active)s)
                         RETURNING id_alert, created_at;
                         """,
                         {
                             "id_user": alert.user_id,
                             "id_neo": alert.neo_id,
-                            "threshold_km": alert.threshold_km,
+                            "min_size_m": alert.min_size_m,
+                            "max_distance_km": alert.max_distance_km,
                             "is_active": alert.is_active,
                         },
                     )
@@ -42,13 +49,11 @@ class AlertDao(metaclass=Singleton):
             logger.error(f"Error creating alert {alert}: {e}")
             raise
 
-        created = False
         if res:
             alert.id = res["id_alert"]
             alert.created_at = res["created_at"]
-            created = True
-
-        return created
+            return True
+        return False
 
     @log
     def get_by_userid(self, user_id: int) -> list[Alert]:
@@ -66,10 +71,11 @@ class AlertDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        SELECT id_alert, id_user, id_neo, threshold_km, is_active, created_at
+                        SELECT id_alert, id_user, id_neo, min_size_m,
+                               max_distance_km, is_active, created_at
                         FROM NEOW.alert
                         WHERE id_user = %(id_user)s
-                        ORDER BY created_at DESC;
+                        ORDER BY created_at DESC, id_alert DESC;
                         """,
                         {"id_user": user_id},
                     )
@@ -78,22 +84,12 @@ class AlertDao(metaclass=Singleton):
             logger.error(f"Error retrieving alerts for user {user_id}: {e}")
             raise
 
-        return [
-            Alert(
-                id=row["id_alert"],
-                user_id=row["id_user"],
-                neo_id=row["id_neo"],
-                threshold_km=row["threshold_km"],
-                is_active=row["is_active"],
-                created_at=row["created_at"],
-            )
-            for row in rows
-        ]
+        return [self._to_alert(row) for row in rows]
 
     @log
     def update(self, alert: Alert) -> bool:
         """
-        Updates an existing alert (threshold and activation status).
+        Updates an existing alert (size, distance and activation status).
 
         Args:
             alert (Alert): The alert to update (its id must be set).
@@ -108,13 +104,15 @@ class AlertDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         UPDATE NEOW.alert
-                        SET threshold_km = %(threshold_km)s,
+                        SET min_size_m = %(min_size_m)s,
+                            max_distance_km = %(max_distance_km)s,
                             is_active = %(is_active)s
                         WHERE id_alert = %(id_alert)s
                         RETURNING id_alert;
                         """,
                         {
-                            "threshold_km": alert.threshold_km,
+                            "min_size_m": alert.min_size_m,
+                            "max_distance_km": alert.max_distance_km,
                             "is_active": alert.is_active,
                             "id_alert": alert.id,
                         },
@@ -155,3 +153,15 @@ class AlertDao(metaclass=Singleton):
             raise
 
         return res is not None
+
+    @staticmethod
+    def _to_alert(row: dict) -> Alert:
+        return Alert(
+            id=row["id_alert"],
+            user_id=row["id_user"],
+            neo_id=row["id_neo"],
+            min_size_m=row["min_size_m"],
+            max_distance_km=row["max_distance_km"],
+            is_active=row["is_active"],
+            created_at=row["created_at"],
+        )
