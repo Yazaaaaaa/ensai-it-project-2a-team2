@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from schema.user_model_model import UserLoginModel
 from service.user_service import UserService
 
+from schema.user_model import UserLoginModel
 from service.connection_history_service import ConnectionHistoryService
 from utils.log_utils import get_logger
 

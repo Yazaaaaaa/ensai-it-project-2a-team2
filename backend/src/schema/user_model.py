@@ -10,8 +10,8 @@ class UserLoginModel(BaseModel):
     ensuring data consistency and validation during API requests and responses.
     """
 
-    id_player: str
-    password: str
+    id_player: int
+    password: int
 
 
 class ConnectionReadModel(BaseModel):
@@ -20,8 +20,8 @@ class ConnectionReadModel(BaseModel):
     It defines the JSON structure used to exchange connection information,
     ensuring data consistency and validation during API requests and responses."""
 
-    id_login: str | None = None
-    id_user: str
+    id_login: int | None = None
+    id_user: int
     login_at: datetime | None = None
 
     class Config:
