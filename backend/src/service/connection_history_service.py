@@ -19,7 +19,7 @@ class ConnectionHistoryService:
             Connection: The created connection object, or None
         """
         try:
-            new_connection = Connection(id_user=id_user)
+            new_connection = Connection(id_user=id_user, login_at=datetime.now())
             if LoginHistoryDao().create(new_connection):
                 logger.info(f"Connection history created for user {id_user}")
                 return new_connection

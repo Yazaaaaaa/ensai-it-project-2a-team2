@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
 
-from controller import neo_controller
+from controller import connection_controller, neo_controller
 from utils.env_variables import display_values, load_environment_variables
 from utils.log_utils import LogMiddleware, get_logger, initialize_logs
 
@@ -39,6 +39,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 app.include_router(neo_controller.router, prefix="/neo", tags=["NEO"])
+#app.include_router(login_controller.router)
+app.include_router(connection_controller.router)
 
 
 @app.get("/", include_in_schema=False)
