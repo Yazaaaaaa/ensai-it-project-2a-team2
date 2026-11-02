@@ -22,7 +22,7 @@ def test_create_ok():
     """Successfully create a new login history"""
 
     # GIVEN
-    login = Connection(id_user=1, id_login=1, timestamp=datetime.now())
+    login = Connection(id_user=1, id_login=1, datetime=datetime.now())
 
     # WHEN
     creation_ok = LoginHistoryDao().create(login)
