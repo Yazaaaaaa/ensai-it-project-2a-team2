@@ -15,6 +15,7 @@ dependencies = [
     "requests",
     "regex",
     "uvicorn",
+    "matplotlib",
 ]
 
 # Dependencies used only for development, not for runtime

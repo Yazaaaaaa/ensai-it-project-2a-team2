@@ -6,6 +6,19 @@ from dao.favorite_dao import FavoriteDao
 from dao.neo_dao import NeoDao
 from utils.log_utils import get_logger, log
 
+import io
+from datetime import datetime
+
+from fastapi import HTTPException
+from matplotlib.figure import Figure
+
+from dao.close_approach_dao import CloseApproachDao
+from service.neo_service import NeoService
+from dao.favorite_dao import FavoriteDao
+
+MOON_DISTANCE_KM = 384_400
+DATE_FORMATS = ("%Y-%m-%d", "%Y-%b-%d %H:%M")
+
 logger = get_logger(__name__)
 
 
@@ -70,3 +83,102 @@ class FavoriteService:
             raise HTTPException(status_code=404, detail="Favorite not found")
 
         return dao.delete(favorite)
+    
+    @log
+    def get_distance_history(
+        self, user_id: int, id_neo: int, orbiting_body: str | None = "Earth"
+    ) -> dict:
+        """Returns the miss distances of a favorite NEO over time, sorted by date.
+
+        Args:
+            user_id: id of the user, the NEO must be in his favorites.
+            id_neo: id of the NEO.
+            orbiting_body: only keep approaches around this body (case-insensitive).
+                None keeps all bodies.
+
+        Raises:
+            HTTPException: 404 if the NEO is not in the user's favorites.
+        """
+        if not FavoriteDao().exists(user_id, id_neo):
+            raise HTTPException(status_code=404, detail="This NEO is not in your favorites")
+
+        neo = NeoService().get_by_id_neo(id_neo)
+        if neo is None:
+            raise HTTPException(status_code=404, detail="NEO not found")
+
+        points = []
+        for approach in CloseApproachDao().find_by_id_neo(id_neo):
+            if orbiting_body and (approach.orbiting_body or "").lower() != orbiting_body.lower():
+                continue
+            date = self._parse_date(approach.approach_date)
+            if date is None or approach.miss_distance_km is None:
+                logger.warning(f"Close approach {approach.id_approach} ignored (missing data)")
+                continue
+            points.append({
+                "date": date,
+                "orbiting_body": approach.orbiting_body,
+                "miss_distance_km": float(approach.miss_distance_km),
+                "relative_velocity_kmh": (
+                    float(approach.relative_velocity_kmh)
+                    if approach.relative_velocity_kmh is not None else None
+                ),
+            })
+
+        points.sort(key=lambda p: p["date"])
+        return {
+            "id_neo": id_neo,
+            "name_neo": neo.name_neo,
+            "orbiting_body": orbiting_body,
+            "points": points,
+            "closest": min(points, key=lambda p: p["miss_distance_km"]) if points else None,
+        }
+
+    @log
+    def render_distance_chart(
+        self, user_id: int, id_neo: int, orbiting_body: str | None = "Earth"
+    ) -> bytes:
+        history = self.get_distance_history(user_id, id_neo, orbiting_body)
+        points = history["points"]
+        if not points:
+            raise HTTPException(status_code=404, detail="No close approach data for this NEO")
+
+        dates = [p["date"] for p in points]
+        distances = [p["miss_distance_km"] for p in points]
+
+        # Figure (and not pyplot): no global state, safe in FastAPI's thread pool
+        fig = Figure(figsize=(8, 4.5))
+        ax = fig.subplots()
+        ax.plot(dates, distances, marker="o", linewidth=1.5, label="Miss distance")
+        ax.axhline(MOON_DISTANCE_KM, color="gray", linestyle="--", linewidth=1,
+                   label="Earth-Moon distance")
+
+        # Distances can span several orders of magnitude: a log scale keeps them readable
+        if max(distances) / max(min(distances), 1) > 100:
+            ax.set_yscale("log")
+
+        body = orbiting_body or "all bodies"
+        ax.set_title(f"{history['name_neo']} - close approaches ({body})")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Miss distance (km)")
+        ax.grid(True, alpha=0.3)
+        ax.legend()
+        fig.autofmt_xdate()
+        fig.tight_layout()
+
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format="png", dpi=120)
+        return buffer.getvalue()
+
+    @staticmethod
+    def _parse_date(value) -> datetime | None:
+        """approach_date is stored as text by the DAO: try the known formats."""
+        text = str(value) if value is not None else ""
+        for fmt in DATE_FORMATS:
+            try:
+                return datetime.strptime(text, fmt)
+            except ValueError:
+                continue
+        try:
+            return datetime.fromisoformat(text)  # e.g. '2026-10-23 12:00:00'
+        except ValueError:
+            return None
