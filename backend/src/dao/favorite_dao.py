@@ -30,7 +30,7 @@ class FavoriteDao(metaclass=Singleton):
                         VALUES (%(id_user)s, %(id_neo)s)
                         RETURNING id_favorite, added_at;
                         """,
-                        {"id_user": favorite.user_id, "id_neo": favorite.neo_id},
+                        {"id_user": favorite.id_user, "id_neo": favorite.id_neo},
                     )
                     res = cursor.fetchone()
         except Exception as e:
@@ -39,7 +39,7 @@ class FavoriteDao(metaclass=Singleton):
 
         created = False
         if res:
-            favorite.id = res["id_favorite"]
+            favorite.id_favorite = res["id_favorite"]
             favorite.added_at = res["added_at"]
             created = True
 
@@ -77,10 +77,10 @@ class FavoriteDao(metaclass=Singleton):
             return None
 
         return Favorite(
-            id=res["id_favorite"],
-            user_id=res["id_user"],
-            neo_id=res["id_neo"],
-            added_at=res["added_at"],
+            id_favorite=res["id_favorite"],   # row["id_favorite"] dans find_all_by_user
+            id_user=res["id_user"],           # row["id_user"] dans find_all_by_user
+            id_neo=res["id_neo"],             # row["id_neo"] dans find_all_by_user
+            added_at=res["added_at"],         # row["added_at"] dans find_all_by_user
         )
 
     @log
@@ -114,10 +114,10 @@ class FavoriteDao(metaclass=Singleton):
 
         return [
             Favorite(
-                id=row["id_favorite"],
-                user_id=row["id_user"],
-                neo_id=row["id_neo"],
-                added_at=row["added_at"],
+                id_favorite=row["id_favorite"],   # row["id_favorite"] dans find_all_by_user
+                id_user=row["id_user"],           # row["id_user"] dans find_all_by_user
+                id_neo=row["id_neo"],             # row["id_neo"] dans find_all_by_user
+                added_at=row["added_at"],         # row["added_at"] dans find_all_by_user
             )
             for row in rows
         ]
@@ -171,15 +171,15 @@ class FavoriteDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         "DELETE FROM NEOW.distance_history WHERE id_favorite = %(id_favorite)s;",
-                        {"id_favorite": favorite.id},
+                        {"id_favorite": favorite.id_favorite},
                     )
                     cursor.execute(
                         "DELETE FROM NEOW.favorite WHERE id_favorite = %(id_favorite)s;",
-                        {"id_favorite": favorite.id},
+                        {"id_favorite": favorite.id_favorite},
                     )
                     res = cursor.rowcount
         except Exception as e:
-            logger.error(f"Error deleting favorite {favorite.id}: {e}")
+            logger.error(f"Error deleting favorite {favorite.id_favorite}: {e}")
             raise
 
         return res > 0
