@@ -1,28 +1,21 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserLoginModel(BaseModel):
-    """Acts as the data contract between the frontend and the backend.
-
-    It defines the JSON structure used to exchange connection information,
-    ensuring data consistency and validation during API requests and responses.
-    """
-
-    id_player: int
-    password: int
+    email: str
+    password: str
 
 
-class ConnectionReadModel(BaseModel):
-    """Acts as the data contract between the frontend and the backend.
+class UserCreateModel(BaseModel):
+    email: str
+    password: str = Field(min_length=8)
 
-    It defines the JSON structure used to exchange connection information,
-    ensuring data consistency and validation during API requests and responses."""
 
-    id_login: int | None = None
+class UserResponseModel(BaseModel):
+    """Ne contient jamais password_hash ni token."""
     id_user: int
-    login_at: datetime | None = None
-
-    class Config:
-        from_attributes = True
+    email: str
+    role_user: str
+    created_at: datetime | None = None
