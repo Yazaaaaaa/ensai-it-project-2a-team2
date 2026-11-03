@@ -11,25 +11,28 @@ from schema.neo_schema import CloseApproachOut, NeoOut, _approach_to_out, _to_ou
 class AlertIn(BaseModel):
     """Body to create an alert on a NEO."""
     id_user: int
-    id_neo: int
+    id_neo: int | None = None
     threshold_km: float = Field(
         ..., gt=0, description="Distance to the Earth, in km, under which the user is notified"
     )
     is_active: bool = True
+    threshold_size: float | None = None
 
 
 class AlertUpdate(BaseModel):
     """Body to modify an alert: only the fields that are sent are changed."""
     threshold_km: float | None = Field(None, gt=0)
     is_active: bool | None = None
+    threshold_size: float | None = None
 
 
 class AlertOut(BaseModel):
     """Alert returned by the API, with the NEO it watches."""
     id_alert: int | None
     id_user: int
-    id_neo: int
+    id_neo: int | None = None
     threshold_km: float | None
+    threshold_size: float | None = None
     is_active: bool
     created_at: datetime | None
     neo: NeoOut
