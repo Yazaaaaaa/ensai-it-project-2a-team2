@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from business_object.user import User
 from controller.dependencies import get_current_user, get_token, get_user_service
 from schema.user_model import UserCreateModel, UserResponseModel
-from service.user_service import EmailAlreadyUsedError, UserService
+from service.user_service import UserService
 from utils.log_utils import get_logger
 
 router = APIRouter(prefix="/users", tags=["Users"])

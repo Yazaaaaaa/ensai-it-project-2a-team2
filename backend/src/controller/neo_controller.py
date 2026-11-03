@@ -4,6 +4,7 @@ import uuid
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Response
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
@@ -33,25 +34,19 @@ def search_neos(
         neos = service.sorting_neo_by(neos, sort_by, descending)
     return [_to_out(n) for n in neos]
  
- 
-@router.get("/export")
+
+@router.get("/export", summary="Export the NEO table as CSV or JSON")
 def export_neos(
-    criteria: dict = Depends(_criteria),
-    file_format: Literal["csv", "json"] = "csv",
+    file_format: str = "csv",
+    current_user: User = Depends(get_current_user),
+    neo_service: NeoService = Depends(get_neo_service),
 ):
-    """Exports the NEOs matching the filters as a CSV or JSON file."""
-    service = NeoService()
-    neos = service.search_neos(criteria)
- 
-    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format}")
-    tmp.close()
-    service.export(neos, tmp.name, file_format)
- 
-    return FileResponse(
-        tmp.name,
-        filename=f"neos.{file_format}",
-        media_type="text/csv" if file_format == "csv" else "application/json",
-        background=BackgroundTask(os.remove, tmp.name),
+    content, media_type = neo_service.export_all(file_format)
+    body = content.encode("utf-8-sig" if file_format == "csv" else "utf-8")
+    return Response(
+        content=body,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="neos.{file_format}"'},
     )
     
  

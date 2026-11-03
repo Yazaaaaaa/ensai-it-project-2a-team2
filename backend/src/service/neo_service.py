@@ -1,5 +1,6 @@
 import csv
 import json
+import io
 
 from fastapi import HTTPException
 
@@ -29,6 +30,10 @@ EXPORT_FIELDS = [
     "absolute_magnitude", "is_hazardous", "is_custom", "created_by_user_id",
 ]
 
+EXPORT_FORMATS = {
+    "csv": "text/csv; charset=utf-8",
+    "json": "application/json",
+}
 
 class NeoService:
     """Service that manages NEOs and their close approaches."""
@@ -147,24 +152,43 @@ class NeoService:
         return sorted(with_value, key=key, reverse=descending) + without_value
 
     @log
-    def export(self, neos: list[Neo], path: str, file_format: str = "csv") -> str:
-        """Exports a list of NEOs to a CSV or JSON file."""
-        if file_format not in ("csv", "json"):
+    def export_content(self, neos: list[Neo], file_format: str = "csv") -> tuple[str, str]:
+        """Serialises NEOs to a CSV or JSON string.
+
+        Returns:
+            tuple[str, str]: the content and its media type.
+        """
+        if file_format not in EXPORT_FORMATS:
             raise HTTPException(status_code=400, detail="Unsupported format, use 'csv' or 'json'")
 
         rows = [{field: getattr(n, field, None) for field in EXPORT_FIELDS} for n in neos]
 
         if file_format == "csv":
-            with open(path, "w", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=EXPORT_FIELDS)
-                writer.writeheader()
-                writer.writerows(rows)
+            buffer = io.StringIO()
+            writer = csv.DictWriter(buffer, fieldnames=EXPORT_FIELDS)
+            writer.writeheader()
+            writer.writerows(rows)
+            content = buffer.getvalue()
         else:
-            with open(path, "w", encoding="utf-8") as f:
-                json.dump(rows, f, ensure_ascii=False, indent=2)
+            # default=str: Decimal and datetime values are written as strings
+            content = json.dumps(rows, ensure_ascii=False, indent=2, default=str)
 
+        return content, EXPORT_FORMATS[file_format]
+
+    @log
+    def export_all(self, file_format: str = "csv") -> tuple[str, str]:
+        """Exports the whole neo table."""
+        return self.export_content(NeoDao().find_all(), file_format)
+
+    @log
+    def export(self, neos: list[Neo], path: str, file_format: str = "csv") -> str:
+        """Exports a list of NEOs to a CSV or JSON file (local use, e.g. scripts)."""
+        content, _ = self.export_content(neos, file_format)
+        # utf-8-sig adds a BOM so that Excel reads accents correctly in CSV files
+        encoding = "utf-8-sig" if file_format == "csv" else "utf-8"
+        with open(path, "w", newline="", encoding=encoding) as f:
+            f.write(content)
         return path
-
     # ------------------------------------------------------------ close approaches
     @log
     def get_close_approaches(self, id_neo: int) -> list[CloseApproach]:
