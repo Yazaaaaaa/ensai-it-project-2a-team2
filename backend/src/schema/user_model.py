@@ -10,7 +10,7 @@ class UserLoginModel(BaseModel):
 class UserCreateModel(BaseModel):
     email: str
     password: str = Field(min_length=8)
-    role: str
+    role_user: str
 
 
 class UserResponseModel(BaseModel):
