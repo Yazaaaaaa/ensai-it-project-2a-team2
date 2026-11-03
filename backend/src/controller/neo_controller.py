@@ -3,8 +3,7 @@ import tempfile
 import uuid
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi import Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
@@ -36,12 +35,9 @@ def search_neos(
  
 
 @router.get("/export", summary="Export the NEO table as CSV or JSON")
-def export_neos(
-    file_format: str = "csv",
-    current_user: User = Depends(get_current_user),
-    neo_service: NeoService = Depends(get_neo_service),
-):
-    content, media_type = neo_service.export_all(file_format)
+def export_neos(file_format: Literal["csv", "json"] = "csv"):
+    """Downloads the whole NEO table as a CSV or JSON file."""
+    content, media_type = NeoService().export_all(file_format)
     body = content.encode("utf-8-sig" if file_format == "csv" else "utf-8")
     return Response(
         content=body,
