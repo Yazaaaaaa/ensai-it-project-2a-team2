@@ -97,6 +97,9 @@ class AdminService:
         finally:
             self._import_lock.release()
 
+    @classmethod
+    def is_import_running(cls) -> bool:
+        return cls._import_lock.locked()
     # ------------------------------------------------------------ helpers
 
     @staticmethod

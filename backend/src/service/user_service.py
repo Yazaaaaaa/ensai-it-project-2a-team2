@@ -92,6 +92,15 @@ class UserService:
         user.token = None
         return self.user_dao.update(user)
 
+    def authenticate(self, token: str) -> User | None:
+        """Returns the user owning this token, None if the token is invalid or the user banned."""
+        if not token:
+            return None
+        user = self.user_dao.find_by_token(token)
+        if user is None or user.is_banned:
+            return None
+        return user
+
     # ------------------------------------------------------------ helpers
 
     @staticmethod
