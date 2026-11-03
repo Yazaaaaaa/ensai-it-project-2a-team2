@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
 
-from controller import favorite_controller, connection_controller, neo_controller
+from controller import favorite_controller, connection_controller, neo_controller, user_controller, admin_controller
 from utils.env_variables import display_values, load_environment_variables
 from utils.log_utils import LogMiddleware, get_logger, initialize_logs
 
@@ -42,6 +42,8 @@ app.include_router(neo_controller.router, prefix="/neo", tags=["NEO"])
 #app.include_router(login_controller.router)
 app.include_router(connection_controller.router)
 app.include_router(favorite_controller.router, prefix="/favorite", tags=["Favorites"])
+app.include_router(user_controller.router)
+app.include_router(admin_controller.router)
 
 
 @app.get("/", include_in_schema=False)
