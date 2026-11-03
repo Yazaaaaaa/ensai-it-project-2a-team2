@@ -52,7 +52,7 @@ class NeoDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT id_neo FROM NEOW.neo WHERE nasa_id = %(nasa_id)s;",
+                        "SELECT id_neo FROM neo WHERE nasa_id = %(nasa_id)s;",
                         {"nasa_id": neo.nasa_id}
                     )
                     existing = cursor.fetchone()
@@ -62,7 +62,7 @@ class NeoDao(metaclass=Singleton):
                         # On fait l'update directement ici avec le même curseur actif
                         cursor.execute(
                             """
-                            UPDATE NEOW.neo 
+                            UPDATE neo 
                             SET name_neo = %(name)s, 
                                 diameter_min_m = %(d_min)s, 
                                 diameter_max_m = %(d_max)s, 
@@ -86,7 +86,7 @@ class NeoDao(metaclass=Singleton):
                     else:
                         cursor.execute(
                             """
-                            INSERT INTO NEOW.neo (
+                            INSERT INTO neo (
                                 nasa_id, name_neo, diameter_min_m, diameter_max_m, 
                                 absolute_magnitude, is_hazardous, is_custom, created_by_user_id
                             )
@@ -123,7 +123,7 @@ class NeoDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT * FROM NEOW.neo WHERE id_neo = %(id_neo)s;",
+                        "SELECT * FROM neo WHERE id_neo = %(id_neo)s;",
                         {"id_neo": id_neo}
                     )
                     row = cursor.fetchone()
@@ -139,7 +139,7 @@ class NeoDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT * FROM NEOW.neo WHERE nasa_id = %(nasa_id)s;",
+                        "SELECT * FROM neo WHERE nasa_id = %(nasa_id)s;",
                         {"nasa_id": nasa_id}
                     )
                     row = cursor.fetchone()
@@ -154,7 +154,7 @@ class NeoDao(metaclass=Singleton):
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute("SELECT * FROM NEOW.neo;")
+                    cursor.execute("SELECT * FROM neo;")
                     rows = cursor.fetchall()
                     return [self._row_to_neo(row) for row in rows]
         except Exception as e:
@@ -168,7 +168,7 @@ class NeoDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT * FROM NEOW.neo WHERE is_hazardous = %(haz)s;",
+                        "SELECT * FROM neo WHERE is_hazardous = %(haz)s;",
                         {"haz": is_hazardous}
                     )
                     rows = cursor.fetchall()
@@ -184,7 +184,7 @@ class NeoDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT * FROM NEOW.neo WHERE created_by_user_id = %(user_id)s;",
+                        "SELECT * FROM neo WHERE created_by_user_id = %(user_id)s;",
                         {"user_id": created_by_user_id}
                     )
                     rows = cursor.fetchall()
@@ -201,7 +201,7 @@ class NeoDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        UPDATE NEOW.neo 
+                        UPDATE neo 
                         SET name_neo = %(name)s, 
                             diameter_min_m = %(d_min)s, 
                             diameter_max_m = %(d_max)s, 
@@ -234,7 +234,7 @@ class NeoDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "DELETE FROM NEOW.neo WHERE id_neo = %(id_neo)s;",
+                        "DELETE FROM neo WHERE id_neo = %(id_neo)s;",
                         {"id_neo": id_neo}
                     )
             return True

@@ -146,25 +146,25 @@ class AlertService:
         return alert
 
     @staticmethod
-def _is_triggered(alert: Alert, neo: Neo, approach: CloseApproach, today: str) -> bool:
-    if alert.threshold_km is None:
-        return False
+    def _is_triggered(alert: Alert, neo: Neo, approach: CloseApproach, today: str) -> bool:
+        if alert.threshold_km is None:
+            return False
 
-    if approach.orbiting_body != EARTH:
-        return False
+        if approach.orbiting_body != EARTH:
+            return False
 
-    if approach.approach_date is None or approach.miss_distance_km is None:
-        return False
+        if approach.approach_date is None or approach.miss_distance_km is None:
+            return False
 
-    if str(approach.approach_date)[:10] < today:
-        return False
+        if str(approach.approach_date)[:10] < today:
+            return False
 
-    # 1. Vérification de la distance
-    if approach.miss_distance_km > alert.threshold_km:
-        return False
+        # 1. Vérification de la distance
+        if approach.miss_distance_km > alert.threshold_km:
+            return False
 
-    # 2. Vérification du diamètre minimal de l'astéroïde
-    if neo.diameter_max_m < alert.min_diameter_m:
-        return False
+        # 2. Vérification du diamètre minimal de l'astéroïde
+        if neo.diameter_max_m < alert.min_diameter_m:
+            return False
 
-    return True
+        return True

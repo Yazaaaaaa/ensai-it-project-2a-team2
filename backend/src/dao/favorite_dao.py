@@ -26,7 +26,7 @@ class FavoriteDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        INSERT INTO NEOW.favorite (id_user, id_neo)
+                        INSERT INTO favorite (id_user, id_neo)
                         VALUES (%(id_user)s, %(id_neo)s)
                         RETURNING id_favorite, added_at;
                         """,
@@ -63,7 +63,7 @@ class FavoriteDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT *
-                          FROM NEOW.favorite
+                          FROM favorite
                          WHERE id_favorite = %(id_favorite)s;
                         """,
                         {"id_favorite": id_favorite},
@@ -101,7 +101,7 @@ class FavoriteDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT *
-                          FROM NEOW.favorite
+                          FROM favorite
                          WHERE id_user = %(id_user)s
                          ORDER BY added_at DESC;
                         """,
@@ -141,7 +141,7 @@ class FavoriteDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT 1
-                          FROM NEOW.favorite
+                          FROM favorite
                          WHERE id_user = %(id_user)s
                            AND id_neo = %(id_neo)s;
                         """,
@@ -170,11 +170,11 @@ class FavoriteDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "DELETE FROM NEOW.distance_history WHERE id_favorite = %(id_favorite)s;",
+                        "DELETE FROM distance_history WHERE id_favorite = %(id_favorite)s;",
                         {"id_favorite": favorite.id_favorite},
                     )
                     cursor.execute(
-                        "DELETE FROM NEOW.favorite WHERE id_favorite = %(id_favorite)s;",
+                        "DELETE FROM favorite WHERE id_favorite = %(id_favorite)s;",
                         {"id_favorite": favorite.id_favorite},
                     )
                     res = cursor.rowcount
