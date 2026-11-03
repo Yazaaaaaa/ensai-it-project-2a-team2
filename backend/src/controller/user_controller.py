@@ -35,9 +35,7 @@ def register(
         HTTPException: 409 if the email is already used, 422 if the data is invalid.
     """
     try:
-        user = user_service.create_account(data.email, data.password)
-    except EmailAlreadyUsedError:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already used")
+        user = user_service.create_account(data.email, data.password, data.role_user)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
     except RuntimeError:
