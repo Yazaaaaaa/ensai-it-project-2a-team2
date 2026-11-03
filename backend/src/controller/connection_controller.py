@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from schema.user_model import ConnectionReadModel
+from schema.connection_model import ConnectionReadModel
 from service.connection_history_service import ConnectionHistoryService
 from utils.log_utils import get_logger
 
@@ -21,7 +21,7 @@ def get_connection_service():
     tags=["Connections"])
 async def create_connection(id_user: int, connection_service: ConnectionHistoryService = Depends(get_connection_service)) -> ConnectionReadModel:
     """Create a new line in the login history table"""
-    logger.info(f"Creation of a nex connexion for the user {id_user}")
+    logger.info(f"Creation of a new connexion for the user {id_user}")
     connection = connection_service.create(id_user)
     if not connection:
         raise HTTPException(
