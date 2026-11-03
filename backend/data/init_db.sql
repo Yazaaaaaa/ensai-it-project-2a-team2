@@ -15,7 +15,8 @@ CREATE TABLE NEOW.users (
     password_hash   VARCHAR(255),
     role_user       VARCHAR(20),
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    token           VARCHAR(255)
+    token           VARCHAR(255),
+    is_banned       BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE NEOW.neo (
