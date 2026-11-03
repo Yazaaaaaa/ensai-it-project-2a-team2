@@ -70,3 +70,50 @@
 02/11/2026 17:18:23 service.neo_service       INFO    -     └─> Output: ['Neo(2003122: 3122 Florence (1981 ET3), Hazardous: True)', 'Neo(2004183: 4183 Cuno (1959 LM), Hazardous: True)', 'Neo(2016960: 16960 (1998 QS52), Hazardous: True)'] ... (2227 elements)
 02/11/2026 17:18:23 root                      INFO    - GET /neo - END [Status: 200]
 02/11/2026 17:20:23 __main__                  INFO    - Webservice stopped
+
+02/11/2026 18:48:39 root                      INFO    - --------------------------------------------------
+02/11/2026 18:48:39 root                      INFO    - Starting Webservice                           
+02/11/2026 18:48:39 root                      INFO    - --------------------------------------------------
+02/11/2026 18:48:39 root                      INFO    - Load environment variables: SUCCES
+02/11/2026 18:48:39 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-984871-rw.user-kamea988
+02/11/2026 18:48:39 root                      INFO    - POSTGRES_PORT=5432
+02/11/2026 18:48:39 root                      INFO    - POSTGRES_DATABASE=defaultdb
+02/11/2026 18:48:39 root                      INFO    - POSTGRES_USER=user-kamea988
+02/11/2026 18:48:39 root                      INFO    - POSTGRES_PASSWORD=*******
+02/11/2026 18:48:39 root                      INFO    - POSTGRES_SCHEMA=project
+02/11/2026 18:48:39 root                      INFO    - UVICORN_HOST=0.0.0.0
+02/11/2026 18:48:39 root                      INFO    - UVICORN_PORT=5000
+02/11/2026 18:48:39 root                      INFO    - BACKEND_URL=http://localhost:5000
+02/11/2026 18:48:39 root                      INFO    - BACKEND_TIMEOUT=5
+02/11/2026 18:48:39 root                      INFO    - ELO_K_FACTOR=32
+02/11/2026 18:48:39 root                      INFO    - NASA_API_KEY=*******
+02/11/2026 18:50:43 root                      INFO    - GET /connections/users/1 - START
+02/11/2026 18:50:43 c.connection_controller   INFO    - Find connections by the user ID
+02/11/2026 18:50:43 s.connection_history_service INFO    -   find_by_id_user(1,) - START
+02/11/2026 18:50:43 dao.login_history_dao     INFO    -     find_by_id_user(1,) - START
+02/11/2026 18:50:43 dao.login_history_dao     INFO    -     find_by_id_user(1,) - END
+02/11/2026 18:50:43 dao.login_history_dao     INFO    -       └─> Output: ['<business_object.connection.Connection object at 0x7fa02f78a510>'] ... (1 elements)
+02/11/2026 18:50:43 s.connection_history_service INFO    -   find_by_id_user(1,) - END
+02/11/2026 18:50:43 s.connection_history_service INFO    -     └─> Output: ['<business_object.connection.Connection object at 0x7fa02f78a510>'] ... (1 elements)
+02/11/2026 18:50:43 root                      ERROR   - GET /connections/users/1 - FAILED [Status: 500] Error: 2 validation errors for ConnectionReadModel
+id_login
+  Input should be a valid string [type=string_type, input_value=2, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+id_user
+  Input should be a valid string [type=string_type, input_value=1, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+02/11/2026 18:55:20 root                      INFO    - GET /connections/users/1 - START
+02/11/2026 18:55:20 c.connection_controller   INFO    - Find connections by the user ID
+02/11/2026 18:55:20 s.connection_history_service INFO    -   find_by_id_user(1,) - START
+02/11/2026 18:55:20 dao.login_history_dao     INFO    -     find_by_id_user(1,) - START
+02/11/2026 18:55:20 dao.login_history_dao     INFO    -     find_by_id_user(1,) - END
+02/11/2026 18:55:20 dao.login_history_dao     INFO    -       └─> Output: ['<business_object.connection.Connection object at 0x7fa02ef88190>'] ... (1 elements)
+02/11/2026 18:55:20 s.connection_history_service INFO    -   find_by_id_user(1,) - END
+02/11/2026 18:55:20 s.connection_history_service INFO    -     └─> Output: ['<business_object.connection.Connection object at 0x7fa02ef88190>'] ... (1 elements)
+02/11/2026 18:55:20 root                      ERROR   - GET /connections/users/1 - FAILED [Status: 500] Error: 2 validation errors for ConnectionReadModel
+id_login
+  Input should be a valid string [type=string_type, input_value=2, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+id_user
+  Input should be a valid string [type=string_type, input_value=1, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
