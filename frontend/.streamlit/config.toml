@@ -2,12 +2,12 @@
 port = 8000
 
 [theme]
-textColor="#1a1a1a"
+textColor="#f8f8f8"
 font="Calibri"
 
-primaryColor="#1963a0"
-backgroundColor="#90C090"
-secondaryBackgroundColor="#ffffff"
+primaryColor="#406788"
+backgroundColor="#332e49"
+secondaryBackgroundColor="#332e49"
 
 redTextColor="#8b0303"
 redBackgroundColor="#ff5f5f"
