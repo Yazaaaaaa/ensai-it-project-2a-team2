@@ -28,7 +28,7 @@ class AlertDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        INSERT INTO NEOW.alert
+                        INSERT INTO alert
                             (id_user, id_neo, threshold_km, is_active)
                         VALUES
                             (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(is_active)s)
@@ -69,7 +69,7 @@ class AlertDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT id_alert, id_user, id_neo, threshold_km, is_active, created_at
-                        FROM NEOW.alert
+                        FROM alert
                         WHERE id_user = %(id_user)s
                         ORDER BY created_at DESC, id_alert DESC;
                         """,
@@ -99,7 +99,7 @@ class AlertDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        UPDATE NEOW.alert
+                        UPDATE alert
                         SET threshold_km = %(threshold_km)s,
                             is_active = %(is_active)s
                         WHERE id_alert = %(id_alert)s
@@ -135,7 +135,7 @@ class AlertDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        DELETE FROM NEOW.alert
+                        DELETE FROM alert
                         WHERE id_alert = %(id_alert)s
                         RETURNING id_alert;
                         """,

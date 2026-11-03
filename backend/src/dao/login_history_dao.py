@@ -27,7 +27,7 @@ class LoginHistoryDao(metaclass=Singleton):
             with DBConnection().connection as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO NEOW.login_history(id_user) "
+                        "INSERT INTO login_history(id_user) "
                         "VALUES (%(id_user)s) "
                         "RETURNING id_login, login_at;",
                         {
@@ -63,7 +63,7 @@ class LoginHistoryDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT *
-                        FROM NEOW.login_history
+                        FROM login_history
                         WHERE id_user = %(id_user)s
                         ORDER BY login_at DESC;
                         """,
@@ -104,7 +104,7 @@ class LoginHistoryDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT *
-                        FROM NEOW.login_history
+                        FROM login_history
                         ORDER BY login_at DESC;
                         """
                     )

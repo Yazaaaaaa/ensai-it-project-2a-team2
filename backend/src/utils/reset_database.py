@@ -64,6 +64,14 @@ class ResetDatabase(metaclass=Singleton):
                     cursor.execute(init_db_as_string)
                     if pop_db_as_string:
                         cursor.execute(pop_db_as_string)
+
+                    cursor.execute("SHOW search_path")
+                    print(cursor.fetchone())
+                    cursor.execute(
+                        "SELECT table_schema, table_name FROM information_schema.tables WHERE table_schema = %s",
+                        (schema,),
+                    )
+                    print(cursor.fetchall())
         except Exception as e:
             logger.info(e)
             raise

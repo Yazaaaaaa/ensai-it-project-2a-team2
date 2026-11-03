@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class UserDao(metaclass=Singleton):
-    """Accès aux données de la table neow.users"""
+    """Accès aux données de la table users"""
 
     @log
     def create(self, user: User) -> bool:
@@ -18,7 +18,7 @@ class UserDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "INSERT INTO neow.users (email, password_hash, role_user, token) "
+                        "INSERT INTO users (email, password_hash, role_user, token) "
                         "VALUES (%(email)s, %(password_hash)s, %(role_user)s, %(token)s) "
                         "RETURNING id_user, created_at;",
                         {
@@ -46,7 +46,7 @@ class UserDao(metaclass=Singleton):
             with connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned "
-                    "FROM neow.users WHERE id_user = %(id_user)s;",
+                    "FROM users WHERE id_user = %(id_user)s;",
                     {"id_user": id_user},
                 )
                 res = cursor.fetchone()
@@ -59,7 +59,7 @@ class UserDao(metaclass=Singleton):
             with connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned "
-                    "FROM neow.users WHERE email = %(email)s;",
+                    "FROM users WHERE email = %(email)s;",
                     {"email": email},
                 )
                 res = cursor.fetchone()
@@ -73,7 +73,7 @@ class UserDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned"
-                        "FROM neow.users WHERE token = %(token)s;",
+                        "FROM users WHERE token = %(token)s;",
                         {"token": token},
                     )
                     res = cursor.fetchone()
@@ -89,7 +89,7 @@ class UserDao(metaclass=Singleton):
             with connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned "
-                    "FROM neow.users ORDER BY id_user;"
+                    "FROM users ORDER BY id_user;"
                 )
                 res = cursor.fetchall()
         return [self._to_user(row) for row in res]
@@ -100,7 +100,7 @@ class UserDao(metaclass=Singleton):
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "UPDATE neow.users "
+                    "UPDATE users "
                     "SET email = %(email)s, password_hash = %(password_hash)s, "
                     "role_user = %(role_user)s, token = %(token)s, is_banned = %(is_banned)s "
                     "WHERE id_user = %(id_user)s;",
@@ -121,7 +121,7 @@ class UserDao(metaclass=Singleton):
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "DELETE FROM neow.users WHERE id_user = %(id_user)s;",
+                    "DELETE FROM users WHERE id_user = %(id_user)s;",
                     {"id_user": user.id_user},
                 )
                 return cursor.rowcount > 0

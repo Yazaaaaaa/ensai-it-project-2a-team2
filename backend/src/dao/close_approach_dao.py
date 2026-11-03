@@ -36,7 +36,7 @@ class CloseApproachDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         SELECT id_close_approach
-                        FROM NEOW.close_approach
+                        FROM close_approach
                         WHERE id_neo = %(id_neo)s
                         AND orbiting_body = %(body)s
                         AND approach_date = %(date)s;
@@ -55,7 +55,7 @@ class CloseApproachDao(metaclass=Singleton):
 
                     cursor.execute(
                         """
-                        INSERT INTO NEOW.close_approach (
+                        INSERT INTO close_approach (
                             id_neo, approach_date, orbiting_body, miss_distance_km, relative_velocity_kmh
                         )
                         VALUES (
@@ -86,7 +86,7 @@ class CloseApproachDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT * FROM NEOW.close_approach WHERE id_neo = %(id_neo)s;",
+                        "SELECT * FROM close_approach WHERE id_neo = %(id_neo)s;",
                         {"id_neo": id_neo}
                     )
                     rows = cursor.fetchall()
@@ -102,7 +102,7 @@ class CloseApproachDao(metaclass=Singleton):
             connection = DBConnection().connection
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "SELECT * FROM NEOW.close_approach WHERE orbiting_body = %(body)s;",
+                    "SELECT * FROM close_approach WHERE orbiting_body = %(body)s;",
                     {"body": orbiting_body}
                 )
                 rows = cursor.fetchall()
@@ -119,7 +119,7 @@ class CloseApproachDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        SELECT * FROM NEOW.close_approach 
+                        SELECT * FROM close_approach 
                         WHERE approach_date = %(date)s::date;
                         """,
                         {"date": approach_date}
