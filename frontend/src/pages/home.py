@@ -20,36 +20,36 @@ st.set_page_config(page_title="Neo-watch", page_icon="🌠", layout="centered")
 st.markdown(
     f"""
     <div style="text-align:center">
-        <h1 style="color:{config.get_option("theme.primaryColor")}">Neo-atch</h1>
+        <h1 style="color:{config.get_option("theme.primaryColor")}">Neo-watch</h1>
     </div>
     """,
     unsafe_allow_html=True,
 )
 logger = get_page_logger("home")
 
-id_user = st.text_input("User ID", placeholder="Enter your ID")
+email = st.text_input("Email", placeholder="Enter your Email")
 password = st.text_input("Password", type="password", placeholder="Enter your password")
 
 with st.container(horizontal_alignment="center"):
     if st.button("Log in"):
-        logger.info(f"Attempting login for user: {id_user}")
+        logger.info(f"Attempting login for user: {email}")
 
         try:
-            response = api_client.post("/login", json={"id_user": id_user, "password": password})
+            response = api_client.post("/login", json={"email": email, "password": password})
 
             if response:
                 status_code = response.get("status_code")
                 data = response.get("data")
 
                 if status_code == 200:
-                    logger.info(f"User {id_user} successfully logged in.")
+                    logger.info(f"User {email} successfully logged in.")
                     user = data
                     st.session_state["user"] = user
                     st.session_state["access_token"] = user["access_token"]
                     st.success(f"Welcome {user['id_user']} ! 🎉")
                     st.switch_page("pages/main_app.py")
                 elif status_code == 401:
-                    logger.warning(f"Login failed: 401 Unauthorized for user {id_user}.")
+                    logger.warning(f"Login failed: 401 Unauthorized for user {email}.")
                     st.error("Invalid credentials")
                 else:
                     logger.error(f"Login failed: Status {status_code}, Data: {data}")
