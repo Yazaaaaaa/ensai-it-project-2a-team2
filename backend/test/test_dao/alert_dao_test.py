@@ -1,87 +1,44 @@
-import os
-from datetime import datetime
-from unittest.mock import patch
-
 import psycopg2
 import pytest
 
 from business_object.alert import Alert
-from business_object.neo import Neo
-from business_object.user import User
 from dao.alert_dao import AlertDao
-from dao.neo_dao import NeoDao
-from dao.user_dao import UserDao
 from utils.reset_database import ResetDatabase
 
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
     """Initialize test data"""
-    with patch.dict(os.environ, {"SCHEMA": "project_test_dao"}):
-        ResetDatabase().run(test_dao=True)
-        yield
-
-
-@pytest.fixture
-def user():
-    user = User(id_user=None, email="test@ensai.fr", password_hash="hash",
-                role_user="user", token="tok", created_at=datetime.now())
-    assert UserDao().create(user) is True
-    assert user.id_user is not None
-    yield user
-    UserDao().delete(user)
-
-
-@pytest.fixture
-def neo():
-    neo = Neo(nasa_id="TEST_123", name_neo="TEST", diameter_min_m=10, diameter_max_m=20)
-    NeoDao().create(neo)
-    assert neo.id_neo is not None
-    yield neo
-    NeoDao().delete(neo.id_neo)
-
-
-@pytest.fixture
-def alert(user, neo):
-    """Alerte existante en base. Supprimée avant le neo et le user (ordre inverse de création)."""
-    alert = Alert(user_id=user.id_user, neo_id=neo.id_neo,
-                  min_size_m=10.0, max_distance_km=1000.0, is_active=True)
-    assert AlertDao().create(alert) is True
-    assert alert.id is not None
-    yield alert
-    AlertDao().delete(alert.id)  # renvoie False si le test l'a déjà supprimée, sans conséquence
+    ResetDatabase().run(test_dao=True)
 
 
 # ---------------------------------------------------------------- create
-
-def test_create_ok(user, neo):
+def test_create_ok():
     """Successfully create an Alert"""
+
+    # GIVEN : Bob (2) has no alert on Bennu (3) in the test data
+    alert = Alert(user_id=2, neo_id=3, threshold_km=50000.0, is_active=True)
+
+    # WHEN
+    created = AlertDao().create(alert)
+
+    # THEN
+    assert created is True
+    assert alert.id is not None
+    assert alert.id in [a.id for a in AlertDao().get_by_userid(2)]
+
+
+def test_create_ko():
+    """Fail to create an Alert (unknown neo_id -> foreign key violation)"""
+
     # GIVEN
-    alert = Alert(user_id=user.id_user, neo_id=neo.id_neo,
-                  min_size_m=50.0, max_distance_km=50000.0, is_active=True)
-    try:
-        # WHEN
-        created = AlertDao().create(alert)
-
-        # THEN
-        assert created is True
-        assert alert.id is not None
-    finally:
-        if alert.id is not None:
-            AlertDao().delete(alert.id)
-
-
-def test_create_ko(user):
-    """Fail to create an Alert (neo_id inexistant -> violation de clé étrangère)"""
-    # GIVEN
-    alert = Alert(user_id=user.id_user, neo_id=999999,
-                  min_size_m=50.0, max_distance_km=50000.0, is_active=True)
+    alert = Alert(user_id=1, neo_id=999999, threshold_km=50000.0, is_active=True)
 
     # WHEN
     try:
         created = AlertDao().create(alert)
     except psycopg2.Error:
-        created = False  # le DAO laisse remonter l'erreur SQL
+        created = False  # the DAO lets the SQL error go up
 
     # THEN
     assert created is False
@@ -89,32 +46,45 @@ def test_create_ko(user):
 
 
 # ---------------------------------------------------------- get_by_userid
+def test_get_by_userid_existing():
+    """Retrieve the alerts of a user"""
 
-def test_get_by_userid_existing(alert, user):
-    """Retrieve alerts for an existing user"""
-    # WHEN
-    alerts = AlertDao().get_by_userid(user.id_user)
+    # WHEN : Alice (1) has alert 1 (on Eros) and alert 2 (on every NEO)
+    alerts = AlertDao().get_by_userid(1)
 
     # THEN
     assert isinstance(alerts, list)
-    assert len(alerts) >= 1
     assert all(isinstance(a, Alert) for a in alerts)
-    assert all(a.user_id == user.id_user for a in alerts)
-    assert alert.id in [a.id for a in alerts]
+    assert all(a.user_id == 1 for a in alerts)
+    assert {a.id for a in alerts} == {1, 2}
 
 
-def test_get_by_userid_empty(user):
-    """Retrieve alerts for a user with no alerts"""
-    # WHEN (le user existe mais n'a aucune alerte)
-    alerts = AlertDao().get_by_userid(user.id_user)
+def test_get_by_userid_global_alert():
+    """An alert without neo_id is returned with neo_id None"""
+
+    # WHEN
+    alerts = AlertDao().get_by_userid(1)
 
     # THEN
-    assert isinstance(alerts, list)
+    global_alert = next(a for a in alerts if a.id == 2)
+    assert global_alert.neo_id is None
+    assert global_alert.threshold_km == pytest.approx(500000.0)
+    assert global_alert.is_active is True
+
+
+def test_get_by_userid_empty():
+    """A user with no alert gets an empty list"""
+
+    # WHEN : empty@test.com (5) has no alert
+    alerts = AlertDao().get_by_userid(5)
+
+    # THEN
     assert alerts == []
 
 
 def test_get_by_userid_unknown_user():
-    """Retrieve alerts for a user id that does not exist"""
+    """An unknown user id gets an empty list"""
+
     # WHEN
     alerts = AlertDao().get_by_userid(999999)
 
@@ -122,29 +92,30 @@ def test_get_by_userid_unknown_user():
     assert alerts == []
 
 
-# ----------------------------------------------------------------- update
-
-def test_update_ok(alert, user):
+# ---------------------------------------------------------------- update
+def test_update_ok():
     """Successfully update an existing Alert"""
-    # GIVEN
-    alert.max_distance_km = 25000.0
-    alert.is_active = False
+
+    # GIVEN : alert 3 (Bob, Apophis, inactive)
+    alert = next(a for a in AlertDao().get_by_userid(2) if a.id == 3)
+    alert.threshold_km = 25000.0
+    alert.is_active = True
 
     # WHEN
     update_ok = AlertDao().update(alert)
 
     # THEN
     assert update_ok is True
-    stored = next(a for a in AlertDao().get_by_userid(user.id_user) if a.id == alert.id)
-    assert stored.max_distance_km == 25000.0
-    assert stored.is_active is False
+    stored = next(a for a in AlertDao().get_by_userid(2) if a.id == 3)
+    assert stored.threshold_km == pytest.approx(25000.0)
+    assert stored.is_active is True
 
 
-def test_update_ko(user, neo):
+def test_update_ko():
     """Fail to update an Alert (unknown id)"""
+
     # GIVEN
-    alert = Alert(id=888888, user_id=user.id_user, neo_id=neo.id_neo,
-                  min_size_m=10.0, max_distance_km=10000.0, is_active=True)
+    alert = Alert(id=888888, user_id=1, neo_id=1, threshold_km=10000.0, is_active=True)
 
     # WHEN
     update_ok = AlertDao().update(alert)
@@ -153,32 +124,23 @@ def test_update_ko(user, neo):
     assert not update_ok
 
 
-# ----------------------------------------------------------------- delete
-
-def test_delete_ok(user, neo):
+# ---------------------------------------------------------------- delete
+def test_delete_ok():
     """Successfully delete an Alert"""
-    # GIVEN (alerte dédiée à ce test)
-    alert_to_delete = Alert(user_id=user.id_user, neo_id=neo.id_neo,
-                            min_size_m=15.0, max_distance_km=15000.0, is_active=True)
-    assert AlertDao().create(alert_to_delete) is True
 
-    # WHEN
-    delete_ok = AlertDao().delete(alert_to_delete.id)
+    # WHEN : alert 2 (Alice, all NEOs)
+    delete_ok = AlertDao().delete(2)
 
     # THEN
     assert delete_ok
-    remaining = [a.id for a in AlertDao().get_by_userid(user.id_user)]
-    assert alert_to_delete.id not in remaining
+    assert 2 not in [a.id for a in AlertDao().get_by_userid(1)]
 
 
 def test_delete_ko():
     """Fail to delete an Alert (unknown id)"""
+
     # WHEN
     delete_ok = AlertDao().delete(888888)
 
     # THEN
     assert not delete_ok
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

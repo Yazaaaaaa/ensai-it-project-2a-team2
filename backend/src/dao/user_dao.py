@@ -72,7 +72,7 @@ class UserDao(metaclass=Singleton):
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned"
+                        "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned "
                         "FROM users WHERE token = %(token)s;",
                         {"token": token},
                     )

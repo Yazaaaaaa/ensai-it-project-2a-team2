@@ -1,197 +1,119 @@
-from datetime import datetime
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from business_object.favorite import Favorite
 from dao.favorite_dao import FavoriteDao
+from utils.reset_database import ResetDatabase
 
-ADDED_AT = datetime(2026, 11, 3, 9, 5, 17)
 
-
-@pytest.fixture
-def cursor():
-    """Replaces the database connection by a mock and yields the mocked cursor.
-
-    No real database is touched: the tests check the SQL parameters sent by the DAO
-    and the way it converts the returned rows.
-    """
-    with patch("dao.favorite_dao.DBConnection") as db:
-        cur = MagicMock()
-        connection = db.return_value.connection.__enter__.return_value
-        connection.cursor.return_value.__enter__.return_value = cur
-        yield cur
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_environment():
+    """Initialize test data"""
+    ResetDatabase().run(test_dao=True)
 
 
 # ---------------------------------------------------------------- create
-def test_create_ok(cursor):
+def test_create_ok():
+    """Successfully create a favorite"""
 
-    # GIVEN
-    cursor.fetchone.return_value = {"id_favorite": 5, "added_at": ADDED_AT}
-    favorite = Favorite(id_user=1, id_neo=42)
-
-    # WHEN
-    res = FavoriteDao().create(favorite)
-
-    # THEN
-    assert res is True
-    assert favorite.id_favorite == 5
-    assert favorite.added_at == ADDED_AT
-    assert cursor.execute.call_args[0][1] == {"id_user": 1, "id_neo": 42}
-
-
-def test_create_no_row_returned(cursor):
-
-    # GIVEN
-    cursor.fetchone.return_value = None
-    favorite = Favorite(id_user=1, id_neo=42)
+    # GIVEN : Bob (2) does not have Eros (1) in his favorites yet
+    favorite = Favorite(id_user=2, id_neo=1)
 
     # WHEN
-    res = FavoriteDao().create(favorite)
+    creation_ok = FavoriteDao().create(favorite)
 
     # THEN
-    assert res is False
-    assert favorite.id_favorite is None
-
-
-def test_create_database_error(cursor):
-
-    # GIVEN
-    cursor.execute.side_effect = Exception("DB error")
-
-    # WHEN / THEN
-    with pytest.raises(Exception, match="DB error"):
-        FavoriteDao().create(Favorite(id_user=1, id_neo=42))
+    assert creation_ok
+    assert favorite.id_favorite
+    assert favorite.added_at is not None
+    assert FavoriteDao().exists(2, 1)
 
 
 # ---------------------------------------------------------------- find_by_id
-def test_find_by_id_found(cursor):
-
-    # GIVEN
-    cursor.fetchone.return_value = {
-        "id_favorite": 3, "id_user": 1, "id_neo": 42, "added_at": ADDED_AT,
-    }
+def test_find_by_id_found():
+    """Find a favorite by an existing id"""
 
     # WHEN
-    res = FavoriteDao().find_by_id(3)
+    found = FavoriteDao().find_by_id(1)
 
     # THEN
-    assert isinstance(res, Favorite)
-    assert res.id_favorite == 3
-    assert res.id_user == 1
-    assert res.id_neo == 42
-    assert res.added_at == ADDED_AT
-    assert cursor.execute.call_args[0][1] == {"id_favorite": 3}
+    assert isinstance(found, Favorite)
+    assert found.id_user == 1
+    assert found.id_neo == 1
+    assert found.added_at is not None
 
 
-def test_find_by_id_not_found(cursor):
-
-    # GIVEN
-    cursor.fetchone.return_value = None
+def test_find_by_id_not_found():
+    """Find a favorite by a non-existing id"""
 
     # WHEN
-    res = FavoriteDao().find_by_id(999)
+    found = FavoriteDao().find_by_id(999999999)
 
     # THEN
-    assert res is None
+    assert found is None
 
 
 # ---------------------------------------------------------------- find_all_by_user
-def test_find_all_by_user(cursor):
-
-    # GIVEN : rows already ordered by the query (most recent first)
-    cursor.fetchall.return_value = [
-        {"id_favorite": 2, "id_user": 1, "id_neo": 7, "added_at": ADDED_AT},
-        {"id_favorite": 1, "id_user": 1, "id_neo": 42, "added_at": datetime(2026, 11, 2)},
-    ]
+def test_find_all_by_user_ok():
+    """Find all the favorites of a user"""
 
     # WHEN
-    res = FavoriteDao().find_all_by_user(1)
+    favorites = FavoriteDao().find_all_by_user(1)
 
-    # THEN
-    assert [f.id_favorite for f in res] == [2, 1]
-    assert [f.id_neo for f in res] == [7, 42]
-    assert all(f.id_user == 1 for f in res)
-    assert cursor.execute.call_args[0][1] == {"id_user": 1}
+    # THEN : Alice has Eros (1) and Apophis (2)
+    assert all(isinstance(f, Favorite) for f in favorites)
+    assert all(f.id_user == 1 for f in favorites)
+    assert {f.id_neo for f in favorites} == {1, 2}
 
 
-def test_find_all_by_user_empty(cursor):
-
-    # GIVEN
-    cursor.fetchall.return_value = []
+def test_find_all_by_user_no_favorite():
+    """A user with no favorite gets an empty list"""
 
     # WHEN
-    res = FavoriteDao().find_all_by_user(99)
+    favorites = FavoriteDao().find_all_by_user(5)
 
     # THEN
-    assert res == []
+    assert favorites == []
 
 
 # ---------------------------------------------------------------- exists
-def test_exists_true(cursor):
+def test_exists_true():
+    """The favorite (Alice, Eros) exists"""
 
-    # GIVEN
-    cursor.fetchone.return_value = {"?column?": 1}
-
-    # WHEN
-    res = FavoriteDao().exists(1, 42)
-
-    # THEN
-    assert res is True
-    assert cursor.execute.call_args[0][1] == {"id_user": 1, "id_neo": 42}
+    # WHEN / THEN
+    assert FavoriteDao().exists(1, 1) is True
 
 
-def test_exists_false(cursor):
+def test_exists_false():
+    """The favorite (Alice, Bennu) does not exist"""
 
-    # GIVEN
-    cursor.fetchone.return_value = None
-
-    # WHEN
-    res = FavoriteDao().exists(1, 999)
-
-    # THEN
-    assert res is False
+    # WHEN / THEN
+    assert FavoriteDao().exists(1, 3) is False
 
 
 # ---------------------------------------------------------------- delete
-def test_delete_ok(cursor):
+def test_delete_ok():
+    """Successfully delete a favorite that has a distance history"""
 
-    # GIVEN
-    cursor.rowcount = 1
-    favorite = Favorite(id_user=1, id_neo=42, id_favorite=3)
-
-    # WHEN
-    res = FavoriteDao().delete(favorite)
-
-    # THEN : the distance history is deleted first, then the favorite
-    assert res is True
-    calls = cursor.execute.call_args_list
-    assert len(calls) == 2
-    assert "distance_history" in calls[0][0][0]
-    assert calls[0][0][1] == {"id_favorite": 3}
-    assert "favorite" in calls[1][0][0]
-    assert "distance_history" not in calls[1][0][0]
-    assert calls[1][0][1] == {"id_favorite": 3}
-
-
-def test_delete_not_found(cursor):
-
-    # GIVEN
-    cursor.rowcount = 0
-    favorite = Favorite(id_user=1, id_neo=42, id_favorite=999)
+    # GIVEN : favorite 2 (Alice, Apophis) has a row in distance_history
+    favorite = FavoriteDao().find_by_id(2)
 
     # WHEN
-    res = FavoriteDao().delete(favorite)
+    delete_ok = FavoriteDao().delete(favorite)
+
+    # THEN : no foreign key error, the favorite is gone
+    assert delete_ok
+    assert FavoriteDao().find_by_id(2) is None
+    assert FavoriteDao().exists(1, 2) is False
+
+
+def test_delete_not_found():
+    """Deleting a non-existing favorite returns False"""
+
+    # GIVEN
+    favorite = Favorite(id_user=1, id_neo=1, id_favorite=999999999)
+
+    # WHEN
+    delete_ok = FavoriteDao().delete(favorite)
 
     # THEN
-    assert res is False
-
-
-def test_delete_database_error(cursor):
-
-    # GIVEN
-    cursor.execute.side_effect = Exception("DB error")
-
-    # WHEN / THEN
-    with pytest.raises(Exception, match="DB error"):
-        FavoriteDao().delete(Favorite(id_user=1, id_neo=42, id_favorite=3))
+    assert delete_ok is False

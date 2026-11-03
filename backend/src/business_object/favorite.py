@@ -11,7 +11,7 @@ class Favorite:
         added_at: datetime = None,
         id_favorite: int = None,
     ):
-        self.id_favorite = id_favorite        
+        self.id_favorite = id_favorite
         self.id_user = id_user
         self.id_neo = id_neo
         self.added_at = added_at

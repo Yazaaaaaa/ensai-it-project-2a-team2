@@ -1,6 +1,3 @@
-import os
-from unittest.mock import patch
-
 import pytest
 
 from business_object.neo import Neo
@@ -11,13 +8,11 @@ from utils.reset_database import ResetDatabase
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
     """Initialize test data"""
-    with patch.dict(os.environ, {"SCHEMA": "project_test_dao"}):
-        ResetDatabase().run(test_dao=True)
-        yield
+    ResetDatabase().run(test_dao=True)
 
 
-def make_neo(nasa_id="TEST001", **kwargs) -> Neo:
-    """Build a Neo with sensible defaults (helper, not a test)."""
+def make_neo(nasa_id, **kwargs) -> Neo:
+    """Build a new Neo (only used by the create tests)."""
     params = dict(
         id_neo=None,
         nasa_id=nasa_id,
@@ -51,43 +46,32 @@ def test_create_existing_nasa_id_updates():
     """Creating a NEO with an already known nasa_id updates it (no duplicate)"""
 
     # GIVEN
-    neo = make_neo("UPSERT001", name_neo="Old name")
-    NeoDao().create(neo)
-    first_id = neo.id_neo
+    neo = make_neo("2000433", name_neo="New name")
 
     # WHEN
-    neo2 = make_neo("UPSERT001", name_neo="New name")
-    NeoDao().create(neo2)
+    NeoDao().create(neo)
 
     # THEN
-    assert neo2.id_neo == first_id
-    assert NeoDao().find_by_id_neo(first_id).name_neo == "New name"
+    assert neo.id_neo == 1
+    assert NeoDao().find_by_id_neo(1).name_neo == "New name"
 
 
 def test_find_by_id_neo_existing():
     """Find a NEO by an existing id"""
 
-    # GIVEN
-    neo = make_neo("FINDID001")
-    NeoDao().create(neo)
-
     # WHEN
-    found = NeoDao().find_by_id_neo(neo.id_neo)
+    found = NeoDao().find_by_id_neo(2)
 
     # THEN
     assert isinstance(found, Neo)
-    assert found.id_neo == neo.id_neo
-    assert found.nasa_id == "FINDID001"
+    assert found.nasa_id == "2099942"
 
 
 def test_find_by_id_neo_non_existing():
     """Find a NEO by a non-existing id"""
 
-    # GIVEN
-    id_neo = 999999999
-
     # WHEN
-    found = NeoDao().find_by_id_neo(id_neo)
+    found = NeoDao().find_by_id_neo(999999999)
 
     # THEN
     assert found is None
@@ -96,15 +80,12 @@ def test_find_by_id_neo_non_existing():
 def test_find_by_id_nasa_existing():
     """Find a NEO by an existing NASA id"""
 
-    # GIVEN
-    NeoDao().create(make_neo("NASA001"))
-
     # WHEN
-    found = NeoDao().find_by_id_nasa("NASA001")
+    found = NeoDao().find_by_id_nasa("2101955")
 
     # THEN
     assert isinstance(found, Neo)
-    assert found.nasa_id == "NASA001"
+    assert found.id_neo == 3
 
 
 def test_find_by_id_nasa_non_existing():
@@ -120,60 +101,43 @@ def test_find_by_id_nasa_non_existing():
 def test_find_all_ok():
     """Find all NEOs"""
 
-    # GIVEN
-    NeoDao().create(make_neo("ALL001"))
-
     # WHEN
     neos = NeoDao().find_all()
 
     # THEN
     assert isinstance(neos, list)
-    assert len(neos) >= 1
-    for n in neos:
-        assert isinstance(n, Neo)
+    assert len(neos) >= 6
+    assert all(isinstance(n, Neo) for n in neos)
 
 
 def test_find_by_hazardous_ok():
     """Find NEOs by hazardous status"""
 
-    # GIVEN
-    NeoDao().create(make_neo("HAZ001", is_hazardous=True))
-    NeoDao().create(make_neo("SAFE001", is_hazardous=False))
-
     # WHEN
-    hazardous = NeoDao().find_by_hazardous(True)
-    safe = NeoDao().find_by_hazardous(False)
+    hazardous = [n.nasa_id for n in NeoDao().find_by_hazardous(True)]
+    safe = [n.nasa_id for n in NeoDao().find_by_hazardous(False)]
 
     # THEN
-    assert "HAZ001" in [n.nasa_id for n in hazardous]
-    assert all(n.is_hazardous for n in hazardous)
-    assert "SAFE001" in [n.nasa_id for n in safe]
-    assert all(not n.is_hazardous for n in safe)
+    assert {"2099942", "2101955"} <= set(hazardous)
+    assert "2000433" in safe
+    assert not set(hazardous) & set(safe)
 
 
 def test_find_all_by_id_user_ok():
     """Find all custom NEOs created by a given user"""
 
-    # GIVEN
-    # /!\ id_user must exist in the users table if there is a foreign key
-    id_user = 1
-    NeoDao().create(make_neo("CUSTOM001", is_custom=True, created_by_user_id=id_user))
-
     # WHEN
-    neos = NeoDao().find_all_by_id_user(id_user)
+    neos = NeoDao().find_all_by_id_user(1)
 
     # THEN
-    assert isinstance(neos, list)
-    assert "CUSTOM001" in [n.nasa_id for n in neos]
-    for n in neos:
-        assert n.created_by_user_id == id_user
+    assert [n.nasa_id for n in neos] == ["CUSTOM1"]
 
 
 def test_find_all_by_id_user_no_neo():
     """A user with no custom NEO gets an empty list"""
 
     # WHEN
-    neos = NeoDao().find_all_by_id_user(987654321)
+    neos = NeoDao().find_all_by_id_user(5)
 
     # THEN
     assert neos == []
@@ -183,8 +147,7 @@ def test_update_ok():
     """Successfully update a NEO"""
 
     # GIVEN
-    neo = make_neo("UPD001")
-    NeoDao().create(neo)
+    neo = NeoDao().find_by_id_neo(5)
     neo.name_neo = "Renamed"
     neo.is_hazardous = True
 
@@ -193,7 +156,7 @@ def test_update_ok():
 
     # THEN
     assert update_ok
-    found = NeoDao().find_by_id_neo(neo.id_neo)
+    found = NeoDao().find_by_id_neo(5)
     assert found.name_neo == "Renamed"
     assert found.is_hazardous is True
 
@@ -201,13 +164,9 @@ def test_update_ok():
 def test_delete_ok():
     """Successfully delete a NEO"""
 
-    # GIVEN
-    neo = make_neo("DEL001")
-    NeoDao().create(neo)
-
     # WHEN
-    delete_ok = NeoDao().delete(neo.id_neo)
+    delete_ok = NeoDao().delete(6)
 
     # THEN
     assert delete_ok
-    assert NeoDao().find_by_id_neo(neo.id_neo) is None
+    assert NeoDao().find_by_id_neo(6) is None
