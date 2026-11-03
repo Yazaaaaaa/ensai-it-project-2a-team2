@@ -50,8 +50,6 @@ CREATE TABLE NEOW.alert (
     id_alert          SERIAL PRIMARY KEY,
     id_user           INT REFERENCES NEOW.users(id_user),
     id_neo            INT REFERENCES NEOW.neo(id_neo),
-    min_size_m        FLOAT,
-    max_distance_km   FLOAT,
     threshold_km         FLOAT,
     is_active         BOOLEAN,
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
