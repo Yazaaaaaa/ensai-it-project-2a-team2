@@ -49,8 +49,9 @@ CREATE TABLE NEOW.login_history (
 CREATE TABLE NEOW.alert (
     id_alert          SERIAL PRIMARY KEY,
     id_user           INT REFERENCES NEOW.users(id_user),
-    id_neo            INT REFERENCES NEOW.neo(id_neo),
-    threshold_km         FLOAT,
+    id_neo            INT REFERENCES NEOW.neo(id_neo) NULL,
+    threshold_km      FLOAT,
+    threshold_size    FLOAT,
     is_active         BOOLEAN,
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
