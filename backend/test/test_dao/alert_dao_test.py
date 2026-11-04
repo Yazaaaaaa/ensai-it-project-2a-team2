@@ -45,6 +45,23 @@ def test_create_ko():
     assert alert.id is None
 
 
+def test_create_global_alert_with_size():
+    """Successfully create an Alert on any NEO, with a minimal size"""
+
+    # GIVEN
+    alert = Alert(user_id=2, neo_id=None, threshold_km=5000000.0, threshold_size=100.0,
+                  is_active=True)
+
+    # WHEN
+    created = AlertDao().create(alert)
+
+    # THEN
+    assert created is True
+    stored = next(a for a in AlertDao().get_by_userid(2) if a.id == alert.id)
+    assert stored.neo_id is None
+    assert stored.threshold_size == pytest.approx(100.0)
+
+
 # ---------------------------------------------------------- get_by_userid
 def test_get_by_userid_existing():
     """Retrieve the alerts of a user"""
@@ -92,6 +109,7 @@ def test_get_by_userid_unknown_user():
     assert alerts == []
 
 
+
 # ---------------------------------------------------------------- update
 def test_update_ok():
     """Successfully update an existing Alert"""
@@ -99,6 +117,7 @@ def test_update_ok():
     # GIVEN : alert 3 (Bob, Apophis, inactive)
     alert = next(a for a in AlertDao().get_by_userid(2) if a.id == 3)
     alert.threshold_km = 25000.0
+    alert.threshold_size = 150.0
     alert.is_active = True
 
     # WHEN
@@ -108,6 +127,7 @@ def test_update_ok():
     assert update_ok is True
     stored = next(a for a in AlertDao().get_by_userid(2) if a.id == 3)
     assert stored.threshold_km == pytest.approx(25000.0)
+    assert stored.threshold_size == pytest.approx(150.0)
     assert stored.is_active is True
 
 
