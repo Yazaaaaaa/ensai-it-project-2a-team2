@@ -56,7 +56,139 @@ def fetch_user_connections(user_id):
         return []
 
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Overview", "⭐ Favorites", "🚨 Alerts", "➕ Add a NEO", "🔍 Browse a NEO"])
+if "user" not in st.session_state:
+    st.warning("Please log in first.")
+    st.stop()
+
+USER_ID = st.session_state["user"]["id_user"]
+BACKEND_URL = "http://localhost:5000"
+NEO_URL = "/neo"
+FAVORITES_URL = "/favorite"
+ALERTS_URL = "/alert"
+
+
+def api(method: str, path: str, **kwargs):
+    """Calls the backend with the user's token. Returns None if it is unreachable."""
+    token = st.session_state.get("access_token")
+    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    try:
+        return requests.request(
+            method, f"{BACKEND_URL}{path}", headers=headers, timeout=15, **kwargs
+        )
+    except requests.exceptions.RequestException as e:
+        st.error(f"Backend unreachable: {e}")
+        return None
+
+
+def error_detail(response) -> str:
+    try:
+        return str(response.json().get("detail", response.text))
+    except ValueError:
+        return response.text
+
+
+def get_json(path: str, default, **kwargs):
+    """GET returning the JSON body, or `default` after displaying the error."""
+    response = api("GET", path, **kwargs)
+    if response is None:
+        return default
+    if response.status_code != 200:
+        st.error(f"Error {response.status_code}: {error_detail(response)}")
+        return default
+    return response.json()
+
+
+def mutate(method: str, path: str, ok_status: int, message: str, **kwargs):
+    """POST/PATCH/DELETE. On success: remember a message and reload the page."""
+    response = api(method, path, **kwargs)
+    if response is None:
+        return
+    if response.status_code == ok_status:
+        st.session_state["flash"] = message
+        st.rerun()
+    st.error(f"Error {response.status_code}: {error_detail(response)}")
+
+
+@st.cache_data(ttl=60)
+def search_neos(params: dict, sort_by: str | None, descending: bool):
+    query = {**params, "descending": str(descending).lower()}
+    if sort_by:
+        query["sort_by"] = sort_by
+    return get_json(NEO_URL, [], params=query)
+
+
+@st.cache_data(ttl=300)
+def fetch_close_approaches(neo_id):
+    return get_json(f"{NEO_URL}/{neo_id}/close-approaches", [])
+
+
+@st.cache_data(ttl=300)
+def fetch_chart(user_id: int, id_neo: int, orbiting_body: str) -> bytes | None:
+    # user_id is only part of the cache key: the route depends on the authenticated user
+    response = api(
+        "GET",
+        f"{FAVORITES_URL}/{id_neo}/distances/chart",
+        params={"orbiting_body": orbiting_body},
+    )
+    return response.content if response is not None and response.status_code == 200 else None
+
+
+def alert_form(key: str, id_neo: int | None):
+    """Form creating an alert. id_neo=None creates an alert on any NEO."""
+    with st.form(key):
+        c1, c2 = st.columns(2)
+        threshold_km = c1.number_input(
+            "Passes closer than (km)",
+            min_value=1.0, value=5_000_000.0, step=100_000.0, format="%.0f",
+        )
+        size = c2.number_input(
+            "Larger than (m, 0 = any size)", min_value=0.0, value=0.0, step=10.0,
+        )
+        if st.form_submit_button("Create alert"):
+            mutate(
+                "POST", ALERTS_URL, 201, "Alert created",
+                json={
+                    "id_user": USER_ID,
+                    "id_neo": id_neo,
+                    "threshold_km": threshold_km,
+                    "threshold_size": size or None,
+                    "is_active": True,
+                },
+            )
+
+
+# Data loaded once per run, shared by the tabs
+favorites = get_json(f"{FAVORITES_URL}/{USER_ID}", [])
+alerts = get_json(f"{ALERTS_URL}/{USER_ID}", [])
+triggered = get_json(f"{ALERTS_URL}/{USER_ID}/triggered", [])
+favorite_ids = {f["id_neo"] for f in favorites}
+favorite_labels = {
+    f["id_neo"]: f"{f['neo']['name_neo']} (ID {f['id_neo']})" for f in favorites
+}
+
+if "flash" in st.session_state:
+    st.toast(st.session_state.pop("flash"))
+
+# F6: notification when the user logs in (once per session), banner afterwards
+token = st.session_state.get("access_token")
+if triggered:
+    if st.session_state.get("notified_for") != token:
+        st.toast(f"{len(triggered)} alert(s) triggered", icon="🚨")
+        st.session_state["notified_for"] = token
+    st.warning(
+        f"🚨 {len(triggered)} upcoming close approach(es) trigger one of your alerts. "
+        "See the Alerts tab."
+    )
+
+
+def mean_diameter(neo: dict) -> float | None:
+    low, high = neo.get("diameter_min_m"), neo.get("diameter_max_m")
+    return (low + high) / 2 if low and high else None
+
+
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
+    ["📊 Overview", "⭐ Favorites", "🚨 Alerts", "➕ Add a NEO", "🔍 Browse a NEO"]
+)
 
 # ============ OVERVIEW ============
 with tab1:
@@ -66,6 +198,11 @@ with tab1:
     if not neos:
         st.warning("No NEOs in database")
     else:
+        diameters = [d for d in map(mean_diameter, neos) if d is not None]
+        hazardous_count = sum(1 for n in neos if n.get("is_hazardous"))
+        custom_count = sum(1 for n in neos if n.get("is_custom"))
+        avg_diameter = sum(diameters) / len(diameters) if diameters else 0
+
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
@@ -88,9 +225,7 @@ with tab1:
 
         st.markdown("---")
 
-        # Graphs
         col1, col2 = st.columns(2)
-
         with col1:
             st.subheader("Breakdown by level of hazard")
             hazard_data = pd.DataFrame({
@@ -133,12 +268,11 @@ with tab1:
         with col3:
             sort_by = st.selectbox("Sort by", ["Name", "Diameter", "Hazard level"])
 
-        # Appliquer les filtres
         filtered_neos = neos
         if filter_hazardous:
-            filtered_neos = [neo for neo in filtered_neos if neo.get("is_hazardous")]
+            filtered_neos = [n for n in filtered_neos if n.get("is_hazardous")]
         if filter_custom:
-            filtered_neos = [neo for neo in filtered_neos if neo.get("is_custom")]
+            filtered_neos = [n for n in filtered_neos if n.get("is_custom")]
 
         # Trier
         if sort_by == "Name":
@@ -159,34 +293,104 @@ with tab1:
 
 with tab2:
     st.header("⭐ Favorites")
-    st.info("🚧 Fonctionnalité à implémenter: Intégration avec l'endpoint /favorites de votre backend")
+    if not favorites:
+        st.info("You have no favorite NEO yet. Add some from the 'Browse a NEO' tab.")
+    else:
+        st.dataframe(
+            pd.DataFrame([{
+                "id_neo": f["id_neo"],
+                "name": f["neo"]["name_neo"],
+                "diameter_min_m": f["neo"]["diameter_min_m"],
+                "diameter_max_m": f["neo"]["diameter_max_m"],
+                "hazardous": f["neo"]["is_hazardous"],
+                "added_at": f["added_at"],
+            } for f in favorites]),
+            hide_index=True, width="stretch",
+        )
 
-    # Exemple de structure pour plus tard
-    # favorites = fetch_favorites(st.session_state["user"]["id_user"])
-    # if favorites:
-    #     st.dataframe(pd.DataFrame(favorites))
-    # else:
-    #     st.info("Vous n'avez aucun NEO en favoris.")
+        id_neo = st.selectbox(
+            "Select a favorite", list(favorite_labels),
+            format_func=favorite_labels.get, key="selected_favorite",
+        )
+        if st.button("Remove from favorites"):
+            mutate("DELETE", f"{FAVORITES_URL}/{USER_ID}/{id_neo}", 204, "Removed from favorites")
 
-# ============ ALERTS ============
+        st.subheader("📈 Distance over time")
+        body = st.text_input("Orbiting body (empty = all bodies)", value="Earth", key="distance_body")
+        history = get_json(f"{FAVORITES_URL}/{id_neo}/distances", None, params={"orbiting_body": body})
+
+        if history and history["points"]:
+            closest = history["closest"]
+            st.metric(
+                "Closest approach", f"{closest['miss_distance_km']:,.0f} km",
+                help=f"On {closest['date'][:10]}",
+            )
+            png = fetch_chart(USER_ID, id_neo, body)
+            if png:
+                st.image(png, width="stretch")
+                st.download_button(
+                    "Download the chart (PNG)", data=png,
+                    file_name=f"neo_{id_neo}_distances.png", mime="image/png",
+                )
+            with st.expander("Data"):
+                st.dataframe(pd.DataFrame(history["points"]), hide_index=True, width="stretch")
+        elif history is not None:
+            st.info("No close approach recorded for this NEO.")
+
+        st.subheader("🚨 Alert on this NEO")
+        alert_form(f"alert_form_fav_{id_neo}", id_neo)
+
 with tab3:
     st.header("🚨 Alerts")
-    st.info("🚧 Fonctionnalité à implémenter: Afficher les NEOs avec des approches proches")
 
-    # Exemple: Récupérer les NEOs avec des approches dans les 30 jours
-    # close_approaches = []
-    # for neo in fetch_neos():
-    #     approaches = fetch_close_approaches(neo["id_neo"])
-    #     for approach in approaches:
-    #         approach_date = datetime.strptime(approach["approach_date"], "%Y-%m-%d")
-    #         if (approach_date - datetime.now()).days <= 30:
-    #             close_approaches.append({**neo, **approach})
+    st.subheader("Triggered alerts")
+    if triggered:
+        st.dataframe(
+            pd.DataFrame([{
+                "NEO": t["neo"]["name_neo"],
+                "approach_date": t["close_approach"]["approach_date"],
+                "miss_distance_km": t["close_approach"]["miss_distance_km"],
+                "velocity_kmh": t["close_approach"]["relative_velocity_kmh"],
+                "diameter_max_m": t["neo"]["diameter_max_m"],
+                "threshold_km": t["alert"]["threshold_km"],
+                "threshold_size_m": t["alert"]["threshold_size"],
+            } for t in triggered]),
+            hide_index=True, width="stretch",
+        )
+    else:
+        st.success("✅ No alert triggered")
 
-    # if close_approaches:
-    #     df = pd.DataFrame(close_approaches)
-    #     st.dataframe(df)
-    # else:
-    #     st.success("✅ Aucune alerte pour les 30 prochains jours")
+    st.subheader("My alerts")
+    if not alerts:
+        st.info("You have no alert yet.")
+    for a in alerts:
+        neo = a.get("neo")
+        condition = f"closer than {a['threshold_km']:,.0f} km"
+        if a.get("threshold_size"):
+            condition += f", larger than {a['threshold_size']:,.0f} m"
+
+        c1, c2, c3, c4 = st.columns([3, 4, 1, 1])
+        c1.write(f"**{neo['name_neo'] if neo else 'Any NEO'}**")
+        c2.write(condition)
+        active = c3.toggle(
+            "Active", value=a["is_active"], key=f"active_{a['id_alert']}",
+            label_visibility="collapsed",
+        )
+        if active != a["is_active"]:
+            mutate("PATCH", f"{ALERTS_URL}/{USER_ID}/{a['id_alert']}", 200,
+                   "Alert updated", json={"is_active": active})
+        if c4.button("🗑️", key=f"delete_{a['id_alert']}"):
+            mutate("DELETE", f"{ALERTS_URL}/{USER_ID}/{a['id_alert']}", 204, "Alert deleted")
+
+    st.subheader("New alert")
+    watch_options = [None, *favorite_labels]
+    watched = st.selectbox(
+        "NEO to watch", watch_options,
+        format_func=lambda i: "Any NEO" if i is None else favorite_labels[i],
+        key="alert_neo",
+    )
+    alert_form("alert_form_tab", watched)
+
 
 # ============ ONGLET 4: ADD A NEO ============
 with tab4:
@@ -240,62 +444,88 @@ with tab4:
 with tab5:
     st.header("🔍 Browse a NEO")
 
-    # Sélection d'un NEO
-    neos = fetch_neos()
-    if not neos:
-        st.warning("Aucun NEO disponible.")
-    else:
-        neo_names = [f"{neo.get('name_neo', 'Inconnu')} (ID: {neo.get('id_neo')})" for neo in neos]
-        selected_neo_name = st.selectbox("Sélectionnez un NEO", neo_names)
+    with st.form("search_form"):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            name = st.text_input("Name contains")
+            hazardous = st.selectbox("Hazardous", ["Any", "Yes", "No"])
+            body = st.text_input("Orbiting body (case-sensitive, e.g. Earth)")
+            approach_date = st.text_input("Approach date (YYYY-MM-DD)")
+        with c2:
+            min_d = st.number_input("Min mean diameter (m)", min_value=0.0, value=0.0)
+            max_d = st.number_input("Max mean diameter (m, 0 = no limit)", min_value=0.0, value=0.0)
+            max_mag = st.number_input("Max absolute magnitude (0 = no limit)", min_value=0.0, value=0.0)
+        with c3:
+            sort_choice = st.selectbox("Sort by", ["name", "diameter", "magnitude", "hazardous", "(none)"])
+            descending = st.checkbox("Descending")
+            mine = st.checkbox("Only the NEOs I created")
+        submitted = st.form_submit_button("Search")
 
-        if selected_neo_name:
-            # Extraire l'ID du NEO sélectionné
-            selected_neo_id = int(selected_neo_name.split("ID: ")[1].rstrip(")"))
+    if submitted:
+        params = {}
+        if name:
+            params["name"] = name
+        if hazardous != "Any":
+            params["is_hazardous"] = str(hazardous == "Yes").lower()
+        if body:
+            params["orbiting_body"] = body
+        if approach_date:
+            params["approach_date"] = approach_date
+        if min_d > 0:
+            params["min_diameter_m"] = min_d
+        if max_d > 0:
+            params["max_diameter_m"] = max_d
+        if max_mag > 0:
+            params["max_magnitude"] = max_mag
+        if mine:
+            params["user_id"] = USER_ID
+        st.session_state["search"] = {
+            "params": params,
+            "sort_by": None if sort_choice == "(none)" else sort_choice,
+            "descending": descending,
+        }
 
-            # Trouver le NEO correspondant
-            selected_neo = next((neo for neo in neos if neo["id_neo"] == selected_neo_id), None)
+    search = st.session_state.get(
+        "search", {"params": {}, "sort_by": "name", "descending": False}
+    )
+    found = search_neos(search["params"], search["sort_by"], search["descending"])
+    st.caption(f"{len(found)} NEO(s) found - click a row to see its details")
 
-            if selected_neo:
-                st.markdown("---")
-                st.subheader(f"🪐 {selected_neo.get('name_neo', 'NEO')}")
+    if found:
+        columns = ["id_neo", "nasa_id", "name_neo", "diameter_min_m", "diameter_max_m",
+                   "absolute_magnitude", "is_hazardous", "is_custom"]
+        event = st.dataframe(
+            pd.DataFrame(found)[columns], hide_index=True, width="stretch",
+            on_select="rerun", selection_mode="single-row", key="neo_table",
+        )
+        rows = event.selection.rows
+        if rows:
+            neo = found[rows[0]]
+            st.subheader(f"🪐 {neo['name_neo']}")
 
-                # Afficher les informations du NEO
-                col1, col2, col3 = st.columns(3)
+            if neo["id_neo"] in favorite_ids:
+                st.success("⭐ Already in your favorites")
+            elif st.button("⭐ Add to favorites"):
+                mutate("POST", FAVORITES_URL, 201, "Added to favorites",
+                       json={"id_user": USER_ID, "id_neo": neo["id_neo"]})
 
-                with col1:
-                    st.metric("NASA ID", selected_neo.get("nasa_id", "N/A"))
-                    st.metric("Diamètre min", f"{selected_neo.get('diameter_min_m', 0)} m")
-                    st.metric("Est dangereux", "✅ Oui" if selected_neo.get("is_hazardous") else "❌ Non")
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Min diameter", f"{neo['diameter_min_m']} m")
+            m2.metric("Max diameter", f"{neo['diameter_max_m']} m")
+            m3.metric("Hazardous", "✅ Yes" if neo["is_hazardous"] else "❌ No")
 
-                with col2:
-                    st.metric("Diamètre max", f"{selected_neo.get('diameter_max_m', 0)} m")
-                    st.metric("Magnitude", selected_neo.get("absolute_magnitude", "N/A"))
-                    st.metric("Personnalisé", "✅ Oui" if selected_neo.get("is_custom") else "❌ Non")
-
-                with col3:
-                    if selected_neo.get("created_by_user_id"):
-                        st.metric("Créé par", selected_neo["created_by_user_id"])
-
-                st.markdown("---")
-
-                # Récupérer les approches proches
-                st.subheader("📅 Approches proches")
-                approaches = fetch_close_approaches(selected_neo_id)
-
-                if approaches:
-                    df_approaches = pd.DataFrame(approaches)
-                    if "approach_date" in df_approaches.columns:
-                        df_approaches["approach_date"] = pd.to_datetime(df_approaches["approach_date"])
-                        df_approaches = df_approaches.sort_values("approach_date")
-                        st.dataframe(df_approaches, use_container_width=True)
-
-                        # Graphique des distances
-                        if "miss_distance_km" in df_approaches.columns:
-                            fig = px.line(df_approaches, x="approach_date", y="miss_distance_km",
-                                          title="Distance de passage au fil du temps",
-                                          labels={"miss_distance_km": "Distance (km)", "approach_date": "Date"})
-                            st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.json(approaches)
-                else:
-                    st.info("Aucune approche proche enregistrée pour ce NEO.")
+            st.subheader("📅 Close approaches")
+            approaches = fetch_close_approaches(neo["id_neo"])
+            if approaches:
+                df_a = pd.DataFrame(approaches)
+                df_a["approach_date"] = pd.to_datetime(df_a["approach_date"])
+                df_a = df_a.sort_values("approach_date")
+                st.dataframe(df_a, hide_index=True, width="stretch")
+                st.plotly_chart(
+                    px.line(df_a, x="approach_date", y="miss_distance_km",
+                            title="Miss distance over time",
+                            labels={"miss_distance_km": "Distance (km)", "approach_date": "Date"}),
+                    width="stretch",
+                )
+            else:
+                st.info("No close approach recorded for this NEO.")
