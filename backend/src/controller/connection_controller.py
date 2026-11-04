@@ -55,12 +55,13 @@ async def connections_by_id(id_user: int, connection_service: ConnectionHistoryS
 
 @router.get(
     "/",
-    response_model=ConnectionReadModel,
+    response_model=list[ConnectionReadModel],
     summary="Get all connections",
     tags=["Connections"])
-async def all_connections(connection_service: ConnectionHistoryService = Depends(get_connection_service)) -> list[ConnectionReadModel]:
-    """Find all connections.
+async def all_connections(current_user: User = Depends(get_current_user), connection_service: ConnectionHistoryService = Depends(get_connection_service)) -> list[ConnectionReadModel]:
+    """Find all connections if the user is an administrator.
     Args:
+        current_user: the user asking for the connections
         connection_service (ConnectionHistoryService): The service used to interact connections data
     Returns:
         List[ConnectionReadModel]: Connections data if found
@@ -70,5 +71,7 @@ async def all_connections(connection_service: ConnectionHistoryService = Depends
     logger.info("Find all connections")
     connections = connection_service.find_all()
     if not connections:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No connection found for the user (id={id_player}).")
-    return [ConnectionReadModel.from_orm(conn) for conn in connections]
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No connection found for the user (id={id_user}).")
+    if current_user.role_user != "admin":
+        connections = [conn for conn in connections if conn.id_user == current_user.id_user]
+    return [ConnectionReadModel.model_validate(conn, from_attributes=True) for conn in connections]

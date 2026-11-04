@@ -118,11 +118,6 @@ def search_neos(params: dict, sort_by: str | None, descending: bool):
 
 
 @st.cache_data(ttl=300)
-def fetch_close_approaches(neo_id):
-    return get_json(f"{NEO_URL}/{neo_id}/close-approaches", [])
-
-
-@st.cache_data(ttl=300)
 def fetch_chart(user_id: int, id_neo: int, orbiting_body: str) -> bytes | None:
     # user_id is only part of the cache key: the route depends on the authenticated user
     response = api(
@@ -185,6 +180,9 @@ def mean_diameter(neo: dict) -> float | None:
     low, high = neo.get("diameter_min_m"), neo.get("diameter_max_m")
     return (low + high) / 2 if low and high else None
 
+
+if st.button("Settings", type="primary"):
+    st.switch_page("pages/settings_menu.py")
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["📊 Overview", "⭐ Favorites", "🚨 Alerts", "➕ Add a NEO", "🔍 Browse a NEO"]
