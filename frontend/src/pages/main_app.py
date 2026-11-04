@@ -58,6 +58,7 @@ def fetch_user_connections(user_id):
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Overview", "⭐ Favorites", "🚨 Alerts", "➕ Add a NEO", "🔍 Browse a NEO"])
 
+# ============ OVERVIEW ============
 with tab1:
     st.header("📊 Overview")
     neos = fetch_neos()
@@ -83,7 +84,7 @@ with tab1:
                 (neo.get("diameter_min_m", 0) + neo.get("diameter_max_m", 0)) / 2
                 for neo in neos if neo.get("diameter_min_m") and neo.get("diameter_max_m")
             ) / len(neos) if neos else 0
-            st.metric("Average parameter", f"{avg_diameter:.0f} m")
+            st.metric("Average diameter", f"{avg_diameter:.0f} m")
 
         st.markdown("---")
 
@@ -91,46 +92,46 @@ with tab1:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.subheader("Répartition par dangerosité")
+            st.subheader("Breakdown by level of hazard")
             hazard_data = pd.DataFrame({
-                "Type": ["Dangereux", "Non dangereux"],
+                "Type": ["Hazardous", "Non hazardous"],
                 "Count": [hazardous_count, len(neos) - hazardous_count]
             })
-            fig = px.pie(hazard_data, values="Count", names="Type", color_discrete_sequence=["#ff4444", "#44ff44"])
+            fig = px.pie(hazard_data, values="Count", names="Type", color_discrete_sequence=["#50C878", "#FF4500"])
             st.plotly_chart(fig, use_container_width=True)
 
         with col2:
-            st.subheader("Répartition par taille (diamètre moyen)")
-            # Filtrer les NEOs avec des données de diamètre
+            st.subheader("Breakdown by size (average diameter)")
+            # Filter NEOs using diameter data
             diameter_data = []
             for neo in neos:
                 if neo.get("diameter_min_m") and neo.get("diameter_max_m"):
                     diameter_data.append({
-                        "name": neo.get("name_neo", "Inconnu"),
+                        "name": neo.get("name_neo", "Unknown"),
                         "diameter": (neo["diameter_min_m"] + neo["diameter_max_m"]) / 2
                     })
             if diameter_data:
                 df_diameter = pd.DataFrame(diameter_data)
                 fig = px.bar(df_diameter.sort_values("diameter", ascending=False).head(10),
                              x="name", y="diameter",
-                             title="Top 10 NEOs par diamètre",
-                             labels={"diameter": "Diamètre moyen (m)", "name": "NEO"})
+                             title="Top 10 NEOs by diameter",
+                             labels={"diameter": "Average diameter (m)", "name": "NEO"})
                 st.plotly_chart(fig, use_container_width=True)
             else:
-                st.info("Aucune donnée de diamètre disponible")
+                st.info("No diameter data available")
 
         st.markdown("---")
 
-        # Liste des NEOs avec filtres
-        st.subheader("🔭 Liste des NEOs")
+        # List of NEOs with filters
+        st.subheader("🔭 List of NEOs")
 
         col1, col2, col3 = st.columns(3)
         with col1:
-            filter_hazardous = st.checkbox("Dangereux uniquement", value=False)
+            filter_hazardous = st.checkbox("Hazardous", value=False)
         with col2:
-            filter_custom = st.checkbox("Personnalisés uniquement", value=False)
+            filter_custom = st.checkbox("Custom", value=False)
         with col3:
-            sort_by = st.selectbox("Trier par", ["Nom", "Diamètre", "Dangerosité"])
+            sort_by = st.selectbox("Sort by", ["Name", "Diameter", "Hazard level"])
 
         # Appliquer les filtres
         filtered_neos = neos
@@ -140,22 +141,21 @@ with tab1:
             filtered_neos = [neo for neo in filtered_neos if neo.get("is_custom")]
 
         # Trier
-        if sort_by == "Nom":
+        if sort_by == "Name":
             filtered_neos = sorted(filtered_neos, key=lambda x: x.get("name_neo", ""))
-        elif sort_by == "Diamètre":
+        elif sort_by == "Diameter":
             filtered_neos = sorted(filtered_neos, key=lambda x: (x.get("diameter_min_m", 0) + x.get("diameter_max_m", 0)) / 2, reverse=True)
-        elif sort_by == "Dangerosité":
+        elif sort_by == "Hazard level":
             filtered_neos = sorted(filtered_neos, key=lambda x: x.get("is_hazardous", False), reverse=True)
 
-        # Afficher dans un DataFrame
+        # Display in a DataFrame
         if filtered_neos:
             df = pd.DataFrame(filtered_neos)
-            # Garder seulement les colonnes utiles
             display_columns = ["id_neo", "nasa_id", "name_neo", "diameter_min_m", "diameter_max_m", "is_hazardous", "is_custom"]
             available_columns = [col for col in display_columns if col in df.columns]
             st.dataframe(df[available_columns], use_container_width=True)
         else:
-            st.info("Aucun NEO ne correspond à vos critères.")
+            st.info("No NEO find for your search criteria")
 
 with tab2:
     st.header("⭐ Favorites")
@@ -168,7 +168,7 @@ with tab2:
     # else:
     #     st.info("Vous n'avez aucun NEO en favoris.")
 
-# ============ ONGLET 3: ALERTS ============
+# ============ ALERTS ============
 with tab3:
     st.header("🚨 Alerts")
     st.info("🚧 Fonctionnalité à implémenter: Afficher les NEOs avec des approches proches")
