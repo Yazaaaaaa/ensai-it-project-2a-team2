@@ -69,7 +69,7 @@ ALERTS_URL = "/alert"
 
 def api(method: str, path: str, **kwargs):
     """Calls the backend with the user's token. Returns None if it is unreachable."""
-    token = st.session_state.get("access_token")
+    token = st.session_state["user"].get("access_token")
     headers = {"Authorization": f"Bearer {token}"}
     try:
         return requests.request(
@@ -165,7 +165,7 @@ if "flash" in st.session_state:
     st.toast(st.session_state.pop("flash"))
 
 # F6: notification when the user logs in (once per session), banner afterwards
-token = st.session_state.get("access_token")
+token = st.session_state["user"].get("access_token")
 if triggered:
     if st.session_state.get("notified_for") != token:
         st.toast(f"{len(triggered)} alert(s) triggered", icon=":material/warning:")
@@ -228,7 +228,7 @@ with tab1:
                 "Count": [hazardous_count, len(neos) - hazardous_count]
             })
             fig = px.pie(hazard_data, values="Count", names="Type", color_discrete_sequence=["#50C878", "#FF4500"])
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         with col2:
             st.subheader("Breakdown by size (average diameter)")
@@ -246,7 +246,7 @@ with tab1:
                              x="name", y="diameter",
                              title="Top 10 NEOs by diameter",
                              labels={"diameter": "Average diameter (m)", "name": "NEO"})
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
             else:
                 st.info("No diameter data available")
 
@@ -282,7 +282,7 @@ with tab1:
             df = pd.DataFrame(filtered_neos)
             display_columns = ["id_neo", "nasa_id", "name_neo", "diameter_min_m", "diameter_max_m", "is_hazardous", "is_custom"]
             available_columns = [col for col in display_columns if col in df.columns]
-            st.dataframe(df[available_columns], use_container_width=True)
+            st.dataframe(df[available_columns], width="stretch")
         else:
             st.info("No NEO find for your search criteria")
 
@@ -311,9 +311,9 @@ with tab2:
         if st.button("Remove from favorites"):
             mutate("DELETE", f"{FAVORITES_URL}/{USER_ID}/{id_neo}", 204, "Removed from favorites")
 
-        st.subheader("Distance over time", icon=":material/barchart:")
-        body = st.text_input("Orbiting body (empty = all bodies)", value="Earth", key="distance_body")
-        history = get_json(f"{FAVORITES_URL}/{USER_ID}/{id_neo}/distances", None, params={"orbiting_body": body})
+        st.subheader("Distance over time", icon=":material/bar_chart:")
+        body = st.text_input("Orbiting body (empty = all bodies)", key="distance_body")
+        history = get_json(f"{FAVORITES_URL}/{id_neo}/distances", None, params={"orbiting_body": body})
 
         if history and history["points"]:
             closest = history["closest"]
@@ -376,7 +376,7 @@ with tab3:
         if active != a["is_active"]:
             mutate("PATCH", f"{ALERTS_URL}/{USER_ID}/{a['id_alert']}", 200,
                    "Alert updated", json={"is_active": active})
-        if c4.button("Delete", key=f"delete_{a['id_alert']}", , icon=":material/delete:"):
+        if c4.button("Delete", key=f"delete_{a['id_alert']}", icon=":material/delete:"):
             mutate("DELETE", f"{ALERTS_URL}/{USER_ID}/{a['id_alert']}", 204, "Alert deleted")
 
     st.subheader("New alert")
@@ -403,9 +403,9 @@ with tab4:
             is_custom = st.checkbox("Custom", value=True)
 
         with col2:
-            diameter_min = st.number_input("Min diameter (m)", min_value=0.0, value=0.0)
-            diameter_max = st.number_input("Max diameter (m)", min_value=0.0, value=0.0)
-            magnitude = st.number_input("Absolute magnitude", min_value=0.0, value=0.0)
+            diameter_min = st.number_input("Min diameter (m)", min_value=0.0, value=0.0, step=100.0)
+            diameter_max = st.number_input("Max diameter (m)", min_value=0.0, value=0.0, step=100.0)
+            magnitude = st.number_input("Absolute magnitude", min_value=0.0, value=0.0, step=1.0)
             created_by = st.number_input("Created by (user ID)",
                                          value=st.session_state["user"]["id_user"],
                                          disabled=True)
@@ -449,9 +449,9 @@ with tab5:
             body = st.text_input("Orbiting body (e.g. Earth)")
             approach_date = st.text_input("Approach date (YYYY-MM-DD)")
         with c2:
-            min_d = st.number_input("Min mean diameter (m)", min_value=0.0, value=0.0)
-            max_d = st.number_input("Max mean diameter (m, 0 = no limit)", min_value=0.0, value=0.0)
-            max_mag = st.number_input("Max absolute magnitude (0 = no limit)", min_value=0.0, value=0.0)
+            min_d = st.number_input("Min mean diameter (m)", min_value=0.0, value=0.0, step=100.0)
+            max_d = st.number_input("Max mean diameter (m, 0 = no limit)", min_value=0.0, value=0.0, step=100.0)
+            max_mag = st.number_input("Max absolute magnitude (0 = no limit)", min_value=0.0, value=0.0, step=1.0)
         with c3:
             sort_choice = st.selectbox("Sort by", ["name", "diameter", "magnitude", "hazardous", "(none)"])
             descending = st.checkbox("Descending")
@@ -507,25 +507,9 @@ with tab5:
                        json={"id_user": USER_ID, "id_neo": neo["id_neo"]})
 
             m1, m2, m3 = st.columns(3)
-            m1.metric("Min diameter", f"{neo['diameter_min_m']} m")
-            m2.metric("Max diameter", f"{neo['diameter_max_m']} m")
-            m3.metric("Hazardous", "Yes" if neo["is_hazardous"] else "❌ No")
-
-            st.subheader("Close approaches", icon=":material/event:")
-            approaches = fetch_close_approaches(neo["id_neo"])
-            if approaches:
-                df_a = pd.DataFrame(approaches)
-                df_a["approach_date"] = pd.to_datetime(df_a["approach_date"])
-                df_a = df_a.sort_values("approach_date")
-                st.dataframe(df_a, hide_index=True, width="stretch")
-                st.plotly_chart(
-                    px.line(df_a, x="approach_date", y="miss_distance_km",
-                            title="Miss distance over time",
-                            labels={"miss_distance_km": "Distance (km)", "approach_date": "Date"}),
-                    width="stretch",
-                )
-            else:
-                st.info("No close approach recorded for this NEO.")
+            m1.metric("Min diameter", f"{neo['diameter_min_m']:.2f} m")
+            m2.metric("Max diameter", f"{neo['diameter_max_m']:.2f} m")
+            m3.metric("Hazardous", "Yes" if neo["is_hazardous"] else "No")
 
 
 if st.button("Settings", type="primary"):

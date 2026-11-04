@@ -30,7 +30,7 @@ def remove_favorite(id_user: int, id_neo: int):
 @router.get("/{id_neo}/distances")
 def get_distances(
     id_neo: int,
-    orbiting_body: str | None = "Earth",
+    orbiting_body: str | None = None,
     current_user: User = Depends(get_current_user),
 ):
     """Returns the miss distances of a favorite NEO over time."""
@@ -40,7 +40,7 @@ def get_distances(
 @router.get("/{id_neo}/distances/chart", response_class=Response)
 def get_distances_chart(
     id_neo: int,
-    orbiting_body: str | None = "Earth",
+    orbiting_body: str | None = None,
     current_user: User = Depends(get_current_user),
 ):
     """Returns a PNG chart of the miss distances of a favorite NEO."""

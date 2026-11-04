@@ -86,7 +86,7 @@ class FavoriteService:
     
     @log
     def get_distance_history(
-        self, user_id: int, id_neo: int, orbiting_body: str | None = "Earth"
+        self, user_id: int, id_neo: int, orbiting_body: str | None = None
     ) -> dict:
         """Returns the miss distances of a favorite NEO over time, sorted by date.
 
@@ -135,22 +135,24 @@ class FavoriteService:
 
     @log
     def render_distance_chart(
-        self, user_id: int, id_neo: int, orbiting_body: str | None = "Earth"
+        self, user_id: int, id_neo: int, orbiting_body: str | None = None
     ) -> bytes:
         history = self.get_distance_history(user_id, id_neo, orbiting_body)
         points = history["points"]
         if not points:
             raise HTTPException(status_code=404, detail="No close approach data for this NEO")
 
-        dates = [p["date"] for p in points]
         distances = [p["miss_distance_km"] for p in points]
 
         # Figure (and not pyplot): no global state, safe in FastAPI's thread pool
         fig = Figure(figsize=(8, 4.5))
         ax = fig.subplots()
-        ax.plot(dates, distances, marker="o", linewidth=1.5, label="Miss distance")
-        ax.axhline(MOON_DISTANCE_KM, color="gray", linestyle="--", linewidth=1,
-                   label="Earth-Moon distance")
+        # Une ligne (et une couleur) par corps orbité
+        for body_name in sorted({p["orbiting_body"] for p in points}):
+            group = [p for p in points if p["orbiting_body"] == body_name]
+            ax.plot([p["date"] for p in group], [p["miss_distance_km"] for p in group],
+                    marker="o", linewidth=1.5, label=body_name)
+
 
         # Distances can span several orders of magnitude: a log scale keeps them readable
         if max(distances) / max(min(distances), 1) > 100:

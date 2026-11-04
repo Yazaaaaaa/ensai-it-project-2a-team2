@@ -7,45 +7,6 @@ from utils.log_init import get_page_logger
 logger = get_page_logger("settings.py")
 st.title("⚙️ Settings")
 
-
-def safe_get_api_data(response, data_key="data"):
-    """
-    Normalises the API response to prevent type errors.
-    - If `response` is a dict → returns `response[data_key]` or an empty list
-    - If `response` is a str → returns an empty list and logs the error
-    - Otherwise → returns an empty list
-    """
-    # Cas 1: Réponse est une chaîne (erreur)
-    if isinstance(response, str):
-        logger.error(f"API returned string (error): {response}")
-        st.error(f"❌ Server error: {response}")
-        return []
-
-    # Cas 2: Réponse est une liste (backend direct)
-    if isinstance(response, list):
-        return response  # ✅ Retourne la liste directement
-
-    # Cas 3: Réponse est un dict (format standard)
-    if isinstance(response, dict):
-        data = response.get(data_key, response)  # ✅ Gère les deux formats
-
-        if isinstance(data, list):
-            return data
-        elif isinstance(data, dict):
-            # Essayer de trouver une liste dans le dict
-            for value in data.values():
-                if isinstance(value, list):
-                    return value
-            return []
-        else:
-            logger.error(f"Unexpected data type in response: {type(data)}")
-            return []
-
-    # Cas 4: Autre type
-    logger.error(f"API returned unexpected type: {type(response)}")
-    return []
-
-
 # ========== VÉRIFICATION DE LA CONNEXION ==========
 if "user" not in st.session_state:
     st.warning("⚠️ Please log in to access settings.")
@@ -149,29 +110,19 @@ if user_role == "admin":
             st.error(f"Error banning user: {str(e)}")
             logger.error(f"Error banning user: {str(e)}")
 
-    # ===== Connection history of all users =====
-    st.subheader("📊 All Connections")
+    # Connection history of all users
+    st.subheader(" All Connections")
     if st.button("Load All Connections", key="load_all_connections"):
-        try:
-            all_connections_response = api_client.get("/connections/")
-
-            all_connections = safe_get_api_data(all_connections_response)
-
-            if not all_connections:
-                st.info("No connections found.")
-            else:
-                if isinstance(all_connections, list):
-                    st.dataframe(all_connections, use_container_width=True)
-                else:
-                    st.error("Invalid data format received from server")
-                    logger.error(f"Expected list, got: {type(all_connections)}")
-
-        except Exception as e:
-            st.error(f"Failed to load all connections: {str(e)}")
-            logger.error(f"Error loading all connections: {str(e)}")
+        response = api_client.get(
+            "/connections/", headers={"Authorization": f"Bearer {access_token}"}
+        )
+        if response.get("status_code") != 200:
+            st.error(f"Failed to load connections: {response.get('data', {}).get('detail', 'Unknown error')}")
+        else:
+            st.dataframe(response["data"], width="stretch")
 
     # Data importation
-    st.subheader("📥 Data Import")
+    st.subheader(" Data Import")
     if st.button("Start Data Import", key="import_data"):
         try:
             import_response = api_client.post(

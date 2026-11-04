@@ -1,0 +1,38 @@
+03/11/2026 15:41:26 root                 INFO   - --------------------------------------------------
+03/11/2026 15:41:26 root                 INFO   - Launch FRONTEND : Streamlit App
+03/11/2026 15:41:26 root                 INFO   - --------------------------------------------------
+03/11/2026 15:41:26 root                 INFO   - Load environment variables: SUCCES
+03/11/2026 15:41:26 root                 INFO   - BACKEND_URL=http://localhost:5000
+03/11/2026 15:41:26 root                 INFO   - BACKEND_TIMEOUT=5
+03/11/2026 15:41:26 home                 INFO   - None -> home
+03/11/2026 15:41:34 create_user.py       INFO   - home -> create_user.py
+03/11/2026 15:42:59 create_user.py       INFO   - Create a user
+03/11/2026 15:42:59 create_user.py       INFO   -   POST http://localhost:5000/users/
+03/11/2026 15:42:59 create_user.py       INFO   -   422 Unprocessable Content
+03/11/2026 15:42:59 create_user.py       ERROR  - Error creating user: Unknown error
+03/11/2026 15:47:25 root                 INFO   - --------------------------------------------------
+03/11/2026 15:47:25 root                 INFO   - Launch FRONTEND : Streamlit App
+03/11/2026 15:47:25 root                 INFO   - --------------------------------------------------
+03/11/2026 15:47:25 root                 INFO   - Load environment variables: SUCCES
+03/11/2026 15:47:25 root                 INFO   - BACKEND_URL=http://localhost:5000
+03/11/2026 15:47:25 root                 INFO   - BACKEND_TIMEOUT=5
+03/11/2026 15:47:25 home                 INFO   - None -> home
+03/11/2026 15:47:28 create_user.py       INFO   - home -> create_user.py
+03/11/2026 15:47:47 create_user.py       INFO   - Create a user
+03/11/2026 15:47:47 create_user.py       INFO   -   POST http://localhost:5000/users/
+03/11/2026 15:47:47 create_user.py       INFO   -   422 Unprocessable Content
+03/11/2026 15:47:47 create_user.py       ERROR  - Error creating user: Unknown error
+03/11/2026 15:47:47 create_user.py       ERROR  - Réponse brute: {'status_code': 422, 'data': {'detail': [{'type': 'missing', 'loc': ['body', 'role'], 'msg': 'Field required', 'input': {'email': '123@gmail.com', 'password': '12345678', 'role_user': 'admin'}}], 'body': '{"email": "123@gmail.com", "password": "12345678", "role_user": "admin"}'}}
+03/11/2026 15:49:42 root                 INFO   - --------------------------------------------------
+03/11/2026 15:49:42 root                 INFO   - Launch FRONTEND : Streamlit App
+03/11/2026 15:49:42 root                 INFO   - --------------------------------------------------
+03/11/2026 15:49:42 root                 INFO   - Load environment variables: SUCCES
+03/11/2026 15:49:42 root                 INFO   - BACKEND_URL=http://localhost:5000
+03/11/2026 15:49:42 root                 INFO   - BACKEND_TIMEOUT=5
+03/11/2026 15:49:42 home                 INFO   - None -> home
+03/11/2026 15:49:43 create_user.py       INFO   - home -> create_user.py
+03/11/2026 15:49:59 create_user.py       INFO   - Create a user
+03/11/2026 15:49:59 create_user.py       INFO   -   POST http://localhost:5000/users/
+03/11/2026 15:49:59 create_user.py       INFO   -   500 Internal Server Error
+03/11/2026 15:49:59 create_user.py       ERROR  - API request failed: 'str' object has no attribute 'get'
+03/11/2026 15:49:59 create_user.py       ERROR  - Réponse brute: {'status_code': 500, 'data': 'Internal Server Error'}
