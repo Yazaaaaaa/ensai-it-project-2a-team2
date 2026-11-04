@@ -1,22 +1,21 @@
-# Theme
 [server]
 port = 8000
 
 [theme]
-textColor="#f8f8f8"
+textColor="#F0F8FF"
 font="Calibri"
 
-primaryColor="#6c9ac0"
-backgroundColor="#332e49"
-secondaryBackgroundColor="#54525f"
+primaryColor="#FFD700"
+backgroundColor="#0A0E2A"
+secondaryBackgroundColor="#1A1A3A"
 
-redTextColor="#8b0303"
-redBackgroundColor="#ff5f5f"
-greenTextColor="#016806"
-greenBackgroundColor="#9cd1b7"
-yellowTextColor="#bd7f0c"
-yellowBackgroundColor="#f7bd53"
+redTextColor="#F0F8FF"
+redBackgroundColor="#FF4500"
+greenTextColor="#F0F8FF"
+greenBackgroundColor="#50C878"
+yellowTextColor="#F0F8FF"
+yellowBackgroundColor="#FFD700"
 
 
-dataframeBorderColor="#976a09"
-dataframeHeaderBackgroundColor="#eea73d"
+dataframeBorderColor="#3A3A6A"
+dataframeHeaderBackgroundColor="#3A3A6A"
