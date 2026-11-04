@@ -112,6 +112,7 @@ class AlertDao(metaclass=Singleton):
                             "threshold_km": alert.threshold_km,
                             "threshold_size": alert.threshold_size,
                             "is_active": alert.is_active,
+                            "id_alert": alert.id,
                         },
                     )
                     res = cursor.fetchone()
