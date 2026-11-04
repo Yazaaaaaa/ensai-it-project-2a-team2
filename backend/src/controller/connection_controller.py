@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from service.dependencies import get_current_user
 
+from business_object import User
 from schema.connection_model import ConnectionReadModel
 from service.connection_history_service import ConnectionHistoryService
 from utils.log_utils import get_logger
