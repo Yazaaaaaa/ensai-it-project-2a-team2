@@ -35,12 +35,13 @@ class AlertOut(BaseModel):
     threshold_size: float | None = None
     is_active: bool
     created_at: datetime | None
-    neo: NeoOut
+    neo: NeoOut | None = None
 
 
 class TriggeredAlertOut(BaseModel):
     """An alert and the close approach that triggers it."""
     alert: AlertOut
+    neo: NeoOut
     close_approach: CloseApproachOut
 
 
@@ -51,9 +52,10 @@ def _alert_to_out(alert: Alert, neo: Neo) -> AlertOut:
         id_user=alert.user_id,
         id_neo=alert.neo_id,
         threshold_km=alert.threshold_km,
+        threshold_size=alert.threshold_size,
         is_active=alert.is_active,
         created_at=alert.created_at,
-        neo=_to_out(neo),
+        neo=_to_out(neo) if neo else None,
     )
 
 
@@ -61,5 +63,6 @@ def _triggered_to_out(alert: Alert, neo: Neo, approach: CloseApproach) -> Trigge
     """Converts a triggered alert and its close approach into their API representation."""
     return TriggeredAlertOut(
         alert=_alert_to_out(alert, neo),
+        neo=_to_out(neo),
         close_approach=_approach_to_out(approach),
     )

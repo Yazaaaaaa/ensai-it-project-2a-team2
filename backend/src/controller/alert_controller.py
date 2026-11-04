@@ -16,7 +16,9 @@ router = APIRouter()
 @router.post("", response_model=AlertOut, status_code=201)
 def create_alert(body: AlertIn):
     """Creates an alert on a NEO for a user."""
-    alert, neo = AlertService().add(body.id_user, body.id_neo, body.threshold_km, body.is_active)
+    alert, neo = AlertService().add(
+        body.id_user, body.id_neo, body.threshold_km, body.threshold_size, body.is_active
+    )
     return _alert_to_out(alert, neo)
 
 

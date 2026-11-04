@@ -129,3 +129,40 @@ class CloseApproachDao(metaclass=Singleton):
         except Exception as e:
             logger.error(f"Error finding close approaches by date {approach_date}: {e}")
             raise
+    
+    @log
+    def find_upcoming(
+        self,
+        from_date: str,
+        max_km: float,
+        orbiting_body: str,
+        min_size_m: float | None = None,
+    ) -> list[CloseApproach]:
+        """Retrieves the close approaches from a date (YYYY-MM-DD) whose miss distance
+        is at most max_km, for a given orbiting body, and whose NEO has a maximum
+        diameter of at least min_size_m (no size filter if None)."""
+        try:
+            with DBConnection().connection as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT ca.*
+                        FROM close_approach ca
+                        JOIN neo n ON n.id_neo = ca.id_neo
+                        WHERE ca.approach_date >= %(date)s::date
+                        AND ca.miss_distance_km <= %(max_km)s
+                        AND ca.orbiting_body = %(body)s
+                        AND (%(min_size)s::float IS NULL OR n.diameter_max_m >= %(min_size)s);
+                        """,
+                        {
+                            "date": from_date,
+                            "max_km": max_km,
+                            "body": orbiting_body,
+                            "min_size": min_size_m,
+                        },
+                    )
+                    rows = cursor.fetchall()
+                    return [self._row_to_approach(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error finding upcoming close approaches: {e}")
+            raise

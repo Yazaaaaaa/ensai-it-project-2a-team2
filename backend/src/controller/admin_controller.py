@@ -1,5 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 
+from typing import Optional
+
 from business_object.user import User
 from controller.dependencies import get_admin_service, require_admin
 from service.admin_service import AdminService
@@ -71,3 +73,23 @@ def import_data(
         )
     background_tasks.add_task(_run_import, admin_service, admin)
     return {"detail": "Import started"}
+
+
+@router.get(
+    "/connections",
+    summary="Connection history of one user or of all users",
+)
+def get_connection_history(
+    id_user: int | None = None,
+    admin: User = Depends(require_admin),
+    admin_service: AdminService = Depends(get_admin_service),
+):
+    """Returns the connection history, filtered by user if `id_user` is given.
+
+    Raises:
+        HTTPException: 404 if `id_user` is given and unknown.
+    """
+    try:
+        return admin_service.get_connection_history(admin, id_user)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

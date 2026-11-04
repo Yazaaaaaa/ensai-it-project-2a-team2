@@ -29,15 +29,16 @@ class AlertDao(metaclass=Singleton):
                     cursor.execute(
                         """
                         INSERT INTO alert
-                            (id_user, id_neo, threshold_km, is_active)
+                            (id_user, id_neo, threshold_km, threshold_size, is_active)
                         VALUES
-                            (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(is_active)s)
-                        RETURNING id_alert, created_at;
+                            (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(threshold_size)s, %(is_active)s)
+                        RETURNING id_alert, created_at;;
                         """,
                         {
                             "id_user": alert.user_id,
                             "id_neo": alert.neo_id,
                             "threshold_km": alert.threshold_km,
+                            "threshold_size": alert.threshold_size,
                             "is_active": alert.is_active,
                         },
                     )
@@ -68,7 +69,8 @@ class AlertDao(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        SELECT id_alert, id_user, id_neo, threshold_km, is_active, created_at
+                        SELECT id_alert, id_user, id_neo, threshold_km, threshold_size,
+                               is_active, created_at
                         FROM alert
                         WHERE id_user = %(id_user)s
                         ORDER BY created_at DESC, id_alert DESC;
@@ -101,14 +103,15 @@ class AlertDao(metaclass=Singleton):
                         """
                         UPDATE alert
                         SET threshold_km = %(threshold_km)s,
+                            threshold_size = %(threshold_size)s,
                             is_active = %(is_active)s
                         WHERE id_alert = %(id_alert)s
                         RETURNING id_alert;
                         """,
                         {
                             "threshold_km": alert.threshold_km,
+                            "threshold_size": alert.threshold_size,
                             "is_active": alert.is_active,
-                            "id_alert": alert.id,
                         },
                     )
                     res = cursor.fetchone()
@@ -155,6 +158,7 @@ class AlertDao(metaclass=Singleton):
             user_id=row["id_user"],
             neo_id=row["id_neo"],
             threshold_km=row["threshold_km"],
+            threshold_size=row["threshold_size"],
             is_active=row["is_active"],
             created_at=row["created_at"],
         )

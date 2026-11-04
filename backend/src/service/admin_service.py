@@ -5,7 +5,9 @@ import threading
 from pathlib import Path
 
 from business_object.user import User
+from business_object.connection import Connection
 from dao.user_dao import UserDao
+from service.connection_history_service import ConnectionHistoryService
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +23,13 @@ class AdminService:
 
     _import_lock = threading.Lock()
 
-    def __init__(self, user_dao: UserDao | None = None):
+    def __init__(
+        self,
+        user_dao: UserDao | None = None,
+        connection_service: ConnectionHistoryService | None = None,
+    ):
         self.user_dao = user_dao or UserDao()
+        self.connection_service = connection_service or ConnectionHistoryService()
 
     # ---------------------------------------------------------------- ban
 
@@ -100,6 +107,25 @@ class AdminService:
     @classmethod
     def is_import_running(cls) -> bool:
         return cls._import_lock.locked()
+
+    # ------------------------------------------------- connection history
+
+    def get_connection_history(
+        self, admin: User, id_user: int | None = None
+    ) -> list[Connection]:
+        """
+        Returns the connection history, of one user or of all users.
+
+        Raises:
+            PermissionError: the caller is not an admin.
+            ValueError: unknown user.
+        """
+        self._require_admin(admin)
+        if id_user is None:
+            return self.connection_service.find_all()
+        if self.user_dao.find_by_id(id_user) is None:
+            raise ValueError("User not found")
+        return self.connection_service.find_by_id_user(id_user)
     # ------------------------------------------------------------ helpers
 
     @staticmethod

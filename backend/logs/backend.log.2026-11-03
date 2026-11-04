@@ -1,0 +1,223 @@
+03/11/2026 15:29:41 root                      INFO    - --------------------------------------------------
+03/11/2026 15:29:41 root                      INFO    - Starting Webservice                           
+03/11/2026 15:29:41 root                      INFO    - --------------------------------------------------
+03/11/2026 15:29:41 root                      INFO    - Load environment variables: FAIL
+03/11/2026 15:29:42 __main__                  INFO    - Webservice stopped
+03/11/2026 15:29:51 root                      INFO    - --------------------------------------------------
+03/11/2026 15:29:51 root                      INFO    - Starting Webservice                           
+03/11/2026 15:29:51 root                      INFO    - --------------------------------------------------
+03/11/2026 15:29:51 root                      INFO    - Load environment variables: FAIL
+03/11/2026 15:40:36 __main__                  INFO    - Webservice stopped
+03/11/2026 15:40:39 root                      INFO    - --------------------------------------------------
+03/11/2026 15:40:39 root                      INFO    - Starting Webservice                           
+03/11/2026 15:40:39 root                      INFO    - --------------------------------------------------
+03/11/2026 15:40:39 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:40:39 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:40:39 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:40:39 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:40:39 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:40:39 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:40:39 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:40:39 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:40:39 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:40:39 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:40:39 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:40:39 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:40:39 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 15:41:17 __main__                  INFO    - Webservice stopped
+03/11/2026 15:41:19 root                      INFO    - --------------------------------------------------
+03/11/2026 15:41:19 root                      INFO    - Starting Webservice                           
+03/11/2026 15:41:19 root                      INFO    - --------------------------------------------------
+03/11/2026 15:41:19 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:41:19 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:41:19 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:41:19 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:41:19 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:41:19 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:41:19 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:41:19 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:41:19 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:41:19 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:41:19 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:41:19 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:41:19 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 15:42:59 root                      INFO    - POST /users/ - START
+03/11/2026 15:42:59 __main__                  ERROR   - Validation Error
+Errors: [{'type': 'missing', 'loc': ('body', 'role'), 'msg': 'Field required', 'input': {'email': '123@gmail.com', 'password': '12345678', 'role_user': 'admin'}}]
+Body: {"email": "123@gmail.com", "password": "12345678", "role_user": "admin"}
+03/11/2026 15:42:59 root                      INFO    - POST /users/ - END [Status: 422]
+03/11/2026 15:47:11 __main__                  INFO    - Webservice stopped
+03/11/2026 15:47:14 root                      INFO    - --------------------------------------------------
+03/11/2026 15:47:14 root                      INFO    - Starting Webservice                           
+03/11/2026 15:47:14 root                      INFO    - --------------------------------------------------
+03/11/2026 15:47:14 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:47:14 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:47:14 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:47:14 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:47:14 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:47:14 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:47:14 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:47:14 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:47:14 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:47:14 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:47:14 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:47:14 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:47:14 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 15:47:47 root                      INFO    - POST /users/ - START
+03/11/2026 15:47:47 __main__                  ERROR   - Validation Error
+Errors: [{'type': 'missing', 'loc': ('body', 'role'), 'msg': 'Field required', 'input': {'email': '123@gmail.com', 'password': '12345678', 'role_user': 'admin'}}]
+Body: {"email": "123@gmail.com", "password": "12345678", "role_user": "admin"}
+03/11/2026 15:47:47 root                      INFO    - POST /users/ - END [Status: 422]
+03/11/2026 15:49:29 __main__                  INFO    - Webservice stopped
+03/11/2026 15:49:33 root                      INFO    - --------------------------------------------------
+03/11/2026 15:49:33 root                      INFO    - Starting Webservice                           
+03/11/2026 15:49:33 root                      INFO    - --------------------------------------------------
+03/11/2026 15:49:33 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:49:33 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:49:33 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:49:33 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:49:33 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:49:33 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:49:33 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:49:33 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:49:33 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:49:33 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:49:33 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:49:33 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:49:33 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 15:49:59 root                      INFO    - POST /users/ - START
+03/11/2026 15:49:59 root                      ERROR   - POST /users/ - FAILED [Status: 500] Error: 'UserCreateModel' object has no attribute 'role_user'
+03/11/2026 15:53:43 __main__                  INFO    - Webservice stopped
+03/11/2026 15:53:48 root                      INFO    - --------------------------------------------------
+03/11/2026 15:53:48 root                      INFO    - Starting Webservice                           
+03/11/2026 15:53:48 root                      INFO    - --------------------------------------------------
+03/11/2026 15:53:48 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:53:48 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:53:48 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:53:48 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:53:48 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:53:48 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:53:48 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:53:48 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:53:48 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:53:48 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:53:48 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:53:48 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:53:48 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 15:54:08 root                      INFO    - POST /users/ - START
+03/11/2026 15:54:08 __main__                  ERROR   - Validation Error
+Errors: [{'type': 'missing', 'loc': ('body', 'role'), 'msg': 'Field required', 'input': {'email': '123@gmail.com', 'password': '12345678', 'role_user': 'admin'}}]
+Body: {"email": "123@gmail.com", "password": "12345678", "role_user": "admin"}
+03/11/2026 15:54:08 root                      INFO    - POST /users/ - END [Status: 422]
+03/11/2026 15:55:24 __main__                  INFO    - Webservice stopped
+03/11/2026 15:55:28 root                      INFO    - --------------------------------------------------
+03/11/2026 15:55:28 root                      INFO    - Starting Webservice                           
+03/11/2026 15:55:28 root                      INFO    - --------------------------------------------------
+03/11/2026 15:55:28 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:55:28 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:55:28 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:55:28 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:55:28 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:55:28 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:55:28 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:55:28 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:55:28 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:55:28 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:55:28 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:55:28 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:55:28 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 15:55:43 root                      INFO    - POST /users/ - START
+03/11/2026 15:55:43 dao.user_dao              INFO    -   find_by_email('123@gmail.com',) - START
+03/11/2026 15:55:43 dao.user_dao              INFO    -   find_by_email('123@gmail.com',) - END
+03/11/2026 15:55:43 dao.user_dao              INFO    -     └─> Output: None
+03/11/2026 15:55:44 dao.user_dao              INFO    -   create('<business_object.user.User object at 0x7f2ec647a510>',) - START
+03/11/2026 15:55:44 dao.user_dao              INFO    -   create('<business_object.user.User object at 0x7f2ec647a510>',) - END
+03/11/2026 15:55:44 dao.user_dao              INFO    -     └─> Output: True
+03/11/2026 15:55:44 service.user_service      INFO    - Account created for user 10
+03/11/2026 15:55:44 c.user_controller         INFO    - Account created for user 10
+03/11/2026 15:55:44 root                      INFO    - POST /users/ - END [Status: 201]
+03/11/2026 15:56:51 root                      INFO    - POST /login - START
+03/11/2026 15:56:51 root                      INFO    - POST /login - END [Status: 307]
+03/11/2026 15:56:51 root                      INFO    - POST /login/ - START
+03/11/2026 15:56:51 c.login_controller        INFO    - Login attempt
+03/11/2026 15:56:51 dao.user_dao              INFO    -   find_by_email('123@gmail.com',) - START
+03/11/2026 15:56:51 dao.user_dao              INFO    -   find_by_email('123@gmail.com',) - END
+03/11/2026 15:56:51 dao.user_dao              INFO    -     └─> Output: <business_object.user.User object at 0x7f2ec64c4cd0>
+03/11/2026 15:56:51 dao.user_dao              INFO    -   update('<business_object.user.User object at 0x7f2ec64c4cd0>',) - START
+03/11/2026 15:56:51 dao.user_dao              INFO    -   update('<business_object.user.User object at 0x7f2ec64c4cd0>',) - END
+03/11/2026 15:56:51 dao.user_dao              INFO    -     └─> Output: True
+03/11/2026 15:56:51 s.connection_history_service INFO    -   create(10,) - START
+03/11/2026 15:56:51 dao.login_history_dao     INFO    -     create('<business_object.connection.Connection object at 0x7f2ec65e7b60>',) - START
+03/11/2026 15:56:51 dao.login_history_dao     INFO    -     create('<business_object.connection.Connection object at 0x7f2ec65e7b60>',) - END
+03/11/2026 15:56:51 dao.login_history_dao     INFO    -       └─> Output: True
+03/11/2026 15:56:51 s.connection_history_service INFO    - Connection history created for user 10
+03/11/2026 15:56:51 s.connection_history_service INFO    -   create(10,) - END
+03/11/2026 15:56:51 s.connection_history_service INFO    -     └─> Output: <business_object.connection.Connection object at 0x7f2ec65e7b60>
+03/11/2026 15:56:51 c.login_controller        INFO    - Connection history created for user 10
+03/11/2026 15:56:51 root                      INFO    - POST /login/ - END [Status: 200]
+03/11/2026 15:57:22 __main__                  INFO    - Webservice stopped
+03/11/2026 15:58:30 root                      INFO    - --------------------------------------------------
+03/11/2026 15:58:30 root                      INFO    - Starting Webservice                           
+03/11/2026 15:58:30 root                      INFO    - --------------------------------------------------
+03/11/2026 15:58:30 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 15:58:30 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 15:58:30 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 15:58:30 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 15:58:30 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 15:58:30 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 15:58:30 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 15:58:30 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 15:58:30 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 15:58:30 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 15:58:30 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 15:58:30 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 15:58:30 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 16:00:31 __main__                  INFO    - Webservice stopped
+03/11/2026 16:00:33 root                      INFO    - --------------------------------------------------
+03/11/2026 16:00:33 root                      INFO    - Starting Webservice                           
+03/11/2026 16:00:33 root                      INFO    - --------------------------------------------------
+03/11/2026 16:00:33 root                      INFO    - Load environment variables: SUCCES
+03/11/2026 16:00:33 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+03/11/2026 16:00:33 root                      INFO    - POSTGRES_PORT=5432
+03/11/2026 16:00:33 root                      INFO    - POSTGRES_DATABASE=defaultdb
+03/11/2026 16:00:33 root                      INFO    - POSTGRES_USER=user-yannma
+03/11/2026 16:00:33 root                      INFO    - POSTGRES_PASSWORD=*******
+03/11/2026 16:00:33 root                      INFO    - POSTGRES_SCHEMA=neow
+03/11/2026 16:00:33 root                      INFO    - UVICORN_HOST=0.0.0.0
+03/11/2026 16:00:33 root                      INFO    - UVICORN_PORT=5000
+03/11/2026 16:00:33 root                      INFO    - BACKEND_URL=http://localhost:5000
+03/11/2026 16:00:33 root                      INFO    - BACKEND_TIMEOUT=5
+03/11/2026 16:00:33 root                      INFO    - ELO_K_FACTOR=32
+03/11/2026 16:00:33 root                      INFO    - NASA_API_KEY=*******
+03/11/2026 16:00:42 root                      INFO    - GET /neo/ - START
+03/11/2026 16:00:42 root                      INFO    - GET /neo/ - END [Status: 307]
+03/11/2026 16:00:42 root                      INFO    - GET /neo - START
+03/11/2026 16:00:42 service.neo_service       INFO    -   search_neos('{}',) - START
+03/11/2026 16:00:42 dao.neo_dao               INFO    -     find_all() - START
+03/11/2026 16:00:43 dao.neo_dao               INFO    -     find_all() - END
+03/11/2026 16:00:43 dao.neo_dao               INFO    -       └─> Output: ['Neo(2001620: 1620 Geographos (1951 RA), Hazardous: True)', 'Neo(2001863: 1863 Antinous (1948 EA), Hazardous: False)', 'Neo(2001915: 1915 Quetzalcoatl (1953 EA), Hazardous: False)'] ... (22 elements)
+03/11/2026 16:00:43 service.neo_service       INFO    -   search_neos('{}',) - END
+03/11/2026 16:00:43 service.neo_service       INFO    -     └─> Output: ['Neo(2001620: 1620 Geographos (1951 RA), Hazardous: True)', 'Neo(2001863: 1863 Antinous (1948 EA), Hazardous: False)', 'Neo(2001915: 1915 Quetzalcoatl (1953 EA), Hazardous: False)'] ... (22 elements)
+03/11/2026 16:00:43 root                      INFO    - GET /neo - END [Status: 200]
+03/11/2026 16:01:04 root                      INFO    - POST /login - START
+03/11/2026 16:01:04 root                      INFO    - POST /login - END [Status: 307]
+03/11/2026 16:01:04 root                      INFO    - POST /login/ - START
+03/11/2026 16:01:04 c.login_controller        INFO    - Login attempt
+03/11/2026 16:01:04 dao.user_dao              INFO    -   find_by_email('123@gmail.com',) - START
+03/11/2026 16:01:04 dao.user_dao              INFO    -   find_by_email('123@gmail.com',) - END
+03/11/2026 16:01:04 dao.user_dao              INFO    -     └─> Output: <business_object.user.User object at 0x7f61b4fefcb0>
+03/11/2026 16:01:05 dao.user_dao              INFO    -   update('<business_object.user.User object at 0x7f61b4fefcb0>',) - START
+03/11/2026 16:01:05 dao.user_dao              INFO    -   update('<business_object.user.User object at 0x7f61b4fefcb0>',) - END
+03/11/2026 16:01:05 dao.user_dao              INFO    -     └─> Output: True
+03/11/2026 16:01:05 s.connection_history_service INFO    -   create(10,) - START
+03/11/2026 16:01:05 dao.login_history_dao     INFO    -     create('<business_object.connection.Connection object at 0x7f61b4e7d2b0>',) - START
+03/11/2026 16:01:05 dao.login_history_dao     INFO    -     create('<business_object.connection.Connection object at 0x7f61b4e7d2b0>',) - END
+03/11/2026 16:01:05 dao.login_history_dao     INFO    -       └─> Output: True
+03/11/2026 16:01:05 s.connection_history_service INFO    - Connection history created for user 10
+03/11/2026 16:01:05 s.connection_history_service INFO    -   create(10,) - END
+03/11/2026 16:01:05 s.connection_history_service INFO    -     └─> Output: <business_object.connection.Connection object at 0x7f61b4e7d2b0>
+03/11/2026 16:01:05 c.login_controller        INFO    - Connection history created for user 10
+03/11/2026 16:01:05 root                      INFO    - POST /login/ - END [Status: 200]
+03/11/2026 16:01:05 root                      INFO    - GET /neo/1/approaches - START
+03/11/2026 16:01:05 root                      INFO    - GET /neo/1/approaches - END [Status: 404]
+03/11/2026 16:01:51 __main__                  INFO    - Webservice stopped
