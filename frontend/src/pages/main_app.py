@@ -70,7 +70,7 @@ ALERTS_URL = "/alert"
 def api(method: str, path: str, **kwargs):
     """Calls the backend with the user's token. Returns None if it is unreachable."""
     token = st.session_state.get("access_token")
-    headers = {"Authorization": f"Bearer {token}"} if token else {}
+    headers = {"Authorization": f"Bearer {token}"}
     try:
         return requests.request(
             method, f"{BACKEND_URL}{path}", headers=headers, timeout=15, **kwargs
@@ -168,10 +168,10 @@ if "flash" in st.session_state:
 token = st.session_state.get("access_token")
 if triggered:
     if st.session_state.get("notified_for") != token:
-        st.toast(f"{len(triggered)} alert(s) triggered", icon="🚨")
+        st.toast(f"{len(triggered)} alert(s) triggered", icon=":material/warning:")
         st.session_state["notified_for"] = token
     st.warning(
-        f"🚨 {len(triggered)} upcoming close approach(es) trigger one of your alerts. "
+        f"{len(triggered)} upcoming close approach(es) trigger one of your alerts. "
         "See the Alerts tab."
     )
 
@@ -181,16 +181,13 @@ def mean_diameter(neo: dict) -> float | None:
     return (low + high) / 2 if low and high else None
 
 
-if st.button("Settings", type="primary"):
-    st.switch_page("pages/settings_menu.py")
-
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["📊 Overview", "⭐ Favorites", "🚨 Alerts", "➕ Add a NEO", "🔍 Browse a NEO"]
+    ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO"]
 )
 
 # ============ OVERVIEW ============
 with tab1:
-    st.header("📊 Overview")
+    st.header("Overview", icon=":material/monitoring:")
     neos = fetch_neos()
 
     if not neos:
@@ -256,7 +253,7 @@ with tab1:
         st.markdown("---")
 
         # List of NEOs with filters
-        st.subheader("🔭 List of NEOs")
+        st.subheader("List of NEOs", icon=":material/view_list:")
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -289,8 +286,9 @@ with tab1:
         else:
             st.info("No NEO find for your search criteria")
 
+# FAVORITES
 with tab2:
-    st.header("⭐ Favorites")
+    st.header("Favorites", icon=":material/favorite:")
     if not favorites:
         st.info("You have no favorite NEO yet. Add some from the 'Browse a NEO' tab.")
     else:
@@ -313,9 +311,9 @@ with tab2:
         if st.button("Remove from favorites"):
             mutate("DELETE", f"{FAVORITES_URL}/{USER_ID}/{id_neo}", 204, "Removed from favorites")
 
-        st.subheader("📈 Distance over time")
+        st.subheader("Distance over time", icon=":material/barchart:")
         body = st.text_input("Orbiting body (empty = all bodies)", value="Earth", key="distance_body")
-        history = get_json(f"{FAVORITES_URL}/{id_neo}/distances", None, params={"orbiting_body": body})
+        history = get_json(f"{FAVORITES_URL}/{USER_ID}/{id_neo}/distances", None, params={"orbiting_body": body})
 
         if history and history["points"]:
             closest = history["closest"]
@@ -335,11 +333,12 @@ with tab2:
         elif history is not None:
             st.info("No close approach recorded for this NEO.")
 
-        st.subheader("🚨 Alert on this NEO")
+        st.subheader("Alert on this NEO", icon=":material/warning:")
         alert_form(f"alert_form_fav_{id_neo}", id_neo)
 
+# ALERTS
 with tab3:
-    st.header("🚨 Alerts")
+    st.header("Alerts", icon=":material/warning:")
 
     st.subheader("Triggered alerts")
     if triggered:
@@ -356,7 +355,7 @@ with tab3:
             hide_index=True, width="stretch",
         )
     else:
-        st.success("✅ No alert triggered")
+        st.success("No alert triggered")
 
     st.subheader("My alerts")
     if not alerts:
@@ -377,7 +376,7 @@ with tab3:
         if active != a["is_active"]:
             mutate("PATCH", f"{ALERTS_URL}/{USER_ID}/{a['id_alert']}", 200,
                    "Alert updated", json={"is_active": active})
-        if c4.button("🗑️", key=f"delete_{a['id_alert']}"):
+        if c4.button("Delete", key=f"delete_{a['id_alert']}", , icon=":material/delete:"):
             mutate("DELETE", f"{ALERTS_URL}/{USER_ID}/{a['id_alert']}", 204, "Alert deleted")
 
     st.subheader("New alert")
@@ -390,32 +389,32 @@ with tab3:
     alert_form("alert_form_tab", watched)
 
 
-# ============ ONGLET 4: ADD A NEO ============
+# ADD A NEO
 with tab4:
-    st.header("➕ Add a NEO")
+    st.header("Add a NEO", icon=":material/add_circle:")
 
     with st.form("add_neo_form"):
         col1, col2 = st.columns(2)
 
         with col1:
-            name_neo = st.text_input("Nom du NEO *", key="name_neo")
+            name_neo = st.text_input("Name of NEO *", key="name_neo")
             nasa_id = st.text_input("NASA ID", key="nasa_id")
-            is_hazardous = st.checkbox("Est dangereux", value=False)
-            is_custom = st.checkbox("Personnalisé", value=True)
+            is_hazardous = st.checkbox("is hazardous", value=False)
+            is_custom = st.checkbox("Custom", value=True)
 
         with col2:
-            diameter_min = st.number_input("Diamètre min (m)", min_value=0.0, value=0.0)
-            diameter_max = st.number_input("Diamètre max (m)", min_value=0.0, value=0.0)
-            magnitude = st.number_input("Magnitude absolue", min_value=0.0, value=0.0)
-            created_by = st.number_input("Créé par (ID utilisateur)",
+            diameter_min = st.number_input("Min diameter (m)", min_value=0.0, value=0.0)
+            diameter_max = st.number_input("Max diameter (m)", min_value=0.0, value=0.0)
+            magnitude = st.number_input("Absolute magnitude", min_value=0.0, value=0.0)
+            created_by = st.number_input("Created by (user ID)",
                                          value=st.session_state["user"]["id_user"],
                                          disabled=True)
 
-        submit_button = st.form_submit_button("Ajouter le NEO")
+        submit_button = st.form_submit_button("Add this NEO")
 
         if submit_button:
             if not name_neo:
-                st.error("Le nom du NEO est obligatoire !")
+                st.error("Name is mandatory.")
             else:
                 new_neo = {
                     "name_neo": name_neo,
@@ -431,23 +430,23 @@ with tab4:
                 try:
                     response = requests.post(f"{BACKEND_URL}/neo/", json=new_neo)
                     if response.status_code == 201:
-                        st.success("✅ NEO ajouté avec succès !")
-                        st.experimental_rerun()  # Rafraîchir pour voir le nouveau NEO
+                        st.success("New NEO created.")
+                        st.experimental_rerun()
                     else:
-                        st.error(f"❌ Erreur: {response.text}")
+                        st.error(f"Error: {response.text}")
                 except Exception as e:
-                    st.error(f"Erreur lors de l'ajout: {e}")
+                    st.error(f"Error in the creation of the NEO: {e}")
 
-# ============ ONGLET 5: BROWSE A NEO ============
+# BROWSE A NEO
 with tab5:
-    st.header("🔍 Browse a NEO")
+    st.header("Browse a NEO", icon=":material/search_insights:")
 
     with st.form("search_form"):
         c1, c2, c3 = st.columns(3)
         with c1:
             name = st.text_input("Name contains")
             hazardous = st.selectbox("Hazardous", ["Any", "Yes", "No"])
-            body = st.text_input("Orbiting body (case-sensitive, e.g. Earth)")
+            body = st.text_input("Orbiting body (e.g. Earth)")
             approach_date = st.text_input("Approach date (YYYY-MM-DD)")
         with c2:
             min_d = st.number_input("Min mean diameter (m)", min_value=0.0, value=0.0)
@@ -499,20 +498,20 @@ with tab5:
         rows = event.selection.rows
         if rows:
             neo = found[rows[0]]
-            st.subheader(f"🪐 {neo['name_neo']}")
+            st.subheader(f"{neo['name_neo']}")
 
             if neo["id_neo"] in favorite_ids:
-                st.success("⭐ Already in your favorites")
-            elif st.button("⭐ Add to favorites"):
+                st.success("Already in your favorites")
+            elif st.button("Add to favorites"):
                 mutate("POST", FAVORITES_URL, 201, "Added to favorites",
                        json={"id_user": USER_ID, "id_neo": neo["id_neo"]})
 
             m1, m2, m3 = st.columns(3)
             m1.metric("Min diameter", f"{neo['diameter_min_m']} m")
             m2.metric("Max diameter", f"{neo['diameter_max_m']} m")
-            m3.metric("Hazardous", "✅ Yes" if neo["is_hazardous"] else "❌ No")
+            m3.metric("Hazardous", "Yes" if neo["is_hazardous"] else "❌ No")
 
-            st.subheader("📅 Close approaches")
+            st.subheader("Close approaches", icon=":material/event:")
             approaches = fetch_close_approaches(neo["id_neo"])
             if approaches:
                 df_a = pd.DataFrame(approaches)
@@ -527,3 +526,7 @@ with tab5:
                 )
             else:
                 st.info("No close approach recorded for this NEO.")
+
+
+if st.button("Settings", type="primary"):
+    st.switch_page("pages/settings_menu.py")
