@@ -219,7 +219,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO"]
 )
 
-# ============ OVERVIEW ============
+# OVERVIEW
 with tab1:
     st.header("Overview", icon=":material/monitoring:")
     neos = fetch_neos()
