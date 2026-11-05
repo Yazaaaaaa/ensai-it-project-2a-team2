@@ -219,7 +219,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(
     ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO"]
 )
 
-# ============ OVERVIEW ============
+# OVERVIEW
 with tab1:
     st.header("Overview", icon=":material/monitoring:")
     neos = fetch_neos()
@@ -434,7 +434,6 @@ with tab4:
             name_neo = st.text_input("Name of NEO *", key="name_neo")
             nasa_id = st.text_input("NASA ID", key="nasa_id")
             is_hazardous = st.checkbox("is hazardous", value=False)
-            is_custom = st.checkbox("Custom", value=True)
 
         with col2:
             diameter_min = st.number_input("Min diameter (m)", min_value=0.0, value=0.0, step=100.0)
@@ -449,6 +448,8 @@ with tab4:
         if submit_button:
             if not name_neo:
                 st.error("Name is mandatory.")
+            elif diameter_min > diameter_max:
+                st.error("NEO cannot be created: the min diameter must be lower than or equal to the max diameter.")
             else:
                 new_neo = {
                     "name_neo": name_neo,
@@ -457,7 +458,6 @@ with tab4:
                     "diameter_max_m": diameter_max,
                     "absolute_magnitude": magnitude,
                     "is_hazardous": is_hazardous,
-                    "is_custom": is_custom,
                     "created_by_user_id": created_by
                 }
 
@@ -465,7 +465,7 @@ with tab4:
                     response = requests.post(f"{BACKEND_URL}/neo/", json=new_neo)
                     if response.status_code == 201:
                         st.success("New NEO created.")
-                        st.experimental_rerun()
+                        st.rerun()
                     else:
                         st.error(f"Error: {response.text}")
                 except Exception as e:
