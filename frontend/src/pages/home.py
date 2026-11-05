@@ -13,6 +13,37 @@ from streamlit import config
 from utils.api_client import api_client
 from utils.log_init import get_page_logger
 
+st.markdown(
+    """
+    <style>
+        .stApp > header + div > div:first-child {
+            display: none !important;
+        }
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        [data-testid="stPageLink"] {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .stApp > header + div > div:first-child,
+                [data-testid="stSidebar"],
+                [data-testid="stPageLink"] {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+    """,
+    unsafe_allow_html=True
+)
+
 if "user" in st.session_state:
     st.switch_page("pages/main_app.py")
 

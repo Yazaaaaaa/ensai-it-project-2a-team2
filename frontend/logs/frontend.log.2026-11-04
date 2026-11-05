@@ -1,0 +1,244 @@
+04/11/2026 09:47:52 root                 INFO   - --------------------------------------------------
+04/11/2026 09:47:52 root                 INFO   - Launch FRONTEND : Streamlit App
+04/11/2026 09:47:52 root                 INFO   - --------------------------------------------------
+04/11/2026 09:47:52 root                 INFO   - Load environment variables: SUCCES
+04/11/2026 09:47:52 root                 INFO   - BACKEND_URL=http://localhost:5000
+04/11/2026 09:47:52 root                 INFO   - BACKEND_TIMEOUT=5
+04/11/2026 09:47:53 home                 INFO   - None -> home
+04/11/2026 09:52:36 root                 INFO   - --------------------------------------------------
+04/11/2026 09:52:36 root                 INFO   - Launch FRONTEND : Streamlit App
+04/11/2026 09:52:36 root                 INFO   - --------------------------------------------------
+04/11/2026 09:52:36 root                 INFO   - Load environment variables: SUCCES
+04/11/2026 09:52:36 root                 INFO   - BACKEND_URL=http://localhost:5000
+04/11/2026 09:52:36 root                 INFO   - BACKEND_TIMEOUT=5
+04/11/2026 10:25:46 create_user.py       INFO   - None -> create_user.py
+04/11/2026 10:26:17 create_user.py       INFO   - Create a user
+04/11/2026 10:26:17 create_user.py       INFO   -   POST http://localhost:5000/users/
+04/11/2026 10:26:17 create_user.py       INFO   -   201 Created
+04/11/2026 10:26:17 create_user.py       INFO   - User account created successfully
+04/11/2026 10:28:07 settings.py          INFO   - None -> settings.py
+04/11/2026 10:28:14 root                 INFO   - --------------------------------------------------
+04/11/2026 10:28:14 root                 INFO   - Launch FRONTEND : Streamlit App
+04/11/2026 10:28:14 root                 INFO   - --------------------------------------------------
+04/11/2026 10:28:14 root                 INFO   - Load environment variables: SUCCES
+04/11/2026 10:28:14 root                 INFO   - BACKEND_URL=http://localhost:5000
+04/11/2026 10:28:14 root                 INFO   - BACKEND_TIMEOUT=5
+04/11/2026 13:39:47 root                 INFO   - --------------------------------------------------
+04/11/2026 13:39:47 root                 INFO   - Launch FRONTEND : Streamlit App
+04/11/2026 13:39:47 root                 INFO   - --------------------------------------------------
+04/11/2026 13:39:47 root                 INFO   - Load environment variables: SUCCES
+04/11/2026 13:39:47 root                 INFO   - BACKEND_URL=http://localhost:5000
+04/11/2026 13:39:47 root                 INFO   - BACKEND_TIMEOUT=5
+04/11/2026 13:39:48 home                 INFO   - None -> home
+04/11/2026 13:40:07 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 13:40:07 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 13:40:08 home                 INFO   -   200 OK
+04/11/2026 13:40:08 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 13:40:08 home                 INFO   -   200 OK
+04/11/2026 13:40:08 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 13:40:20 settings.py          INFO   - home -> settings.py
+04/11/2026 13:40:20 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:40:20 settings.py          INFO   -   200 OK
+04/11/2026 13:41:43 settings.py          INFO   - None -> settings.py
+04/11/2026 13:41:45 home                 INFO   - settings.py -> home
+04/11/2026 13:41:51 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 13:41:51 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 13:41:52 home                 INFO   -   200 OK
+04/11/2026 13:41:52 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 13:41:52 home                 INFO   -   200 OK
+04/11/2026 13:41:52 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 13:41:54 settings.py          INFO   - home -> settings.py
+04/11/2026 13:41:54 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:41:54 settings.py          INFO   -   200 OK
+04/11/2026 13:45:03 settings.py          INFO   - None -> settings.py
+04/11/2026 13:45:04 home                 INFO   - settings.py -> home
+04/11/2026 13:45:10 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 13:45:10 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 13:45:10 home                 INFO   -   200 OK
+04/11/2026 13:45:10 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 13:45:10 home                 INFO   -   200 OK
+04/11/2026 13:45:10 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 13:45:13 settings.py          INFO   - home -> settings.py
+04/11/2026 13:45:13 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:45:13 settings.py          INFO   -   200 OK
+04/11/2026 13:45:19 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:45:19 settings.py          INFO   -   200 OK
+04/11/2026 13:45:19 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 13:45:20 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 13:45:20 settings.py          ERROR  - Expected list, got: <class 'str'>
+04/11/2026 13:46:04 settings.py          INFO   - None -> settings.py
+04/11/2026 13:46:07 home                 INFO   - settings.py -> home
+04/11/2026 13:46:13 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 13:46:13 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 13:46:13 home                 INFO   -   200 OK
+04/11/2026 13:46:13 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 13:46:13 home                 INFO   -   200 OK
+04/11/2026 13:46:13 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 13:46:15 settings.py          INFO   - home -> settings.py
+04/11/2026 13:46:15 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:46:15 settings.py          INFO   -   200 OK
+04/11/2026 13:46:19 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:46:19 settings.py          INFO   -   200 OK
+04/11/2026 13:46:19 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 13:46:19 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 13:46:19 settings.py          ERROR  - Expected list, got: <class 'str'>
+04/11/2026 13:52:37 settings.py          INFO   - None -> settings.py
+04/11/2026 13:52:39 home                 INFO   - settings.py -> home
+04/11/2026 13:52:46 home                 INFO   - Attempting login for user: 
+04/11/2026 13:52:46 home                 WARNING - Login failed: Empty email or password
+04/11/2026 13:52:54 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 13:52:54 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 13:52:54 home                 INFO   -   200 OK
+04/11/2026 13:52:54 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 13:52:54 home                 INFO   -   200 OK
+04/11/2026 13:52:54 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 13:52:57 settings.py          INFO   - home -> settings.py
+04/11/2026 13:52:57 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:52:57 settings.py          INFO   -   200 OK
+04/11/2026 13:53:00 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 13:53:00 settings.py          INFO   -   200 OK
+04/11/2026 13:53:00 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 13:53:00 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 13:53:00 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:01:52 settings.py          INFO   - None -> settings.py
+04/11/2026 14:01:54 home                 INFO   - settings.py -> home
+04/11/2026 14:02:00 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:02:00 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:02:00 home                 INFO   -   200 OK
+04/11/2026 14:02:00 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:02:00 home                 INFO   -   200 OK
+04/11/2026 14:02:00 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:02:03 settings.py          INFO   - home -> settings.py
+04/11/2026 14:02:03 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:02:03 settings.py          INFO   -   200 OK
+04/11/2026 14:02:07 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:02:07 settings.py          INFO   -   200 OK
+04/11/2026 14:02:07 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 14:02:07 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 14:02:07 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:03:51 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:03:51 settings.py          INFO   -   200 OK
+04/11/2026 14:03:51 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 14:03:51 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 14:03:51 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:07:40 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:07:40 settings.py          INFO   -   200 OK
+04/11/2026 14:07:43 settings.py          INFO   - None -> settings.py
+04/11/2026 14:07:44 home                 INFO   - settings.py -> home
+04/11/2026 14:07:50 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:07:50 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:07:50 home                 INFO   -   200 OK
+04/11/2026 14:07:50 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:07:50 home                 INFO   -   200 OK
+04/11/2026 14:07:50 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:07:53 settings.py          INFO   - home -> settings.py
+04/11/2026 14:07:53 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:07:53 settings.py          INFO   -   200 OK
+04/11/2026 14:07:56 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:07:56 settings.py          INFO   -   200 OK
+04/11/2026 14:07:56 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 14:07:56 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 14:07:56 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:13:27 settings.py          INFO   - None -> settings.py
+04/11/2026 14:13:31 home                 INFO   - settings.py -> home
+04/11/2026 14:13:41 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:13:41 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:13:41 home                 INFO   -   200 OK
+04/11/2026 14:13:41 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:13:41 home                 INFO   -   200 OK
+04/11/2026 14:13:41 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:13:45 settings.py          INFO   - home -> settings.py
+04/11/2026 14:13:45 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:13:45 settings.py          INFO   -   200 OK
+04/11/2026 14:13:48 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:13:48 settings.py          INFO   -   200 OK
+04/11/2026 14:13:48 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 14:13:48 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 14:13:48 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:17:28 settings.py          INFO   - None -> settings.py
+04/11/2026 14:17:31 home                 INFO   - settings.py -> home
+04/11/2026 14:17:37 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:17:37 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:17:37 home                 INFO   -   200 OK
+04/11/2026 14:17:37 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:17:37 home                 INFO   -   200 OK
+04/11/2026 14:17:37 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:17:40 settings.py          INFO   - home -> settings.py
+04/11/2026 14:17:40 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:17:40 settings.py          INFO   -   200 OK
+04/11/2026 14:17:46 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:17:46 settings.py          INFO   -   200 OK
+04/11/2026 14:17:46 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 14:17:46 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 14:17:46 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:22:22 create_user.py       INFO   - None -> create_user.py
+04/11/2026 14:22:23 home                 INFO   - create_user.py -> home
+04/11/2026 14:22:36 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:22:36 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:22:37 home                 INFO   -   200 OK
+04/11/2026 14:22:37 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:22:37 home                 INFO   -   200 OK
+04/11/2026 14:22:37 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:22:40 settings.py          INFO   - home -> settings.py
+04/11/2026 14:22:40 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:22:40 settings.py          INFO   -   200 OK
+04/11/2026 14:22:43 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:22:43 settings.py          INFO   -   200 OK
+04/11/2026 14:22:43 settings.py          INFO   -   GET http://localhost:5000/connections/
+04/11/2026 14:22:43 settings.py          INFO   -   500 Internal Server Error
+04/11/2026 14:22:43 settings.py          ERROR  - Unexpected data type in response: <class 'str'>
+04/11/2026 14:32:01 home                 INFO   - None -> home
+04/11/2026 14:32:12 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:32:12 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:32:12 home                 INFO   -   200 OK
+04/11/2026 14:32:12 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:32:12 home                 INFO   -   200 OK
+04/11/2026 14:32:12 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:39:36 home                 INFO   - None -> home
+04/11/2026 14:39:46 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:39:46 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:39:46 home                 INFO   -   200 OK
+04/11/2026 14:39:46 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:39:46 home                 INFO   -   200 OK
+04/11/2026 14:39:46 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:41:55 home                 INFO   - None -> home
+04/11/2026 14:42:00 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:42:00 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:42:01 home                 INFO   -   200 OK
+04/11/2026 14:42:01 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:42:01 home                 INFO   -   200 OK
+04/11/2026 14:42:01 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:42:06 settings.py          INFO   - home -> settings.py
+04/11/2026 14:42:06 settings.py          INFO   -   GET http://localhost:5000/connections/users/8
+04/11/2026 14:42:06 settings.py          INFO   -   200 OK
+04/11/2026 14:45:48 home                 INFO   - None -> home
+04/11/2026 14:45:54 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:45:54 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:45:54 home                 INFO   -   200 OK
+04/11/2026 14:45:54 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:45:54 home                 INFO   -   200 OK
+04/11/2026 14:45:54 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:49:21 settings.py          INFO   - None -> settings.py
+04/11/2026 14:49:22 home                 INFO   - settings.py -> home
+04/11/2026 14:49:28 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:49:28 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:49:28 home                 INFO   -   200 OK
+04/11/2026 14:49:28 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:49:28 home                 INFO   -   200 OK
+04/11/2026 14:49:28 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 14:54:11 home                 INFO   - None -> home
+04/11/2026 14:54:16 home                 INFO   - Attempting login for user: 
+04/11/2026 14:54:16 home                 WARNING - Login failed: Empty email or password
+04/11/2026 14:54:21 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 14:54:21 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 14:54:21 home                 INFO   -   200 OK
+04/11/2026 14:54:21 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 14:54:21 home                 INFO   -   200 OK
+04/11/2026 14:54:21 home                 INFO   - User faustine@mail.com logged in successfully
+04/11/2026 15:03:34 home                 INFO   - None -> home
+04/11/2026 15:03:40 home                 INFO   - Attempting login for user: faustine@mail.com
+04/11/2026 15:03:40 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 15:03:40 home                 INFO   -   200 OK
+04/11/2026 15:03:40 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 15:03:40 home                 INFO   -   200 OK
+04/11/2026 15:03:40 home                 INFO   - User faustine@mail.com logged in successfully

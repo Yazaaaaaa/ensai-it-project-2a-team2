@@ -15,6 +15,37 @@ import plotly.express as px
 import requests
 import streamlit as st
 
+st.markdown(
+    """
+    <style>
+        .stApp > header + div > div:first-child {
+            display: none !important;
+        }
+        [data-testid="stSidebar"] {
+            display: none !important;
+        }
+        [data-testid="stPageLink"] {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .stApp > header + div > div:first-child,
+                [data-testid="stSidebar"],
+                [data-testid="stPageLink"] {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+    """,
+    unsafe_allow_html=True
+)
+
 st.set_page_config(page_title="Neo-watch", page_icon="🌠", layout="centered")
 st.title("Dashboard")
 
@@ -58,7 +89,10 @@ def fetch_user_connections(user_id):
 
 if "user" not in st.session_state:
     st.warning("Please log in first.")
+    if st.button("Go to Login", type="primary"):
+        st.switch_page("pages/home.py")
     st.stop()
+
 
 USER_ID = st.session_state["user"]["id_user"]
 BACKEND_URL = "http://localhost:5000"
