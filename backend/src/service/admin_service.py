@@ -12,7 +12,7 @@ from service.connection_history_service import ConnectionHistoryService
 logger = logging.getLogger(__name__)
 
 ADMIN_ROLE = "admin"
-IMPORT_MODULE = "utils.import_all_data"
+IMPORT_MODULE = "utils.weekly_data"
 # admin_service.py est dans backend/src/service/ -> backend/src/ est le dossier parent
 SRC_DIR = Path(__file__).resolve().parents[1]
 OUTPUT_TAIL_CHARS = 5000
