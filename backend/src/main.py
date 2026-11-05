@@ -5,6 +5,8 @@ Main entry point for the FastAPI web service.
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.encoders import jsonable_encoder
+
 
 from controller import login_controller, alert_controller, favorite_controller, connection_controller, neo_controller, user_controller, admin_controller
 from utils.env_variables import display_values, load_environment_variables
@@ -34,7 +36,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": exc.errors(), "body": body_str},
+        content={"detail": jsonable_encoder(exc.errors()), "body": body_str},
     )
 
 

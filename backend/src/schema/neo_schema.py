@@ -1,6 +1,7 @@
 from typing import Literal
 from pydantic import BaseModel
 from fastapi import Query
+from pydantic import BaseModel, model_validator
 
 from business_object.neo import Neo
 from business_object.close_approach import CloseApproach
@@ -15,6 +16,16 @@ class NeoIn(BaseModel):
     absolute_magnitude: float | None = None
     is_hazardous: bool = False
     created_by_user_id: int | None = None
+
+    @model_validator(mode="after")
+    def check_diameters(self):
+        if (
+            self.diameter_min_m is not None
+            and self.diameter_max_m is not None
+            and self.diameter_min_m > self.diameter_max_m
+        ):
+            raise ValueError("diameter_min_m doit être <= diameter_max_m")
+        return self
 
 
 class NeoOut(BaseModel):
