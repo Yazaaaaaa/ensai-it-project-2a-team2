@@ -58,6 +58,8 @@ st.markdown(f"""
 **ID:** {user_id}  \
 **Created at:** {user.get("created_at", "N/A")}
 """)
+if st.button("Dashboard", type="primary"):
+    st.switch_page("pages/main_app.py")
 
 
 # USER'S CONNEXION HISTORY
