@@ -11,8 +11,6 @@ Command to run from the repository's root directory:
   - option all-extras: including dev dependancies
 - Launch the API in development mode: `uv run --project backend python backend/src/main.py`
 
-:bulb: First Launch: Click on **Reset Database** to initialize it.
-
 ## 🏛️ Architecture
 
 The backend follows a **Layered Architecture** (N-Tier) to ensure separation of concerns and maintainability:
