@@ -15,24 +15,6 @@ def get_connection_service():
     return ConnectionHistoryService()
 
 
-@router.post(
-    "/",
-    response_model=ConnectionReadModel,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create a new connection",
-    tags=["Connections"])
-async def create_connection(id_user: int, connection_service: ConnectionHistoryService = Depends(get_connection_service)) -> ConnectionReadModel:
-    """Create a new line in the login history table"""
-    logger.info(f"Creation of a new connexion for the user {id_user}")
-    connection = connection_service.create(id_user)
-    if not connection:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failure in the creation of a new connection."
-        )
-    return ConnectionReadModel.from_orm(connection)
-
-
 @router.get(
     "/users/{id_user}",
     response_model=list[ConnectionReadModel],

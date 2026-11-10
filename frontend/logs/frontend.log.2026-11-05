@@ -1,0 +1,37 @@
+04/11/2026 15:17:51 root                 INFO   - --------------------------------------------------
+04/11/2026 15:17:51 root                 INFO   - Launch FRONTEND : Streamlit App
+04/11/2026 15:17:51 root                 INFO   - --------------------------------------------------
+04/11/2026 15:17:51 root                 INFO   - Load environment variables: SUCCES
+04/11/2026 15:17:51 root                 INFO   - BACKEND_URL=http://localhost:5000
+04/11/2026 15:17:51 root                 INFO   - BACKEND_TIMEOUT=5
+04/11/2026 15:17:51 home                 INFO   - None -> home
+04/11/2026 15:18:15 create_user.py       INFO   - home -> create_user.py
+04/11/2026 15:18:25 create_user.py       INFO   - Create a user
+04/11/2026 15:18:25 create_user.py       INFO   -   POST http://localhost:5000/users/
+04/11/2026 15:18:26 create_user.py       INFO   -   422 Unprocessable Content
+04/11/2026 15:18:26 create_user.py       ERROR  - Error creating user: Email already used
+04/11/2026 15:18:42 home                 INFO   - create_user.py -> home
+04/11/2026 15:18:53 home                 INFO   - Attempting login for user: 123@gmail.com
+04/11/2026 15:18:53 home                 INFO   -   POST http://localhost:5000/login
+04/11/2026 15:18:54 home                 INFO   -   200 OK
+04/11/2026 15:18:54 home                 INFO   -   GET http://localhost:5000/users/me
+04/11/2026 15:18:54 home                 INFO   -   200 OK
+04/11/2026 15:18:54 home                 INFO   - User 123@gmail.com logged in successfully
+04/11/2026 15:20:22 settings.py          INFO   - home -> settings.py
+04/11/2026 15:20:22 settings.py          INFO   -   GET http://localhost:5000/connections/users/10
+04/11/2026 15:20:22 settings.py          INFO   -   200 OK
+04/11/2026 15:20:23 settings.py          INFO   -   GET http://localhost:5000/connections/users/10
+04/11/2026 15:20:23 settings.py          INFO   -   200 OK
+05/11/2026 08:16:07 root                 INFO   - --------------------------------------------------
+05/11/2026 08:16:07 root                 INFO   - Launch FRONTEND : Streamlit App
+05/11/2026 08:16:07 root                 INFO   - --------------------------------------------------
+05/11/2026 08:16:07 root                 INFO   - Load environment variables: SUCCES
+05/11/2026 08:16:07 root                 INFO   - BACKEND_URL=http://localhost:5000
+05/11/2026 08:16:07 root                 INFO   - BACKEND_TIMEOUT=5
+05/11/2026 08:16:08 home                 INFO   - None -> home
+05/11/2026 08:16:23 home                 INFO   - Attempting login for user: 123@gmail.com
+05/11/2026 08:16:23 home                 INFO   -   POST http://localhost:5000/login
+05/11/2026 08:16:23 home                 INFO   -   200 OK
+05/11/2026 08:16:23 home                 INFO   -   GET http://localhost:5000/users/me
+05/11/2026 08:16:23 home                 INFO   -   200 OK
+05/11/2026 08:16:23 home                 INFO   - User 123@gmail.com logged in successfully

@@ -50,6 +50,7 @@ EXPORT_FORMATS = {
     "json": "application/json",
 }
 
+EARTH = "Earth"
 
 class NeoService:
     """Service that manages NEOs and their close approaches."""
@@ -239,6 +240,27 @@ class NeoService:
             raise HTTPException(status_code=404, detail="NEO not found")
 
         return CloseApproachDao().find_by_id_neo(id_neo)
+
+    @log
+    def compare(self, ids: list[int]) -> list[tuple[Neo, CloseApproach | None]]:
+        """Compares NEOs: each one comes with its closest approach to the Earth
+        (None if it has none).
+
+        Raises:
+            HTTPException: 404 if one of the NEOs does not exist.
+        """
+        result = []
+        for id_neo in ids:
+            neo = self.get_by_id_neo(id_neo)
+            if neo is None:
+                raise HTTPException(status_code=404, detail=f"NEO {id_neo} not found")
+            earth_approaches = [
+                a for a in CloseApproachDao().find_by_id_neo(id_neo)
+                if a.orbiting_body == EARTH and a.miss_distance_km is not None
+            ]
+            result.append((neo, min(earth_approaches, key=lambda a: a.miss_distance_km,
+                                    default=None)))
+        return result
 
     # ------------------------------------------------------------ NASA synchronisation
 

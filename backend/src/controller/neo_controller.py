@@ -3,7 +3,7 @@ import tempfile
 import uuid
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
@@ -15,6 +15,8 @@ from schema.neo_schema import (
     _to_out,
     _approach_to_out,
     _criteria,
+    NeoComparisonOut,
+    _comparison_to_out
 )
 from service.neo_service import NeoService
 
@@ -54,6 +56,10 @@ def get_neo_by_nasa_id(nasa_id: str):
         raise HTTPException(status_code=404, detail="NEO not found")
     return _to_out(neo)
  
+@router.get("/compare", response_model=list[NeoComparisonOut])
+def compare_neos(ids: list[int] = Query(..., min_length=2)):
+    """Compares several NEOs (?ids=1&ids=2&...): size, danger and closest approach."""
+    return [_comparison_to_out(n, a) for n, a in NeoService().compare(ids)]
  
 @router.get("/{id_neo}", response_model=NeoOut)
 def get_neo(id_neo: int):

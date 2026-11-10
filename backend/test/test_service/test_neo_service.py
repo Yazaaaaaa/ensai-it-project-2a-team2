@@ -451,3 +451,108 @@ def test_sync_page_with_error():
     # THEN
     assert res["synchronized_neos"] == 0
     assert res["errors"] == 1
+
+
+# ---------------------------------------------------------------- compare
+def mock_daos_for_compare(all_approaches):
+    """NeoDao knows the NEOs of this file, CloseApproachDao the given approaches."""
+    NeoDao().find_by_id_neo = MagicMock(
+        side_effect=lambda id_neo: next((n for n in neos if n.id_neo == id_neo), None)
+    )
+    CloseApproachDao().find_by_id_neo = MagicMock(
+        side_effect=lambda id_neo: [a for a in all_approaches if a.id_neo == id_neo]
+    )
+
+
+def test_compare_ok():
+
+    # GIVEN
+    mock_daos_for_compare(approaches)
+
+    # WHEN
+    res = NeoService().compare([1, 2])
+
+    # THEN : each NEO comes with its approach to the Earth (Mars is ignored for Eros)
+    assert [(n.name_neo, a.id_approach) for n, a in res] == [("Eros", 101), ("Apophis", 103)]
+
+
+def test_compare_keeps_the_order_of_the_ids():
+
+    # GIVEN
+    mock_daos_for_compare(approaches)
+
+    # WHEN
+    res = NeoService().compare([2, 1])
+
+    # THEN
+    assert [n.name_neo for n, _ in res] == ["Apophis", "Eros"]
+
+
+def test_compare_takes_the_closest_approach_to_the_earth():
+
+    # GIVEN : the closest approach of Eros is around Mars, and it has two Earth approaches
+    around_mars = CloseApproach(id_approach=201, id_neo=1, approach_date="2026-12-01",
+                                orbiting_body="Mars", miss_distance_km=500_000.0,
+                                relative_velocity_kmh=40_000.0)
+    closer_earth = CloseApproach(id_approach=202, id_neo=1, approach_date="2027-03-01",
+                                 orbiting_body="Earth", miss_distance_km=800_000.0,
+                                 relative_velocity_kmh=45_000.0)
+    mock_daos_for_compare([approaches[0], around_mars, closer_earth])
+
+    # WHEN
+    res = NeoService().compare([1])
+
+    # THEN : the Earth approach at 800 000 km, not the Mars one nor the one at 1.5 million km
+    assert res[0][1].id_approach == 202
+
+
+def test_compare_neo_without_approach():
+
+    # GIVEN : Custom (4) has no approach
+    mock_daos_for_compare(approaches)
+
+    # WHEN
+    res = NeoService().compare([4])
+
+    # THEN
+    assert res == [(neos[3], None)]
+
+
+def test_compare_neo_without_approach_to_the_earth():
+
+    # GIVEN : Eros only has an approach around Mars
+    mock_daos_for_compare([approaches[1]])
+
+    # WHEN
+    res = NeoService().compare([1])
+
+    # THEN
+    assert res[0][1] is None
+
+
+def test_compare_ignores_approach_without_distance():
+
+    # GIVEN
+    unknown_distance = CloseApproach(id_approach=203, id_neo=1, approach_date="2026-12-01",
+                                     orbiting_body="Earth", miss_distance_km=None,
+                                     relative_velocity_kmh=None)
+    mock_daos_for_compare([unknown_distance, approaches[0]])
+
+    # WHEN
+    res = NeoService().compare([1])
+
+    # THEN
+    assert res[0][1].id_approach == 101
+
+
+def test_compare_neo_not_found():
+
+    # GIVEN
+    mock_daos_for_compare(approaches)
+
+    # WHEN / THEN
+    with pytest.raises(HTTPException) as exc:
+        NeoService().compare([1, 999])
+
+    assert exc.value.status_code == 404
+    assert "999" in exc.value.detail

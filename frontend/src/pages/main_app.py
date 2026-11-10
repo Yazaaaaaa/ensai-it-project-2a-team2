@@ -215,8 +215,8 @@ def mean_diameter(neo: dict) -> float | None:
     return (low + high) / 2 if low and high else None
 
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO"]
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO", "Compare"]
 )
 
 # OVERVIEW
@@ -545,6 +545,47 @@ with tab5:
             m2.metric("Max diameter", f"{neo['diameter_max_m']:.2f} m")
             m3.metric("Hazardous", "Yes" if neo["is_hazardous"] else "No")
 
+
+# COMPARE
+with tab6:
+    st.header("Compare NEOs", icon=":material/compare_arrows:")
+
+    compare_labels = {n["id_neo"]: f"{n['name_neo']} (ID {n['id_neo']})" for n in fetch_neos()}
+    compare_ids = st.multiselect(
+        "NEOs to compare (at least 2)", list(compare_labels), format_func=compare_labels.get,
+        help="Some values can be missing because the orbit is not Earth."
+    )
+
+    if len(compare_ids) < 2:
+        st.info("Select at least two NEOs.")
+    else:
+        comparison = get_json(f"{NEO_URL}/compare", [], params={"ids": compare_ids})
+        rows = []
+        for c in comparison:
+            approach = c["closest_approach"] or {}
+            rows.append({
+                "NEO": compare_labels[c["neo"]["id_neo"]],
+                "Min diameter (m)": c["neo"]["diameter_min_m"],
+                "Max diameter (m)": c["neo"]["diameter_max_m"],
+                "Magnitude": c["neo"]["absolute_magnitude"],
+                "Hazardous": c["neo"]["is_hazardous"],
+                "Closest approach": approach.get("approach_date"),
+                "Miss distance (km)": approach.get("miss_distance_km"),
+                "Velocity (km/h)": approach.get("relative_velocity_kmh"),
+            })
+
+        if rows:
+            compare_df = pd.DataFrame(rows).set_index("NEO")
+            st.dataframe(compare_df, width="stretch")
+            st.download_button(
+                "Download the comparison (CSV)", data=compare_df.to_csv().encode("utf-8-sig"),
+                file_name="neo_comparison.csv", mime="text/csv",
+            )
+
+            metric = st.selectbox("Graph", list(compare_df.select_dtypes("number").columns))
+            st.plotly_chart(
+                px.bar(compare_df.reset_index(), x="NEO", y=metric), width="stretch"
+            )
 
 if st.button("Settings", type="primary"):
     st.switch_page("pages/settings_menu.py")

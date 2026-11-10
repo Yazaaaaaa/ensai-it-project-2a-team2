@@ -77,6 +77,17 @@ def _approach_to_out(approach: CloseApproach) -> CloseApproachOut:
         relative_velocity_kmh=approach.relative_velocity_kmh,
     )
 
+class NeoComparisonOut(BaseModel):
+    """A NEO and its closest approach to the Earth (None if it has none)."""
+    neo: NeoOut
+    closest_approach: CloseApproachOut | None
+
+
+def _comparison_to_out(neo: Neo, approach: CloseApproach | None) -> NeoComparisonOut:
+    return NeoComparisonOut(
+        neo=_to_out(neo),
+        closest_approach=_approach_to_out(approach) if approach else None,
+    )
 
 def _criteria(
     nasa_id: str | None = Query(None, description="Exact NASA identifier"),
