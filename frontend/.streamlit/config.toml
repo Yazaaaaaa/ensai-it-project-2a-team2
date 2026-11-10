@@ -5,7 +5,7 @@ port = 8000
 textColor="#F0F8FF"
 font="Calibri"
 
-primaryColor="#FFD700"
+primaryColor="#daa520"
 backgroundColor="#0A0E2A"
 secondaryBackgroundColor="#1A1A3A"
 
@@ -13,8 +13,8 @@ redTextColor="#F0F8FF"
 redBackgroundColor="#FF4500"
 greenTextColor="#F0F8FF"
 greenBackgroundColor="#50C878"
-yellowTextColor="#070808"
-yellowBackgroundColor="#FFD700"
+yellowTextColor="#F0F8FF"
+yellowBackgroundColor="#daa520"
 
 
 dataframeBorderColor="#3A3A6A"
