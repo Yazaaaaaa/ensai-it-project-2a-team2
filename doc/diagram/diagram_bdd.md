@@ -1,33 +1,19 @@
 ```mermaid
-classDiagram
-    USERS "1" --> "0..n" ALERT 
-    USERS "1" --> "1" LOGIN_HISTORY 
-    USERS "1" --> "0..n" NEO 
-    USERS "1" --> "0..n" FAVORITE
-    USERS "1" --> "0..n" NOTIFICATION
-    NEO "1" --> "0..n" CLOSE_APPROACH
-    NEO "0..n" --> "0..n" FAVORITE
-    NEO "0..n" --> "0..n" ALERT
-    FAVORITE "1" --> "1" DISTANCE_HISTORY
-    ALERT "1" --> "0..n" NOTIFICATION
+erDiagram
+    USERS {
+        serial id_user PK
+        varchar_50 email UK "NOT NULL, UNIQUE"
+        varchar_255 password_hash
+        varchar_20 role_user
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+        varchar_255 token
+        boolean is_banned "NOT NULL, DEFAULT FALSE"
+    }
 
-    class USERS {
-        int id PK
-        string email
-        string password_hash
-        string role
-        datetime created_at
-    }
-    class LOGIN_HISTORY {
-        int id PK
-        int user_id FK
-        datetime login_at
-        string ip_address
-    }
-    class NEO {
-        int id PK
-        string nasa_id
-        string name
+    NEO {
+        serial id_neo PK
+        varchar_15 nasa_id "NOT NULL"
+        varchar_50 name_neo "NOT NULL"
         float diameter_min_m
         float diameter_max_m
         float absolute_magnitude
@@ -35,39 +21,52 @@ classDiagram
         boolean is_custom
         int created_by_user_id FK
     }
-    class CLOSE_APPROACH {
-        int id PK
-        int neo_id FK
+
+    CLOSE_APPROACH {
+        serial id_close_approach PK
+        int id_neo FK
+        varchar_30 orbiting_body
         date approach_date
         float miss_distance_km
         float relative_velocity_kmh
     }
-    class FAVORITE {
-        int id PK
-        int user_id FK
-        int neo_id FK
-        datetime added_at
+
+    LOGIN_HISTORY {
+        serial id_login PK
+        int id_user FK
+        timestamp login_at "DEFAULT CURRENT_TIMESTAMP"
     }
-    class DISTANCE_HISTORY {
-        int id PK
-        int favorite_id FK
+
+    ALERT {
+        serial id_alert PK
+        int id_user FK
+        int id_neo FK "NULLABLE"
+        float threshold_km
+        float threshold_size
+        boolean is_active
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    FAVORITE {
+        serial id_favorite PK
+        int id_user FK
+        int id_neo FK
+        timestamp added_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    DISTANCE_HISTORY {
+        serial id_distance_history PK
+        int id_favorite FK
         date recorded_at
         float distance_km
     }
-    class ALERT {
-        int id PK
-        int user_id FK
-        int neo_id FK
-        float min_size_m
-        float max_distance_km
-        boolean is_active
-        datetime created_at
-    }
-    class NOTIFICATION {
-        int id PK
-        int user_id FK
-        int alert_id FK
-        string message
-        datetime sent_at
-    }
+
+    USERS ||--o{ NEO : "creates (created_by_user_id)"
+    USERS ||--o{ LOGIN_HISTORY : "logs in"
+    USERS ||--o{ ALERT : "configures"
+    USERS ||--o{ FAVORITE : "owns"
+    NEO ||--o{ CLOSE_APPROACH : "has"
+    NEO ||--o{ ALERT : "triggers (nullable)"
+    NEO ||--o{ FAVORITE : "is saved in"
+    FAVORITE ||--o{ DISTANCE_HISTORY : "is tracked by"
 ```
