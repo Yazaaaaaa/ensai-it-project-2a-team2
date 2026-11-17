@@ -54,19 +54,12 @@ erDiagram
         timestamp added_at "DEFAULT CURRENT_TIMESTAMP"
     }
 
-    DISTANCE_HISTORY {
-        serial id_distance_history PK
-        int id_favorite FK
-        date recorded_at
-        float distance_km
-    }
 
     USERS ||--o{ NEO : "creates (created_by_user_id)"
     USERS ||--o{ LOGIN_HISTORY : "logs in"
     USERS ||--o{ ALERT : "configures"
     USERS ||--o{ FAVORITE : "owns"
     NEO ||--o{ CLOSE_APPROACH : "has"
-    NEO ||--o{ ALERT : "triggers (nullable)"
+    NEO ||--o{ ALERT : "triggers"
     NEO ||--o{ FAVORITE : "is saved in"
-    FAVORITE ||--o{ DISTANCE_HISTORY : "is tracked by"
 ```
