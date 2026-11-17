@@ -54,10 +54,3 @@ CREATE TABLE favorite (
     id_neo      INT REFERENCES neo(id_neo),
     added_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE distance_history (
-    id_distance_history SERIAL PRIMARY KEY,
-    id_favorite         INT REFERENCES favorite(id_favorite),
-    recorded_at         DATE,
-    distance_km         FLOAT
-);
