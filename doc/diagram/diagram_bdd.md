@@ -55,11 +55,11 @@ erDiagram
     }
 
 
-    USERS ||--o{ NEO : "creates (created_by_user_id)"
-    USERS ||--o{ LOGIN_HISTORY : "logs in"
-    USERS ||--o{ ALERT : "configures"
-    USERS ||--o{ FAVORITE : "owns"
-    NEO ||--o{ CLOSE_APPROACH : "has"
-    NEO ||--o{ ALERT : "triggers"
-    NEO ||--o{ FAVORITE : "is saved in"
+    USERS ||--o{ NEO : "creates (created_by_user_id) (1:N)"
+    USERS ||--o{ LOGIN_HISTORY : "logs in (1:N)"
+    USERS ||--o{ ALERT : "configures (1:N)"
+    USERS ||--o{ FAVORITE : "owns (1:N)"
+    NEO ||--o{ CLOSE_APPROACH : "has (1:N)"
+    NEO ||--o{ ALERT : "triggers (0..1:N)"
+    NEO ||--o{ FAVORITE : "is saved in (1:N)"
 ```
