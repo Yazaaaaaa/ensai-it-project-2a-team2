@@ -35,10 +35,6 @@ INSERT INTO favorite (id_favorite, id_user, id_neo) VALUES
     (2, 1, 2),
     (3, 2, 3);
 
-INSERT INTO distance_history (id_distance_history, id_favorite, recorded_at, distance_km) VALUES
-    (1, 1, '2026-01-01', 1200000.0),
-    (2, 1, '2026-01-08', 1100000.0),
-    (3, 2, '2026-04-01', 80000.0);
 
 SELECT setval(pg_get_serial_sequence('users', 'id_user'), MAX(id_user)) FROM users;
 SELECT setval(pg_get_serial_sequence('neo', 'id_neo'), MAX(id_neo)) FROM neo;
@@ -46,4 +42,3 @@ SELECT setval(pg_get_serial_sequence('close_approach', 'id_close_approach'), MAX
 SELECT setval(pg_get_serial_sequence('login_history', 'id_login'), MAX(id_login)) FROM login_history;
 SELECT setval(pg_get_serial_sequence('alert', 'id_alert'), MAX(id_alert)) FROM alert;
 SELECT setval(pg_get_serial_sequence('favorite', 'id_favorite'), MAX(id_favorite)) FROM favorite;
-SELECT setval(pg_get_serial_sequence('distance_history', 'id_distance_history'), MAX(id_distance_history)) FROM distance_history;
