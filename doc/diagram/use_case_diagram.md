@@ -24,6 +24,7 @@ flowchart LR
         deleteaccount([Delete an account])
         login([Login])
         signup([Signup])
+        editneos([Edit NEOs])
         
     end
 
@@ -44,6 +45,7 @@ flowchart LR
     manage -. "include" .-> accounts
     search -. "extend" .-> download
     search -. "extend" .-> addfav
+    search -. "extend" .-> editneos
     favlist -. "extend" .-> editlist
     manage -. "extend" .-> deleteaccount
 ```
