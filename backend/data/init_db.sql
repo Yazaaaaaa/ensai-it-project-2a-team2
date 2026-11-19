@@ -67,6 +67,3 @@ CREATE TABLE neo_proposal (
     reason      TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT now()
 );
-
-CREATE INDEX idx_neo_proposal_neo ON neo_proposal (id_neo);
-CREATE INDEX idx_neo_proposal_user ON neo_proposal (id_user);

@@ -50,6 +50,14 @@ st.set_page_config(page_title="Neo-watch", page_icon="🌠", layout="centered")
 st.title("Dashboard")
 
 BACKEND_URL = "http://localhost:5000"
+PROPOSALS_URL = "/proposals"
+FIELD_LABELS = {
+    "name_neo": "Name",
+    "diameter_min_m": "Min diameter (m)",
+    "diameter_max_m": "Max diameter (m)",
+    "absolute_magnitude": "Absolute magnitude",
+    "is_hazardous": "Potentially hazardous",
+}
 
 
 # Functions to import data from backend
@@ -215,8 +223,55 @@ def mean_diameter(neo: dict) -> float | None:
     return (low + high) / 2 if low and high else None
 
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO", "Compare"]
+
+
+def is_admin() -> bool:
+    """Reads the role of the user once per session (the login only returns the token)."""
+    if "role_user" not in st.session_state:
+        me = get_json("/users/me", {})
+        st.session_state["role_user"] = me.get("role_user")
+    return st.session_state["role_user"] == "admin"
+
+
+def proposal_form(neo: dict):
+    """Form proposing a change of one field of a NEO (the NEO itself is not modified)."""
+    with st.expander("✏️ Propose a correction"):
+        st.caption("Your proposal is recorded for the administrators. The NEO is not modified.")
+
+        # The field is chosen outside the form: the input below depends on it
+        field = st.selectbox(
+            "Field to correct", list(FIELD_LABELS), format_func=FIELD_LABELS.get,
+            key=f"proposal_field_{neo['id_neo']}",
+        )
+        current = neo.get(field)
+        st.write(f"Current value: **{current if current is not None else 'unknown'}**")
+
+        with st.form(f"proposal_form_{neo['id_neo']}_{field}"):
+            if field == "is_hazardous":
+                new_value = st.checkbox("Potentially hazardous", value=bool(current))
+            elif field == "name_neo":
+                new_value = st.text_input("New name", value=current or "")
+            elif field == "absolute_magnitude":
+                new_value = st.number_input("New value", value=float(current or 0.0), step=0.1)
+            else:
+                new_value = st.number_input(
+                    "New value (m)", min_value=0.0, value=float(current or 0.0), step=1.0,
+                )
+            reason = st.text_area("Why? (optional)", max_chars=500)
+
+            if st.form_submit_button("Send the proposal"):
+                mutate(
+                    "POST", PROPOSALS_URL, 201, "Proposal sent",
+                    json={
+                        "id_neo": neo["id_neo"],
+                        "field": field,
+                        "new_value": new_value,
+                        "reason": reason.strip() or None,
+                    },
+                )
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
+    ["Overview", "Favorites", "Alerts", "Add a NEO", "Browse a NEO", "Compare", "Proposals"]
 )
 
 # OVERVIEW
@@ -544,6 +599,7 @@ with tab5:
             m1.metric("Min diameter", f"{neo['diameter_min_m']:.2f} m")
             m2.metric("Max diameter", f"{neo['diameter_max_m']:.2f} m")
             m3.metric("Hazardous", "Yes" if neo["is_hazardous"] else "No")
+            proposal_form(neo)
 
 
 # COMPARE
@@ -589,3 +645,49 @@ with tab6:
 
 if st.button("Settings", type="primary"):
     st.switch_page("pages/settings_menu.py")
+
+with tab7:
+    st.header("Proposals")
+
+    st.subheader("My proposals")
+    mine = get_json(f"{PROPOSALS_URL}/me", [])
+    if mine:
+        st.dataframe(
+            pd.DataFrame([{
+                "date": p["created_at"],
+                "NEO": p["neo"]["name_neo"],
+                "field": FIELD_LABELS.get(p["field"], p["field"]),
+                "current value": p["old_value"],
+                "proposed value": p["new_value"],
+                "reason": p["reason"],
+            } for p in mine]),
+            hide_index=True, width="stretch",
+        )
+    else:
+        st.info("You have not made any proposal yet. Select a NEO in the 'Browse a NEO' tab.")
+
+    if is_admin():
+        st.subheader("All proposals (administrators)")
+        neo_labels = {n["id_neo"]: f"{n['name_neo']} (ID {n['id_neo']})" for n in fetch_neos()}
+        selected = st.selectbox(
+            "Filter by NEO", [None, *neo_labels],
+            format_func=lambda i: "All NEOs" if i is None else neo_labels[i],
+            key="proposal_filter",
+        )
+        params = {"id_neo": selected} if selected is not None else {}
+        proposals = get_json(PROPOSALS_URL, [], params=params)
+        if proposals:
+            st.dataframe(
+                pd.DataFrame([{
+                    "date": p["created_at"],
+                    "proposed by": p["proposer_email"],
+                    "NEO": p["neo"]["name_neo"],
+                    "field": FIELD_LABELS.get(p["field"], p["field"]),
+                    "current value": p["old_value"],
+                    "proposed value": p["new_value"],
+                    "reason": p["reason"],
+                } for p in proposals]),
+                hide_index=True, width="stretch",
+            )
+        else:
+            st.info("No proposal.")

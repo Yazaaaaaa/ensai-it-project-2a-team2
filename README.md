@@ -51,7 +51,7 @@ POSTGRES_PORT=5432
 POSTGRES_DATABASE=<your database>
 POSTGRES_USER=<your user>
 POSTGRES_PASSWORD=<your password>
-SCHEMA=neow
+POSTGRES_SCHEMA=neow
 
 # NASA API
 NASA_API_KEY=<your key>
