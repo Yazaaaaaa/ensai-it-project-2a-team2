@@ -54,3 +54,19 @@ CREATE TABLE favorite (
     id_neo      INT REFERENCES neo(id_neo),
     added_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE neo_proposal (
+    id_proposal SERIAL PRIMARY KEY,
+    id_neo      INTEGER NOT NULL REFERENCES neo(id_neo) ON DELETE CASCADE,
+    id_user     INTEGER NOT NULL REFERENCES users(id_user) ON DELETE CASCADE,
+    field       VARCHAR(30) NOT NULL
+                CHECK (field IN ('name_neo', 'diameter_min_m', 'diameter_max_m',
+                                 'absolute_magnitude', 'is_hazardous')),
+    old_value   TEXT,
+    new_value   TEXT NOT NULL,
+    reason      TEXT,
+    created_at  TIMESTAMP NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_neo_proposal_neo ON neo_proposal (id_neo);
+CREATE INDEX idx_neo_proposal_user ON neo_proposal (id_user);

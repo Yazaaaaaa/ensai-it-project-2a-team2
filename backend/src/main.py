@@ -7,8 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
 
-
-from controller import login_controller, alert_controller, favorite_controller, connection_controller, neo_controller, user_controller, admin_controller
+from controller import login_controller, alert_controller, favorite_controller, connection_controller, neo_controller, user_controller, admin_controller, proposal_controller
 from utils.env_variables import display_values, load_environment_variables
 from utils.log_utils import LogMiddleware, get_logger, initialize_logs
 
@@ -47,7 +46,7 @@ app.include_router(favorite_controller.router, prefix="/favorite", tags=["Favori
 app.include_router(user_controller.router)
 app.include_router(admin_controller.router)
 app.include_router(alert_controller.router, prefix="/alert", tags=["Alerts"])
-
+app.include_router(proposal_controller.router)
 
 @app.get("/", include_in_schema=False)
 async def redirect_to_docs():
