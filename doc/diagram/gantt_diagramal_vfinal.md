@@ -24,8 +24,8 @@ gantt
         Data importation   :2026-09-17, 10d
         DAO implementation :2026-09-25, 7d
         BO implementation  :2026-10-01, 7d
-        Services implementation: 2026-10-01, 20d
-        Controllers implementation: 2026-10-01, 20d
+        Services implementation: 2026-10-01, 35d
+        Controllers implementation: 2026-10-01, 35d
         Unit Test          :2026-09-25, 28d
         Mentoring 4        :milestone, 2026-09-25, 1d
         Optimisation       :2026-10-22, 15d
