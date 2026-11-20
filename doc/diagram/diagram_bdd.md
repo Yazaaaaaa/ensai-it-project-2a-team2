@@ -22,6 +22,17 @@ erDiagram
         int created_by_user_id FK
     }
 
+    NEO_PROPOSAL {
+        serial id_proposal PK
+        int id_neo FK "NOT NULL"
+        int id_user FK "NOT NULL"
+        varchar_30 field "NOT NULL"
+        txt old_value
+        txt new_value "NOT NULL"
+        txt reason
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
     CLOSE_APPROACH {
         serial id_close_approach PK
         int id_neo FK
@@ -70,4 +81,6 @@ erDiagram
     NEO ||--o{ ALERT : "triggers (0..1:N)"
     NEO ||--o{ FAVORITE : "is saved in (1:N)"
     FAVORITE ||--o{ DISTANCE_HISTORY : "is tracked by (0..1:N)"
+    NEO_PROPOSAL ||--o{ NEO : "is modified (0..1:N)"
+    USERS ||--o{ NEO_PROPOSAL : "asks for (0..1:N)"
 ```
