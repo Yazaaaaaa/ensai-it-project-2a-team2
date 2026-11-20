@@ -15,7 +15,7 @@ gantt
         Sequency diagram   :2026-09-04, 8d
         Activity diagram   :2026-09-04, 8d
         Data table         :2026-09-04, 8d
-        Gantt diagram      :2026-09-04, 8d
+        Gant diagram       :2026-09-04, 8d
         Mentoring 3        :milestone, 2026-09-11, 1d
         Writing            :2026-09-11, 7d
         proofreading       :2026-09-15, 3d
