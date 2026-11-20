@@ -225,7 +225,7 @@ def test_distance_history_ok(history_deps):
     ]
 
     # WHEN
-    res = FavoriteService().get_distance_history(1, 7)
+    res = FavoriteService().get_distance_history(1, 7, orbiting_body="Earth")
 
     # THEN
     assert res["id_neo"] == 7
@@ -344,7 +344,7 @@ def test_render_distance_chart_ok():
 
     # THEN
     assert chart.startswith(b"\x89PNG")
-    history.assert_called_once_with(1, 7, "Earth")
+    history.assert_called_once_with(1, 7, None)
 
 
 def test_render_distance_chart_no_data():

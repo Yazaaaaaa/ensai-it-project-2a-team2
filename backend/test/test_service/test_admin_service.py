@@ -156,7 +156,7 @@ def test_run_data_import_command(service, admin, fake_run):
     service.run_data_import(admin, timeout=42)
 
     args, kwargs = fake_run.call_args
-    assert args[0] == [sys.executable, "-m", "utils.import_all_data"]
+    assert args[0] == [sys.executable, "-m", "utils.weekly_data"]
     assert kwargs["cwd"] == admin_service.SRC_DIR
     assert kwargs["timeout"] == 42
     assert kwargs["capture_output"] is True
