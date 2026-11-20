@@ -67,3 +67,11 @@ CREATE TABLE neo_proposal (
     reason      TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT now()
 );
+
+
+CREATE TABLE distance_history (
+    id_distance_history SERIAL PRIMARY KEY,
+    id_favorite         INT REFERENCES favorite(id_favorite),
+    recorded_at         DATE,
+    distance_km         FLOAT
+);
