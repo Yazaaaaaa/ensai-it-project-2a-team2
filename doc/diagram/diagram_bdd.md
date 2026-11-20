@@ -81,6 +81,6 @@ erDiagram
     NEO ||--o{ ALERT : "triggers (0..1:N)"
     NEO ||--o{ FAVORITE : "is saved in (1:N)"
     FAVORITE ||--o{ DISTANCE_HISTORY : "is tracked by (0..1:N)"
-    NEO_PROPOSAL ||--o{ NEO : "is modified (0..1:N)"
+    NEO_PROPOSAL ||--o{ NEO : "modifies (0..1:N)"
     USERS ||--o{ NEO_PROPOSAL : "asks for (0..1:N)"
 ```
