@@ -24,16 +24,16 @@ gantt
         Data importation   :2026-09-17, 10d
         DAO implementation :2026-09-25, 7d
         BO implementation  :2026-10-01, 7d
-        Services implementation: 2026-10-01, 35d
-        Controllers implementation: 2026-10-01, 35d
-        Unit Test          :2026-09-25, 28d
+        Services implementation: 2026-10-01, 37d
+        Controllers implementation: 2026-10-01, 37d
+        Unit Test          :2026-09-25, 40d
         Mentoring 4        :milestone, 2026-09-25, 1d
         Optimisation       :2026-10-22, 15d
         Immersion session  :2026-11-03, 3d
         Frontend implementation : 2026-11-03, 3d
         Optional features implementation : 2026-11-03, 7d
     section Final report
-        Writing final report :2026-11-03, 15d
+        Writing final report :2026-11-03, 17d
         Report proofreading  :2026-11-20, 4d
         Mentoring 7        :milestone, 2026-11-20, 1d
         Submit report   :milestone, 2026-11-25, 1d
