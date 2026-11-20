@@ -3,9 +3,6 @@ from dao.db_connection import DBConnection
 from utils.log_utils import get_logger, log
 from utils.singleton import Singleton
 
-# from business_object.user import User
-
-
 logger = get_logger(__name__)
 
 

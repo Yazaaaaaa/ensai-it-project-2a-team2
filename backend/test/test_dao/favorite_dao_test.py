@@ -15,7 +15,7 @@ def setup_test_environment():
 def test_create_ok():
     """Successfully create a favorite"""
 
-    # GIVEN : Bob (2) does not have Eros (1) in his favorites yet
+    # GIVEN
     favorite = Favorite(id_user=2, id_neo=1)
 
     # WHEN
@@ -59,7 +59,7 @@ def test_find_all_by_user_ok():
     # WHEN
     favorites = FavoriteDao().find_all_by_user(1)
 
-    # THEN : Alice has Eros (1) and Apophis (2)
+    # THEN
     assert all(isinstance(f, Favorite) for f in favorites)
     assert all(f.id_user == 1 for f in favorites)
     assert {f.id_neo for f in favorites} == {1, 2}
@@ -94,13 +94,13 @@ def test_exists_false():
 def test_delete_ok():
     """Successfully delete a favorite that has a distance history"""
 
-    # GIVEN : favorite 2 (Alice, Apophis) has a row in distance_history
+    # GIVEN
     favorite = FavoriteDao().find_by_id(2)
 
     # WHEN
     delete_ok = FavoriteDao().delete(favorite)
 
-    # THEN : no foreign key error, the favorite is gone
+    # THEN
     assert delete_ok
     assert FavoriteDao().find_by_id(2) is None
     assert FavoriteDao().exists(1, 2) is False

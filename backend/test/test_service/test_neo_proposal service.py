@@ -10,7 +10,6 @@ from service import neo_proposal_service
 from service.admin_service import ADMIN_ROLE
 from service.neo_proposal_service import MAX_REASON_LENGTH, NeoProposalService
 
-
 # ---------------------------------------------------------------- fakes
 
 class FakeNeoDao:

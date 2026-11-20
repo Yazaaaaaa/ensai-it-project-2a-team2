@@ -31,8 +31,7 @@ class ConnectionHistoryService:
                 logger.info("Connection history created for user %s", id_user)
                 return connection
             logger.warning("Failed to create connection for user %s", id_user)
-        # Voluntarily broad: whatever the failure, the caller must keep working
-        except Exception as error:  # pylint: disable=broad-exception-caught
+        except Exception as error:
             logger.error("Error creating the connection of user %s: %s", id_user, error)
         return None
 

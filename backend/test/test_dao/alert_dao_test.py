@@ -16,7 +16,7 @@ def setup_test_environment():
 def test_create_ok():
     """Successfully create an Alert"""
 
-    # GIVEN : Bob (2) has no alert on Bennu (3) in the test data
+    # GIVEN
     alert = Alert(user_id=2, neo_id=3, threshold_km=50000.0, is_active=True)
 
     # WHEN
@@ -38,7 +38,7 @@ def test_create_ko():
     try:
         created = AlertDao().create(alert)
     except psycopg2.Error:
-        created = False  # the DAO lets the SQL error go up
+        created = False
 
     # THEN
     assert created is False
@@ -66,7 +66,7 @@ def test_create_global_alert_with_size():
 def test_get_by_userid_existing():
     """Retrieve the alerts of a user"""
 
-    # WHEN : Alice (1) has alert 1 (on Eros) and alert 2 (on every NEO)
+    # WHEN
     alerts = AlertDao().get_by_userid(1)
 
     # THEN
@@ -92,7 +92,7 @@ def test_get_by_userid_global_alert():
 def test_get_by_userid_empty():
     """A user with no alert gets an empty list"""
 
-    # WHEN : empty@test.com (5) has no alert
+    # WHEN
     alerts = AlertDao().get_by_userid(5)
 
     # THEN
@@ -109,12 +109,11 @@ def test_get_by_userid_unknown_user():
     assert alerts == []
 
 
-
 # ---------------------------------------------------------------- update
 def test_update_ok():
     """Successfully update an existing Alert"""
 
-    # GIVEN : alert 3 (Bob, Apophis, inactive)
+    # GIVEN
     alert = next(a for a in AlertDao().get_by_userid(2) if a.id == 3)
     alert.threshold_km = 25000.0
     alert.threshold_size = 150.0
@@ -148,7 +147,7 @@ def test_update_ko():
 def test_delete_ok():
     """Successfully delete an Alert"""
 
-    # WHEN : alert 2 (Alice, all NEOs)
+    # WHEN
     delete_ok = AlertDao().delete(2)
 
     # THEN

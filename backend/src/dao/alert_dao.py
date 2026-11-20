@@ -31,7 +31,8 @@ class AlertDao(metaclass=Singleton):
                         INSERT INTO alert
                             (id_user, id_neo, threshold_km, threshold_size, is_active)
                         VALUES
-                            (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(threshold_size)s, %(is_active)s)
+                            (%(id_user)s, %(id_neo)s, %(threshold_km)s, %(threshold_size)s,
+                            %(is_active)s)
                         RETURNING id_alert, created_at;;
                         """,
                         {

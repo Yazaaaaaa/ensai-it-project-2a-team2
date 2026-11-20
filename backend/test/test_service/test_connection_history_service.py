@@ -1,7 +1,5 @@
 from datetime import datetime
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from business_object.connection import Connection
 from dao.login_history_dao import LoginHistoryDao

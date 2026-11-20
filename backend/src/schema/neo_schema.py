@@ -1,10 +1,8 @@
-from typing import Literal
-from pydantic import BaseModel
 from fastapi import Query
 from pydantic import BaseModel, model_validator
 
-from business_object.neo import Neo
 from business_object.close_approach import CloseApproach
+from business_object.neo import Neo
 
 
 class NeoIn(BaseModel):
@@ -77,6 +75,7 @@ def _approach_to_out(approach: CloseApproach) -> CloseApproachOut:
         relative_velocity_kmh=approach.relative_velocity_kmh,
     )
 
+
 class NeoComparisonOut(BaseModel):
     """A NEO and its closest approach to the Earth (None if it has none)."""
     neo: NeoOut
@@ -89,6 +88,7 @@ def _comparison_to_out(neo: Neo, approach: CloseApproach | None) -> NeoCompariso
         closest_approach=_approach_to_out(approach) if approach else None,
     )
 
+
 def _criteria(
     nasa_id: str | None = Query(None, description="Exact NASA identifier"),
     name: str | None = Query(None, description="Case-insensitive substring of the name"),
@@ -97,8 +97,10 @@ def _criteria(
     min_diameter_m: float | None = Query(None, description="Lower bound on the mean diameter"),
     max_diameter_m: float | None = Query(None, description="Upper bound on the mean diameter"),
     max_magnitude: float | None = Query(None, description="Upper bound on the absolute magnitude"),
-    orbiting_body: str | None = Query(None, description="NEOs with a close approach around this body (e.g. Earth)"),
-    approach_date: str | None = Query(None, description="NEOs with a close approach on this date (e.g. YYYY-MM-DD)"),
+    orbiting_body: str | None = Query(None, description="NEOs with a close approach around this"
+                                                        "body (e.g. Earth)"),
+    approach_date: str | None = Query(None, description="NEOs with a close approach on this date"
+                                                        "(e.g. YYYY-MM-DD)"),
 ) -> dict:
     """Builds the criteria dictionary expected by NeoService.search_neos."""
     criteria = {

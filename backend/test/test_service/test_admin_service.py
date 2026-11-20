@@ -212,8 +212,7 @@ def test_run_data_import_requires_a_caller(service, fake_run):
 # ---------------------------------------------------------- import : verrou
 
 def test_run_data_import_refuses_concurrent_run(service, admin, fake_run):
-    AdminService._import_lock.acquire()  # simule un import déjà en cours
-
+    AdminService._import_lock.acquire()
     with pytest.raises(RuntimeError):
         service.run_data_import(admin)
 

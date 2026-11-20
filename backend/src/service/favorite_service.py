@@ -15,11 +15,8 @@ from dao.neo_dao import NeoDao
 from service.neo_service import NeoService
 from utils.log_utils import get_logger, log
 
-# Date format used by the NASA API, e.g. "2026-Oct-23 12:00"
 NASA_DATE_FORMAT = "%Y-%b-%d %H:%M"
 
-# If the largest distance is more than this many times the smallest one,
-# the chart switches to a logarithmic axis to stay readable.
 LOG_SCALE_RATIO = 100
 
 logger = get_logger(__name__)
@@ -71,7 +68,6 @@ class FavoriteService:
         result = []
         for favorite in FavoriteDao().find_all_by_user(id_user):
             neo = neo_dao.find_by_id_neo(favorite.id_neo)
-            # A favorite whose NEO no longer exists is silently skipped
             if neo is not None:
                 result.append((favorite, neo))
         return result
@@ -163,12 +159,10 @@ class FavoriteService:
         if not points:
             raise HTTPException(status_code=404, detail="No close approach data for this NEO")
 
-        # Group the points by orbited body: one line (and one color) per body
         points_by_body = defaultdict(list)
         for point in points:
             points_by_body[point["orbiting_body"] or "Unknown"].append(point)
 
-        # Figure (and not pyplot): no global state, safe in FastAPI's thread pool
         fig = Figure(figsize=(8, 4.5))
         ax = fig.subplots()
         for body_name in sorted(points_by_body):
@@ -181,7 +175,6 @@ class FavoriteService:
                 label=body_name,
             )
 
-        # Distances can span several orders of magnitude: a log scale keeps them readable
         distances = [p["miss_distance_km"] for p in points]
         if max(distances) / max(min(distances), 1) > LOG_SCALE_RATIO:
             ax.set_yscale("log")

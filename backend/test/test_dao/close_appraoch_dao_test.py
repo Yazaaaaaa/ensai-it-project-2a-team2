@@ -36,7 +36,7 @@ def ids(approaches: list[CloseApproach]) -> set[int]:
 def test_create_ok():
     """Successfully create a close approach"""
 
-    # GIVEN : Custom Alice (4) has no approach in the test data
+    # GIVEN
     approach = make_approach(4, date="2026-11-01")
 
     # WHEN
@@ -51,13 +51,13 @@ def test_create_ok():
 def test_create_already_existing():
     """An approach already in the database is not inserted again"""
 
-    # GIVEN : Apophis (2) already has this approach (id 3) in the test data
+    # GIVEN
     approach = make_approach(2, date="2026-04-13", body="Earth")
 
     # WHEN
     creation_ok = CloseApproachDao().create(approach)
 
-    # THEN : the id of the existing approach is read back
+    # THEN
     assert not creation_ok
     assert approach.id_approach == 3
     assert len(CloseApproachDao().find_by_id_neo(2)) == 1
@@ -75,7 +75,7 @@ def test_create_ko():
 def test_find_by_id_neo_ok():
     """Find all approaches of a NEO"""
 
-    # WHEN : Eros (1) has two approaches in the test data
+    # WHEN
     approaches = CloseApproachDao().find_by_id_neo(1)
 
     # THEN
@@ -90,7 +90,7 @@ def test_find_by_id_neo_ok():
 def test_find_by_id_neo_values():
     """Fields are correctly read back from the database"""
 
-    # WHEN : Apophis (2) has a single approach
+    # WHEN
     approaches = CloseApproachDao().find_by_id_neo(2)
 
     # THEN
@@ -106,7 +106,7 @@ def test_find_by_id_neo_values():
 def test_find_by_id_neo_no_approach():
     """A NEO without approach (or an unknown id) gives an empty list"""
 
-    # WHEN / THEN : Custom Bob (5) has no approach
+    # WHEN / THEN
     assert CloseApproachDao().find_by_id_neo(5) == []
     assert CloseApproachDao().find_by_id_neo(999999999) == []
 
@@ -118,7 +118,7 @@ def test_find_by_orbit_ok():
     # WHEN
     approaches = CloseApproachDao().find_by_orbit("Mars")
 
-    # THEN : only Eros approaches Mars in the test data
+    # THEN
     assert all(isinstance(a, CloseApproach) for a in approaches)
     assert all(a.orbiting_body == "Mars" for a in approaches)
     assert [a.id_neo for a in approaches] == [1]
@@ -130,7 +130,7 @@ def test_find_by_orbit_several_neos():
     # WHEN
     approaches = CloseApproachDao().find_by_orbit("Earth")
 
-    # THEN : Eros, Apophis and Bennu approach Earth in the test data
+    # THEN
     assert {1, 2, 3} <= {a.id_neo for a in approaches}
     assert all(a.orbiting_body == "Earth" for a in approaches)
 
@@ -149,7 +149,7 @@ def test_find_by_orbit_non_existing():
 def test_find_by_approach_date_ok():
     """Find all approaches of a given day"""
 
-    # WHEN : Apophis approaches the Earth on 2026-04-13 (approach 3)
+    # WHEN
     approaches = CloseApproachDao().find_by_approach_date("2026-04-13")
 
     # THEN
@@ -168,7 +168,7 @@ def test_find_by_approach_date_no_approach():
 def test_find_upcoming_ok():
     """Find the approaches that match every criteria"""
 
-    # WHEN : Apophis, Earth, 2026-04-13, 31 000 km
+    # WHEN
     approaches = CloseApproachDao().find_upcoming("2026-04-13", 50_000.0, "Earth")
 
     # THEN
@@ -182,7 +182,7 @@ def test_find_upcoming_ok():
 def test_find_upcoming_distance_filter():
     """The distance limit is inclusive"""
 
-    # WHEN / THEN : approach 3 is at exactly 31 000 km
+    # WHEN / THEN
     assert 3 in ids(CloseApproachDao().find_upcoming("1900-01-01", 31_000.0, "Earth"))
     assert 3 not in ids(CloseApproachDao().find_upcoming("1900-01-01", 30_999.0, "Earth"))
     assert CloseApproachDao().find_upcoming("1900-01-01", 1.0, "Earth") == []
@@ -191,7 +191,7 @@ def test_find_upcoming_distance_filter():
 def test_find_upcoming_date_filter():
     """The start date is inclusive and past approaches are excluded"""
 
-    # WHEN / THEN : approach 3 is on 2026-04-13
+    # WHEN / THEN
     assert 3 in ids(CloseApproachDao().find_upcoming("2026-04-13", 1e12, "Earth"))
     assert 3 not in ids(CloseApproachDao().find_upcoming("2026-04-14", 1e12, "Earth"))
     assert CloseApproachDao().find_upcoming("2999-01-01", 1e12, "Earth") == []
@@ -200,7 +200,7 @@ def test_find_upcoming_date_filter():
 def test_find_upcoming_orbiting_body():
     """Only the approaches to the given body are returned"""
 
-    # WHEN : only Eros approaches Mars in the test data
+    # WHEN
     approaches = CloseApproachDao().find_upcoming("1900-01-01", 1e12, "Mars")
 
     # THEN
@@ -210,7 +210,7 @@ def test_find_upcoming_orbiting_body():
 def test_find_upcoming_min_size():
     """The size limit is inclusive and applies to the maximum diameter of the NEO"""
 
-    # GIVEN : approach 3 belongs to Apophis (2)
+    # GIVEN
     size = NeoDao().find_by_id_neo(2).diameter_max_m
 
     # WHEN / THEN
@@ -245,7 +245,7 @@ def test_row_to_approach_empty_row():
 def test_row_to_approach_without_date():
     """An approach without date is read back with a date None"""
 
-    # GIVEN : kept at the end of the file, it adds an approach to Custom Alice (4)
+    # GIVEN
     CloseApproachDao().create(make_approach(4, date=None, body="Venus"))
 
     # WHEN

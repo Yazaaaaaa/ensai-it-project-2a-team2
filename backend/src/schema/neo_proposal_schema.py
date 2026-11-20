@@ -30,7 +30,7 @@ class NeoProposalOut(BaseModel):
     reason: str | None
     created_at: datetime | None
     neo: NeoOut
-    proposer_email: str | None = None  # only filled for administrators
+    proposer_email: str | None = None
 
 
 def _proposal_to_out(

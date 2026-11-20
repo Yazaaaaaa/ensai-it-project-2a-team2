@@ -134,7 +134,7 @@ def test_list_favorites(daos):
     # WHEN
     res = FavoriteService().list_favorites(1)
 
-    # THEN : order of the DAO is kept (most recent first), each favorite comes with its NEO
+    # THEN
     assert [f.id_favorite for f, _ in res] == [2, 1]
     assert [n.name_neo for _, n in res] == ["Apophis", "4055 Magellan"]
     favorite_dao.find_all_by_user.assert_called_once_with(1)
@@ -155,7 +155,7 @@ def test_list_favorites_empty(daos):
 
 def test_list_favorites_skips_missing_neo(daos):
 
-    # GIVEN : the second favorite refers to a NEO that no longer exists
+    # GIVEN
     favorite_dao, _ = daos
     orphan = Favorite(id_user=1, id_neo=999, id_favorite=3)
     favorite_dao.find_all_by_user.return_value = [favorites[0], orphan]
@@ -178,7 +178,7 @@ def test_remove_ok(daos):
     # WHEN
     res = FavoriteService().remove(1, 42)
 
-    # THEN : the favorite of NEO 42 is the one deleted
+    # THEN
     assert res is True
     favorite_dao.delete.assert_called_once_with(favorites[1])
 
@@ -214,7 +214,7 @@ def test_remove_user_without_favorites(daos):
 # ---------------------------------------------------------------- get_distance_history
 def test_distance_history_ok(history_deps):
 
-    # GIVEN : approaches in disorder, one around Mars, one without body
+    # GIVEN
     favorite_dao, _, approach_dao = history_deps
     approach_dao.find_by_id_neo.return_value = [
         make_approach(id_approach=1, approach_date="2026-12-01", miss_distance_km=2_000_000.0),
@@ -227,7 +227,7 @@ def test_distance_history_ok(history_deps):
     # WHEN
     res = FavoriteService().get_distance_history(1, 7)
 
-    # THEN : only the Earth approaches, sorted by date, with the closest one
+    # THEN
     assert res["id_neo"] == 7
     assert res["name_neo"] == "Apophis"
     assert res["orbiting_body"] == "Earth"
@@ -272,7 +272,7 @@ def test_distance_history_body_is_case_insensitive(history_deps):
 
 def test_distance_history_ignores_incomplete_approaches(history_deps):
 
-    # GIVEN : unreadable date, no date, no distance, and a valid one without velocity
+    # GIVEN
     _, _, approach_dao = history_deps
     approach_dao.find_by_id_neo.return_value = [
         make_approach(id_approach=1, approach_date="not-a-date"),
@@ -342,7 +342,7 @@ def test_render_distance_chart_ok():
         # WHEN
         chart = FavoriteService().render_distance_chart(1, 7)
 
-    # THEN : a real PNG image
+    # THEN
     assert chart.startswith(b"\x89PNG")
     history.assert_called_once_with(1, 7, "Earth")
 
@@ -373,7 +373,7 @@ def test_render_distance_chart_scale(distances, log_scale):
         # WHEN
         FavoriteService().render_distance_chart(1, 7)
 
-    # THEN : the log scale is only used when distances span more than two orders of magnitude
+    # THEN
     ax = figure.return_value.subplots.return_value
     assert ax.set_yscale.called is log_scale
 

@@ -135,7 +135,7 @@ def test_list_alerts(monkeypatch):
     # WHEN
     res = AlertService().list_alerts(10)
 
-    # THEN : the generic alert has no NEO
+    # THEN
     assert [(a.id, n) for a, n in res] == [(1, eros), (2, None)]
 
 
@@ -159,7 +159,7 @@ def test_update_ok(monkeypatch):
     update = patch_dao(monkeypatch, AlertDao, "update", True)
     patch_dao(monkeypatch, NeoDao, "find_by_id_neo", eros)
 
-    # WHEN : neo_id is not an updatable field, it must be ignored
+    # WHEN
     alert, neo = AlertService().update(10, 1, {"threshold_size": 50.0, "is_active": False,
                                                 "neo_id": 99})
 
@@ -218,7 +218,7 @@ def test_remove_ok(monkeypatch):
 
 def test_remove_not_found(monkeypatch):
 
-    # GIVEN : the alert exists but belongs to another user, so the user has none
+    # GIVEN
     patch_dao(monkeypatch, AlertDao, "get_by_userid", [])
     delete = patch_dao(monkeypatch, AlertDao, "delete", True)
 
@@ -242,14 +242,14 @@ def test_check_alerts_any_neo(monkeypatch):
     # WHEN
     res = AlertService().check_alerts(10)
 
-    # THEN : the search covers all NEOs, with the thresholds of the alert
+    # THEN
     assert [(a.id, n, c) for a, n, c in res] == [(1, eros, approach)]
     upcoming.assert_called_once_with(TODAY, 5000000.0, "Earth", 100.0)
 
 
 def test_check_alerts_on_one_neo(monkeypatch):
 
-    # GIVEN : only the future approach under the threshold must remain
+    # GIVEN
     patch_dao(monkeypatch, AlertDao, "get_by_userid", [make_alert(neo_id=1)])
     patch_dao(monkeypatch, NeoDao, "find_by_id_neo", eros)
     patch_dao(monkeypatch, CloseApproachDao, "find_by_id_neo", [
@@ -315,7 +315,7 @@ def test_is_triggered_ko_approach(changes):
 
 def test_is_triggered_neo_too_small():
 
-    # WHEN / THEN : 20 m < 100 m
+    # WHEN / THEN
     assert AlertService._is_triggered(make_alert(), small, make_approach(id_neo=2), TODAY) is False
 
 
@@ -328,7 +328,7 @@ def test_is_triggered_unknown_size_with_size_threshold():
 
 def test_is_triggered_without_size_threshold():
 
-    # GIVEN : no size criteria, so any size is accepted
+    # GIVEN
     alert = make_alert(threshold_size=None)
 
     # WHEN / THEN

@@ -10,7 +10,16 @@ class NeoProposalDao(metaclass=Singleton):
     """Class containing methods to access NEO modification proposals in the database."""
 
     @staticmethod
-    def _to_proposal(row) -> NeoProposal:
+    def _to_proposal(row: dict) -> NeoProposal:
+        """
+        Maps a database row dictionary to a NeoProposal object.
+
+        Args:
+            row (dict): Database row containing proposal columns.
+
+        Returns:
+            NeoProposal: Instantiated NeoProposal object.
+        """
         return NeoProposal(
             id_proposal=row["id_proposal"],
             id_neo=row["id_neo"],
@@ -68,7 +77,15 @@ class NeoProposalDao(metaclass=Singleton):
 
     @log
     def find_by_user(self, id_user: int) -> list[NeoProposal]:
-        """Returns the proposals of a user, the most recent first."""
+        """
+        Returns the proposals of a user, the most recent first.
+
+        Args:
+            id_user (int): The ID of the user.
+
+        Returns:
+            list[NeoProposal]: List of proposals submitted by the user.
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
@@ -90,10 +107,19 @@ class NeoProposalDao(metaclass=Singleton):
 
     @log
     def find_all(self, id_neo: int | None = None) -> list[NeoProposal]:
-        """Returns all the proposals (or those on one NEO), the most recent first."""
+        """
+        Returns all the proposals (or those on one NEO), the most recent first.
+
+        Args:
+            id_neo (int | None): Optional NEO ID to filter proposals, or None for all NEOs.
+
+        Returns:
+            list[NeoProposal]: List of matching proposals.
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
+                    # NULL id_neo bypasses the NEO filter and returns proposals across all NEOs
                     cursor.execute(
                         """
                         SELECT *
@@ -112,7 +138,18 @@ class NeoProposalDao(metaclass=Singleton):
 
     @log
     def exists(self, id_user: int, id_neo: int, field: str, new_value: str) -> bool:
-        """Checks whether the user already made this exact proposal."""
+        """
+        Checks whether the user already made this exact proposal.
+
+        Args:
+            id_user (int): The ID of the user.
+            id_neo (int): The ID of the NEO.
+            field (str): Target field name of the proposal.
+            new_value (str): Proposed new value for the field.
+
+        Returns:
+            bool: True if an identical proposal already exists, False otherwise.
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
@@ -125,8 +162,12 @@ class NeoProposalDao(metaclass=Singleton):
                            AND field = %(field)s
                            AND new_value = %(new_value)s;
                         """,
-                        {"id_user": id_user, "id_neo": id_neo,
-                         "field": field, "new_value": new_value},
+                        {
+                            "id_user": id_user,
+                            "id_neo": id_neo,
+                            "field": field,
+                            "new_value": new_value,
+                        },
                     )
                     res = cursor.fetchone()
         except Exception as e:
@@ -137,7 +178,15 @@ class NeoProposalDao(metaclass=Singleton):
 
     @log
     def delete(self, id_proposal: int) -> bool:
-        """Deletes a proposal. True if a proposal was deleted, False otherwise."""
+        """
+        Deletes a proposal.
+
+        Args:
+            id_proposal (int): The ID of the proposal to delete.
+
+        Returns:
+            bool: True if a proposal was deleted, False otherwise.
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:

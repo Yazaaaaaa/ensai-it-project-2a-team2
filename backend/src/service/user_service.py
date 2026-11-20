@@ -10,14 +10,10 @@ from utils.log_utils import get_logger
 
 logger = get_logger(__name__)
 
-# Number of PBKDF2 rounds: the higher, the slower a brute-force attack.
-# 600,000 is the OWASP recommendation for PBKDF2-HMAC-SHA256.
 PBKDF2_ITERATIONS = 600_000
 
-# Minimum number of characters of a password
 MIN_PASSWORD_LENGTH = 8
 
-# Size in bytes of the random salt (unique per password) and of the session token
 SALT_BYTES = 16
 TOKEN_BYTES = 32
 
@@ -89,7 +85,6 @@ class UserService:
             logger.warning("Failed login attempt")
             return None
 
-        # Checked after the password: a banned status is not revealed without it
         if user.is_banned:
             logger.warning("Login refused for banned user %s", user.id_user)
             return None
@@ -168,5 +163,4 @@ class UserService:
             )
         except (ValueError, AttributeError):
             return False
-        # Constant-time comparison: its duration does not reveal how many characters match
         return hmac.compare_digest(digest.hex(), hash_hex)

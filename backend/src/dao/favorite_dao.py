@@ -37,6 +37,7 @@ class FavoriteDao(metaclass=Singleton):
             logger.error(f"Error creating favorite {favorite}: {e}")
             raise
 
+        # Hydrate the Favorite instance with database-generated id and timestamp
         created = False
         if res:
             favorite.id_favorite = res["id_favorite"]
@@ -77,10 +78,10 @@ class FavoriteDao(metaclass=Singleton):
             return None
 
         return Favorite(
-            id_favorite=res["id_favorite"],   # row["id_favorite"] dans find_all_by_user
-            id_user=res["id_user"],           # row["id_user"] dans find_all_by_user
-            id_neo=res["id_neo"],             # row["id_neo"] dans find_all_by_user
-            added_at=res["added_at"],         # row["added_at"] dans find_all_by_user
+            id_favorite=res["id_favorite"],
+            id_user=res["id_user"],
+            id_neo=res["id_neo"],
+            added_at=res["added_at"],
         )
 
     @log
@@ -114,10 +115,10 @@ class FavoriteDao(metaclass=Singleton):
 
         return [
             Favorite(
-                id_favorite=row["id_favorite"],   # row["id_favorite"] dans find_all_by_user
-                id_user=row["id_user"],           # row["id_user"] dans find_all_by_user
-                id_neo=row["id_neo"],             # row["id_neo"] dans find_all_by_user
-                added_at=row["added_at"],         # row["added_at"] dans find_all_by_user
+                id_favorite=row["id_favorite"],
+                id_user=row["id_user"],
+                id_neo=row["id_neo"],
+                added_at=row["added_at"],
             )
             for row in rows
         ]
@@ -169,6 +170,7 @@ class FavoriteDao(metaclass=Singleton):
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
+                    # Delete dependent distance_history rows before removing the parent favorite
                     cursor.execute(
                         "DELETE FROM distance_history WHERE id_favorite = %(id_favorite)s;",
                         {"id_favorite": favorite.id_favorite},

@@ -20,4 +20,7 @@ class Alert:
         self.created_at = created_at
 
     def __str__(self):
-        return f"Alert({self.id}: user {self.user_id} -> neo {self.neo_id or 'any'}, < {self.threshold_km} km)"
+        return (
+                f"Alert({self.id}: user {self.user_id} -> "
+                f"neo {self.neo_id or 'any'}, < {self.threshold_km} km)"
+            )

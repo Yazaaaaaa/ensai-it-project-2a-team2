@@ -9,11 +9,19 @@ logger = logging.getLogger(__name__)
 
 
 class UserDao(metaclass=Singleton):
-    """Accès aux données de la table users"""
+    """Class containing methods to access users in the database."""
 
     @log
     def create(self, user: User) -> bool:
-        """Insère un utilisateur et renseigne son id et sa date de création."""
+        """
+        Inserts a new user and sets its generated ID and creation timestamp.
+
+        Args:
+            user (User): The user object to persist.
+
+        Returns:
+            bool: True if the insertion is successful, False otherwise.
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
@@ -30,7 +38,7 @@ class UserDao(metaclass=Singleton):
                     )
                     res = cursor.fetchone()
         except Exception:
-            logger.exception("Erreur SQL create user")
+            logger.exception("SQL error while creating user")
             return False
 
         if res:
@@ -41,7 +49,15 @@ class UserDao(metaclass=Singleton):
 
     @log
     def find_by_id(self, id_user: int) -> User | None:
-        """Trouve un utilisateur à partir de son id."""
+        """
+        Retrieves a user by its primary key ID.
+
+        Args:
+            id_user (int): The ID of the user to find.
+
+        Returns:
+            User | None: The matching User object if found, otherwise None.
+        """
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -54,7 +70,15 @@ class UserDao(metaclass=Singleton):
 
     @log
     def find_by_email(self, email: str) -> User | None:
-        """Trouve un utilisateur à partir de son email."""
+        """
+        Retrieves a user by its email address.
+
+        Args:
+            email (str): The email address to search for.
+
+        Returns:
+            User | None: The matching User object if found, otherwise None.
+        """
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -67,24 +91,38 @@ class UserDao(metaclass=Singleton):
 
     @log
     def find_by_token(self, token: str) -> User | None:
-        """Trouve un utilisateur à partir de son token."""
+        """
+        Retrieves a user by its authentication token.
+
+        Args:
+            token (str): The token associated with the user.
+
+        Returns:
+            User | None: The matching User object if found, otherwise None.
+        """
         try:
             with DBConnection().connection as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        "SELECT id_user, email, password_hash, role_user, created_at, token, is_banned "
+                        "SELECT id_user, email, password_hash, role_user, created_at, token,"
+                        "is_banned "
                         "FROM users WHERE token = %(token)s;",
                         {"token": token},
                     )
                     res = cursor.fetchone()
         except Exception:
-            logger.exception("Erreur SQL find_by_token")
+            logger.exception("SQL error in find_by_token")
             return None
         return self._to_user(res)
 
     @log
     def find_all(self) -> list[User]:
-        """Renvoie tous les utilisateurs."""
+        """
+        Retrieves all users ordered by their ID.
+
+        Returns:
+            list[User]: List of all User objects.
+        """
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -96,7 +134,15 @@ class UserDao(metaclass=Singleton):
 
     @log
     def update(self, user: User) -> bool:
-        """Met à jour email, mot de passe, rôle et token d'un utilisateur."""
+        """
+        Updates a user's email, password hash, role, token, and ban status.
+
+        Args:
+            user (User): The user object containing updated fields and its id_user.
+
+        Returns:
+            bool: True if exactly one row was updated, False otherwise.
+        """
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -110,14 +156,23 @@ class UserDao(metaclass=Singleton):
                         "password_hash": user.password_hash,
                         "role_user": user.role_user,
                         "token": user.token,
-                        "is_banned": user.is_banned
+                        "is_banned": user.is_banned,
                     },
                 )
+                # Ensure a single target user row was modified
                 return cursor.rowcount == 1
 
     @log
     def delete(self, user: User) -> bool:
-        """Supprime un utilisateur."""
+        """
+        Deletes a user from the database.
+
+        Args:
+            user (User): The user object to delete (uses user.id_user).
+
+        Returns:
+            bool: True if at least one row was deleted, False otherwise.
+        """
         with DBConnection().connection as connection:
             with connection.cursor() as cursor:
                 cursor.execute(
@@ -128,6 +183,15 @@ class UserDao(metaclass=Singleton):
 
     @staticmethod
     def _to_user(row: dict | None) -> User | None:
+        """
+        Converts a database row dictionary into a User business object.
+
+        Args:
+            row (dict | None): Database row returned by the cursor.
+
+        Returns:
+            User | None: Instantiated User object, or None if row is None.
+        """
         if row is None:
             return None
         return User(
@@ -137,5 +201,5 @@ class UserDao(metaclass=Singleton):
             role_user=row["role_user"],
             created_at=row["created_at"],
             token=row["token"],
-            is_banned=row["is_banned"]
+            is_banned=row["is_banned"],
         )

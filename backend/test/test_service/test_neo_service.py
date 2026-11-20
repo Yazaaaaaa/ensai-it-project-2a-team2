@@ -215,7 +215,7 @@ def test_search_neos_nasa_id_has_priority_over_other_sql_sources():
     # WHEN
     res = NeoService().search_neos({"nasa_id": "2099942", "is_hazardous": True})
 
-    # THEN : only the nasa_id query is used
+    # THEN
     assert [n.name_neo for n in res] == ["Apophis"]
     NeoDao().find_all.assert_not_called()
     NeoDao().find_by_hazardous.assert_not_called()
@@ -223,7 +223,7 @@ def test_search_neos_nasa_id_has_priority_over_other_sql_sources():
 
 def test_search_neos_nasa_id_and_other_user_id():
 
-    # GIVEN : Apophis has no creator, so it must be excluded by the user_id filter
+    # GIVEN
     NeoDao().find_by_id_nasa = MagicMock(return_value=neos[1])
 
     # WHEN
@@ -266,7 +266,7 @@ def test_search_neos_min_diameter():
     # WHEN
     res = NeoService().search_neos({"min_diameter_m": 300})
 
-    # THEN : Apophis (mean 350) and Bennu (mean 500), the NEO without diameter is excluded
+    # THEN
     assert [n.name_neo for n in res] == ["Apophis", "Bennu"]
 
 
@@ -278,7 +278,7 @@ def test_search_neos_max_magnitude():
     # WHEN
     res = NeoService().search_neos({"max_magnitude": 20})
 
-    # THEN : Eros (10.0) and Apophis (20.0), the NEO without magnitude is excluded
+    # THEN
     assert [n.name_neo for n in res] == ["Eros", "Apophis"]
 
 
@@ -291,7 +291,7 @@ def test_search_neos_by_orbiting_body():
     # WHEN
     res = NeoService().search_neos({"orbiting_body": "Earth"})
 
-    # THEN : Eros (id 1) and Apophis (id 2)
+    # THEN
     assert [n.name_neo for n in res] == ["Eros", "Apophis"]
     CloseApproachDao().find_by_orbit.assert_called_once_with("Earth")
 
@@ -305,7 +305,7 @@ def test_search_neos_by_approach_date():
     # WHEN
     res = NeoService().search_neos({"approach_date": "2026-10-15"})
 
-    # THEN : Eros (id 1) and Apophis (id 2)
+    # THEN
     assert [n.name_neo for n in res] == ["Eros", "Apophis"]
     CloseApproachDao().find_by_approach_date.assert_called_once_with("2026-10-15")
 
@@ -472,7 +472,7 @@ def test_compare_ok():
     # WHEN
     res = NeoService().compare([1, 2])
 
-    # THEN : each NEO comes with its approach to the Earth (Mars is ignored for Eros)
+    # THEN
     assert [(n.name_neo, a.id_approach) for n, a in res] == [("Eros", 101), ("Apophis", 103)]
 
 
@@ -490,7 +490,7 @@ def test_compare_keeps_the_order_of_the_ids():
 
 def test_compare_takes_the_closest_approach_to_the_earth():
 
-    # GIVEN : the closest approach of Eros is around Mars, and it has two Earth approaches
+    # GIVEN
     around_mars = CloseApproach(id_approach=201, id_neo=1, approach_date="2026-12-01",
                                 orbiting_body="Mars", miss_distance_km=500_000.0,
                                 relative_velocity_kmh=40_000.0)
@@ -502,13 +502,13 @@ def test_compare_takes_the_closest_approach_to_the_earth():
     # WHEN
     res = NeoService().compare([1])
 
-    # THEN : the Earth approach at 800 000 km, not the Mars one nor the one at 1.5 million km
+    # THEN
     assert res[0][1].id_approach == 202
 
 
 def test_compare_neo_without_approach():
 
-    # GIVEN : Custom (4) has no approach
+    # GIVEN
     mock_daos_for_compare(approaches)
 
     # WHEN
@@ -520,7 +520,7 @@ def test_compare_neo_without_approach():
 
 def test_compare_neo_without_approach_to_the_earth():
 
-    # GIVEN : Eros only has an approach around Mars
+    # GIVEN
     mock_daos_for_compare([approaches[1]])
 
     # WHEN

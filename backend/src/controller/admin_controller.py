@@ -1,7 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 
-from typing import Optional
-
 from business_object.user import User
 from controller.dependencies import get_admin_service, require_admin
 from service.admin_service import AdminService
@@ -23,9 +21,19 @@ def ban_user(
 ):
     """Bans a user and closes his session.
 
+    Args:
+        id_user (int): ID of the user to ban.
+        admin (User): Authenticated administrator performing the action.
+        admin_service (AdminService): Service handling administrative actions.
+
+    Returns:
+        Response: Empty 204 response when the ban succeeds.
+
     Raises:
         HTTPException: 400 if the user is unknown, is an admin or is the caller.
+        HTTPException: 500 if persisting the ban fails.
     """
+    # Map domain validation errors (unknown user, self-ban, admin target) to HTTP 400
     try:
         banned = admin_service.ban_user(admin, id_user)
     except ValueError as e:
@@ -39,7 +47,12 @@ def ban_user(
 
 
 def _run_import(admin_service: AdminService, admin: User) -> None:
-    """Runs in the background: the outcome is only visible in the logs."""
+    """Runs in the background: the outcome is only visible in the logs.
+
+    Args:
+        admin_service (AdminService): Service executing the data import subprocess.
+        admin (User): Administrator who triggered the import.
+    """
     try:
         result = admin_service.run_data_import(admin)
     except RuntimeError as e:
@@ -63,9 +76,18 @@ def import_data(
 ):
     """Starts utils.import_all_data without waiting for it to finish.
 
+    Args:
+        background_tasks (BackgroundTasks): FastAPI background task manager.
+        admin (User): Authenticated administrator starting the import.
+        admin_service (AdminService): Service managing the import process and lock.
+
+    Returns:
+        dict: Confirmation payload indicating the background import has started.
+
     Raises:
         HTTPException: 409 if an import is already running.
     """
+    # Fail fast with 409 before scheduling a background task if an import is active
     if admin_service.is_import_running():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -85,6 +107,14 @@ def get_connection_history(
     admin_service: AdminService = Depends(get_admin_service),
 ):
     """Returns the connection history, filtered by user if `id_user` is given.
+
+    Args:
+        id_user (int | None): Optional user ID to filter history, or None for all users.
+        admin (User): Authenticated administrator requesting the history.
+        admin_service (AdminService): Service retrieving connection history records.
+
+    Returns:
+        list[Connection]: Matching connection history entries.
 
     Raises:
         HTTPException: 404 if `id_user` is given and unknown.

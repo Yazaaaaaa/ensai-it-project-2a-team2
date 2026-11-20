@@ -15,14 +15,10 @@ logger = get_logger(__name__)
 
 ADMIN_ROLE = "admin"
 
-# Module run in a separate process to reload the NASA data
 IMPORT_MODULE = "utils.weekly_data"
 
-# Folder backend/src/ (parent of service/). The import runs from there,
-# so that "utils.weekly_data" can be found as a module.
 SRC_DIR = Path(__file__).resolve().parents[1]
 
-# Maximum duration of the import (seconds) and number of output characters kept
 DEFAULT_IMPORT_TIMEOUT = 3600
 OUTPUT_TAIL_CHARS = 5000
 
@@ -30,7 +26,6 @@ OUTPUT_TAIL_CHARS = 5000
 class AdminService:
     """Actions reserved to administrators: ban, data import, connection history."""
 
-    # Shared by all instances: only one import can run at a time
     _import_lock = threading.Lock()
 
     def __init__(
@@ -69,7 +64,7 @@ class AdminService:
             raise ValueError("An admin cannot be banned")
 
         target.is_banned = True
-        target.token = None  # removing the token closes the current session
+        target.token = None
         banned = self.user_dao.update(target)
         if banned:
             logger.info("User %s banned by admin %s", id_user, admin.id_user)
@@ -92,7 +87,6 @@ class AdminService:
             RuntimeError: an import is already running.
         """
         self._require_admin(admin)
-        # Non-blocking: refuse immediately instead of waiting for the running import
         if not self._import_lock.acquire(blocking=False):
             raise RuntimeError("An import is already running")
 
@@ -104,7 +98,7 @@ class AdminService:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                check=False,  # a failure is reported in the result, not raised
+                check=False,
             )
         except subprocess.TimeoutExpired:
             logger.error("Data import timed out after %ss", timeout)
@@ -115,7 +109,6 @@ class AdminService:
                 "stderr": f"Timeout after {timeout}s",
             }
         finally:
-            # Always released, even on timeout or unexpected error
             self._import_lock.release()
 
         success = result.returncode == 0
