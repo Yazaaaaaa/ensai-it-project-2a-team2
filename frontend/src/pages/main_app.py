@@ -1,14 +1,20 @@
 """
-Streamlit main page with a dashboord.
+Streamlit main dashboard page for NEO-Watch.
 
-Provides options to see an overview of favorites neos, alerts,...
+Provides an authenticated user interface organized into tabs to monitor
+near-Earth objects (overview, favorites and distance history, custom alerts,
+NEO creation, multi-criteria search, side-by-side comparison, and modification
+proposals).
 
 Endpoints used:
-    ?
+    - GET /users/me
+    - GET /neo/, POST /neo/, GET /neo/compare
+    - GET /favorite/{user_id}, POST /favorite, DELETE /favorite/{user_id}/{id_neo}
+    - GET /favorite/{id_neo}/distances, GET /favorite/{id_neo}/distances/chart
+    - GET /alert/{user_id}, GET /alert/{user_id}/triggered, POST /alert,
+      PATCH /alert/{user_id}/{id_alert}, DELETE /alert/{user_id}/{id_alert}
+    - GET /proposals, GET /proposals/me, POST /proposals
 """
-
-import json
-from datetime import datetime, timedelta
 
 import pandas as pd
 import plotly.express as px
