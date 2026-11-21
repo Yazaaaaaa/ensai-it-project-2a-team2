@@ -1,0 +1,23 @@
+14/11/2026 18:04:31 root                      INFO    - --------------------------------------------------
+14/11/2026 18:04:31 root                      INFO    - Starting Webservice                           
+14/11/2026 18:04:31 root                      INFO    - --------------------------------------------------
+14/11/2026 18:04:31 root                      INFO    - Load environment variables: SUCCES
+14/11/2026 18:04:31 root                      INFO    - POSTGRES_HOST=postgresql-cnpg-863773-rw.user-yannma
+14/11/2026 18:04:31 root                      INFO    - POSTGRES_PORT=5432
+14/11/2026 18:04:31 root                      INFO    - POSTGRES_DATABASE=defaultdb
+14/11/2026 18:04:31 root                      INFO    - POSTGRES_USER=user-yannma
+14/11/2026 18:04:31 root                      INFO    - POSTGRES_PASSWORD=*******
+14/11/2026 18:04:31 root                      INFO    - POSTGRES_SCHEMA=neow
+14/11/2026 18:04:31 root                      INFO    - UVICORN_HOST=0.0.0.0
+14/11/2026 18:04:31 root                      INFO    - UVICORN_PORT=5000
+14/11/2026 18:04:31 root                      INFO    - BACKEND_URL=http://localhost:5000
+14/11/2026 18:04:31 root                      INFO    - BACKEND_TIMEOUT=5
+14/11/2026 18:04:31 root                      INFO    - ELO_K_FACTOR=32
+14/11/2026 18:04:31 root                      INFO    - NASA_API_KEY=*******
+14/11/2026 18:04:36 root                      INFO    - GET / - START
+14/11/2026 18:04:36 root                      INFO    - GET / - END [Status: 307]
+14/11/2026 18:04:36 root                      INFO    - GET /docs - START
+14/11/2026 18:04:36 root                      INFO    - GET /docs - END [Status: 200]
+14/11/2026 18:04:37 root                      INFO    - GET /openapi.json - START
+14/11/2026 18:04:37 root                      INFO    - GET /openapi.json - END [Status: 200]
+14/11/2026 18:34:26 __main__                  INFO    - Webservice stopped

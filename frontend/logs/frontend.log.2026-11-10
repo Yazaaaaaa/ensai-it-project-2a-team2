@@ -1,0 +1,13 @@
+10/11/2026 15:32:55 root                 INFO   - --------------------------------------------------
+10/11/2026 15:32:55 root                 INFO   - Launch FRONTEND : Streamlit App
+10/11/2026 15:32:55 root                 INFO   - --------------------------------------------------
+10/11/2026 15:32:55 root                 INFO   - Load environment variables: SUCCES
+10/11/2026 15:32:55 root                 INFO   - BACKEND_URL=http://localhost:5000
+10/11/2026 15:32:55 root                 INFO   - BACKEND_TIMEOUT=5
+10/11/2026 15:32:55 home                 INFO   - None -> home
+10/11/2026 15:33:07 home                 INFO   - Attempting login for user: 123@gmail.com
+10/11/2026 15:33:07 home                 INFO   -   POST http://localhost:5000/login
+10/11/2026 15:33:07 home                 INFO   -   200 OK
+10/11/2026 15:33:07 home                 INFO   -   GET http://localhost:5000/users/me
+10/11/2026 15:33:07 home                 INFO   -   200 OK
+10/11/2026 15:33:07 home                 INFO   - User 123@gmail.com logged in successfully
