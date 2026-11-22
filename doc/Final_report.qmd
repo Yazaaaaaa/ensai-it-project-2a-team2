@@ -134,7 +134,7 @@ The data about Near-Earth Objects (NEOs) is retrieved automatically through the 
 
 However, the API returns far more data than our application actually needs. We therefore chose a selective approach: only information considérés useful for the application is extracted and stored in the database. This includes the NASA identifier, the object’s name, its estimated diameter range, its absolute magnitude and esther it is classified as potentially hazardons, along with the details of its close approaches to Earth (date, orbitant body, miss distance and relative velocity). This deliberate filtering keeps the database lightweight, simplifies queries and avoids storing redundant or unused fields.
 
-![Table Diagram](../diagram/use_case_diagram.png)
+![Table Diagram](../diagram/diagram_bdd.png)
 
 The database is organized around two central entities (‘users’ and ‘neo’) with all other tables depending on them through foreign keys. As shown in the table diagram (figure ?), every relationship follows a one-to-many (1 : N) pattern, with a single exception. 
 
@@ -176,6 +176,7 @@ We use the PostgreSQL relational database management system, which ensures the i
 To feed the application, the backend retrieves data from the NASA NeoWs API. The data is then filtered, transformed and inserted into our own PostgreSQL database.
 
 Architecture diagram
+![Architecture Diagram](../diagram/architecture_diagram.jpeg)
 
 ## C. Features' implementation
 
@@ -193,7 +194,7 @@ All features follow the same structure: the layered architecture. The Pydantic m
 
 **Logout and authentication.** A session is a random token (`secrets.token_urlsafe`) stored in the `users` table. Logging out sets this token back to `None`. On every protected request, `authenticate` finds the user by token and refuses access if the user is banned, so a ban takes effect immediately without waiting for a session to expire.
 
-![Activity diagram for POST/users/ endpoint](../diagram/endpoint_post_users_diagram.png)
+![Activity diagram for POST/users/ endpoint](../diagram/endpoint_post_users_diagram.jpeg)
 
 ### 2. Admin (/admin)
 
@@ -242,7 +243,7 @@ A connection is returned as `id_login`, `id_user` and `login_at` (the date and t
 
 The endpoint itself only receives the authenticated user and does not repeat these checks. In `GET /connections/`, the same endpoint serves both roles: the administrator receives every connection and the regular user receives only his own, after filtering in the controller. A regular user can therefore never read the history of someone else through this endpoint. The token has no expiration date: a session ends when the user logs out or when an administrator bans him, both of which remove the token from the database.
 
-![Activity diagram for POST/login/ endpoint](../diagram/endpoint_post_login_diagram.png)
+![Activity diagram for POST/login/ endpoint](../diagram/endpoint_post_login_diagram.jpeg)
 
 ### 4. NEOs (/neo)
 
