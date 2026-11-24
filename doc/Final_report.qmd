@@ -328,7 +328,7 @@ A favorite pins a NEO for a user, and each favorite carries its distance history
 
 **Tolerant date parsing.** Approach dates come from NASA in its own format (`2026-Oct-23 12:00`) or from the database in ISO format. The service tries the NASA format first, then ISO, and skips with a warning any point whose date or distance is unreadable one dirty record bends the chart rather than breaking the request.
 
-## Concrete example: Browse NEOs
+## D. Concrete example: Browse NEOs
 
 **What the feature does**
 
@@ -408,12 +408,19 @@ To authenticate, a user logs in with an email and a password and receives an acc
 
 **The streamlit interface (port 8000)**
 The main app has seven tabs:
+
 - Overview: key figures (number of NEOs, hazardous ones, custom ones, average diameter), two charts and a list of NEOs that can be filtered and sorted.
+
 - Favorites: the user’s favorite NEOs, the evolution of the distance of the selected one with the closest approach and a downloadable chart, removal from the favorites, and creation of an alert on this NEO.
+
 - Alerts: the alerts currently triggered, the user’s alerts (which can be enabled, disabled or deleted), and a form to create an alert on a favorite or on any NEO, with a distance threshold and an optional minimum size.
+
 - Add a NEO: a form to create a custom NEO, which later updates from NASA never overwrite.
+
 - Browse a NEO: a search form (name, hazardous status, size, magnitude, orbiting body, date of passage) with sorting. Selecting a NEO shows its characteristics and its close approaches, and offers to add it to the favorites or to propose a correction.
+
 - Compare several NEOs : downloadable figures showing data of several NEOs selected by the user. 
+
 - Proposals: the corrections proposed by the user and their status, and, for administrators, the proposals of all users.
 
 ![Main Menu Diagram](../doc/diagram/global_menu_diagram.jpeg)
@@ -429,6 +436,52 @@ The quality of the controller code is verified when the endpoints are used withi
 To keep code style uniform across the team, we checked formatting, line length, imports, and syntax consistency using style tooling (`flake8` and `Ruff`), refactoring overly long expressions or inconsistent blocks as we went. In addition, we documented classes, functions, and endpoints with structured docstrings (describing behavior, arguments, return values, and raised exceptions) and added targeted inline comments to clarify complex logic, SQL queries, and non-obvious constraints, making the codebase easier to read, maintain, and review.
 
 # Personal feedbacks
+
+**Individual Reflection – Yann**
+
+As the team member most comfortable with computer science, and since I want to work in this field in the future, I ended up taking on the project manager's responsibilities even though there was no predefined role. The role suited me well: I managed the repository and organized the work to be done. My main contribution was on the backend code, where I focused on building a clean, error-free layered architecture.
+
+Our teamwork was very good. Everyone was autonomous, so we needed a few meetings, and each person delivered their work on the agreed day, which kept the project moving smoothly.
+
+This project was very rewarding. I had already done a similar project during my BUT but failed to deliver a satisfactory result, so this time I could see clearly the mistakes I had made back then. I also realized how much I have improved in diligence and organization. This experience confirmed my wish to pursue a career in computer science.
+
+That said, my motivation dropped after the October break. With the pressure from my other courses, I spent more time on those subjects at the expense of the project.
+
+Unfortunately, I don’t yet have enough perspective to say what I would have done differently. My mind is still too focused on my coursework, but this reflection may come with the next project, when I can compare the two ways of organizing the work.
+
+**Individual Reflection – Jules**
+
+My main contribution to this project was on the backend, where I worked on the favorites feature and on user and administrator management: account creation, login and logout, banning users and running the data import. I also contributed to other parts of the application, such as the tests of the DAO and service layers, the Streamlit interface and the documentation.
+
+Our teamwork was very good. We were well organized, we worked well during the three days given to finalise the project, we set precise deadlines, and we respected them. When a team member needed help, the others stepped in, and we never faced any real blocking point inside the team.
+
+This project taught me how to build an application that can be maintained over time, thanks to a clear layered structure. I also learned to work with a database and to build and use APIs (I never used PostGree before). My weakest point is Streamlit, which I still do not master. It was not required by the project’s instructions, but I would like to improve on it because it is the beautiful part of the project.
+
+What I am most proud of is that we ended up with a working application that someone could really use, and that I understand what is going on under the hood.
+
+If I had to do it again, I would change almost nothing, except the UML diagrams of the first deliverable, for which our team received an average grade. I would spend more time on them, since a good design from the start makes the rest of the work easier.
+
+**Individual Reflection – Abderrahmane**
+
+I took part in different areas of the project. On the backend, I implemented the favorites and alerts DAOs together with their business objects. I also did some testing, mostly code-quality checks, and contributed to all the written deliverables, including the final report, where I worked on the introduction and diagrams of the Browse NEOs feature, the storage system, and the login and connection sections.
+
+Our teamwork was very good. Communication never failed, and everyone was supportive and ready to help. When I was overloaded, my teammates' help and the weekly tracking made it easy to catch up and I wanna thank them for that.
+
+My main difficulty was conceptual at the beginning: understanding which part plays which role, and why an application needs so many classes and layers. Testing was the other hard part, and it was sometimes troublesome but I’m happy and proud we managed to figure out all issues during the process and ended up with a well functioning application.
+
+With hindsight, I now understand better how to build a project from start to finish, and why each layer (controller, service, DAO, business objects) is needed to reach the final result. I am proud of the work of the whole team and of my own involvement. Last year's project did not go well for me, and this year was much better.
+
+If I had a piece of advice for future students, it is to say that it is normal to have ups and downs and periods of overload during the project, but do not let them disrupt the work of the team.
+
+**Individual Reflection – Faustine**
+
+I enjoyed this IT project both because the subject matter was interesting and because it gave me a better understanding of code architecture.
+
+During my end-of-first-year work internship, my task was to implement an application using an API. What I learnt during my internship helped me throughout the project. Furthermore, this project has allowed me to take a step back and reflect on my work during the placement. The application I built worked, but I realise that maintaining it is likely to be complicated. Without a layered architecture and with spaghetti code, it is difficult to modify the application without introducing bugs.
+
+This project has really helped me understand the different stages involved in building an application, building on last year’s project.
+
+The progress meetings, along with the weekly trackings, enabled us to stay on track with the project’s progress. It wasn't always easy for all of us to make progress on the project together, especially when we had exams going on at the same time.
 
 # Conclusion
 
