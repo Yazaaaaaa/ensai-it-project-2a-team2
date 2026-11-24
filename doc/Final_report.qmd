@@ -352,6 +352,8 @@ The diagram is limited to the classes involved in browsing, one layer per row. A
 - **Business objects and API schemas are separate classes.** `Neo` and `CloseApproach` circulate between the service and the DAOs and contain neither SQL nor HTTP code. `NeoOut`, `CloseApproachOut` and `NeoComparisonOut` define what the API sends back; the controller converts one into the other, so a change in the database does not change the contract with the frontend.
 - **The two DAOs do not call each other.** A close approach is linked to its NEO only through the identifier `id_neo`, exactly as in the database.
 
+![Class Diagram for Browse NEOs](../doc/diagram/class_diagram_browse.jpeg)
+
 **From the interface to the backend**
 
 When the user interacts with the frontend, the fields they fill and the buttons they click become HTTP calls against the REST endpoints exposed by `neo_controller.py`. Let us follow one concrete example: a search for a NEO named "my neo", limited to the NEOs the user created themselves.
@@ -397,14 +399,41 @@ The DAOs do not return raw database rows. Each row of the `neo` table is convert
 
 ## E. User interface
 
+**The API interface (port 5000)**
+
+The backend exposes a REST API, built with FastAPI, on port 5000. It is the only component that reads and writes the PostgreSQL database and that talks to NASA’s NeoWs service. The Streamlit interface never accesses the data directly: it only calls this API. Requests and responses are in JSON, except for the exports (CSV or JSON files) and the distance chart (a PNG image).
+
+Each route does a little thing. It checks the request against a data model, calls the corresponding service, which holds the business rules, and converts the result into a response. Errors are returned with standard HTTP status codes.
+To authenticate, a user logs in with an email and a password and receives an access token. Administration routes also check that the user has the administrator role.
+
+**The streamlit interface (port 8000)**
+The main app has seven tabs:
+- Overview: key figures (number of NEOs, hazardous ones, custom ones, average diameter), two charts and a list of NEOs that can be filtered and sorted.
+- Favorites: the user’s favorite NEOs, the evolution of the distance of the selected one with the closest approach and a downloadable chart, removal from the favorites, and creation of an alert on this NEO.
+- Alerts: the alerts currently triggered, the user’s alerts (which can be enabled, disabled or deleted), and a form to create an alert on a favorite or on any NEO, with a distance threshold and an optional minimum size.
+- Add a NEO: a form to create a custom NEO, which later updates from NASA never overwrite.
+- Browse a NEO: a search form (name, hazardous status, size, magnitude, orbiting body, date of passage) with sorting. Selecting a NEO shows its characteristics and its close approaches, and offers to add it to the favorites or to propose a correction.
+- Compare several NEOs : downloadable figures showing data of several NEOs selected by the user. 
+- Proposals: the corrections proposed by the user and their status, and, for administrators, the proposals of all users.
+
+![Main Menu Diagram](../doc/diagram/class_diagram_browse.jpeg)
+
+![Detailed Menu Diagram](../doc/diagram/class_diagram_browse.jpeg)
+
 ## F. Application quality
 
 To ensure the quality of the code throughout the project, we reviewed the code written by other team members, in particular to ensure consistency in the use of variables, naming conventions, and shared patterns across modules. Furthermore, unit tests were carried out in parallel with the coding of the DAOs and services to validate business rules, edge cases, and database interactions, and to improve the reliability of the methods. We focused our testing on these two layers as they are essential to the application's operation and data integrity.
 
 The quality of the controller code is verified when the endpoints are used within the frontend, allowing us to check request handling, status codes, authentication/authorization behavior, and end-to-end data flow. It was in this context that the application logs proved particularly useful: they enabled us to trace execution flow, identify the source of errors, and inspect the sequence of functions that had been executed before a failure occurred. To run the tests, we used `pytest`, and to ensure adequate test coverage, we used coverage tooling alongside Python 3 on the DAO and service layers, reaching 91% coverage and helping us spot remaining uncovered branches and edge cases. 
 
-To keep code style uniform across the team, we checked formatting, line length, imports, and syntax consistency using style tooling (`flake8` and `Ruff), refactoring overly long expressions or inconsistent blocks as we went. In addition, we documented classes, functions, and endpoints with structured docstrings (describing behavior, arguments, return values, and raised exceptions) and added targeted inline comments to clarify complex logic, SQL queries, and non-obvious constraints, making the codebase easier to read, maintain, and review.
+To keep code style uniform across the team, we checked formatting, line length, imports, and syntax consistency using style tooling (`flake8` and `Ruff`), refactoring overly long expressions or inconsistent blocks as we went. In addition, we documented classes, functions, and endpoints with structured docstrings (describing behavior, arguments, return values, and raised exceptions) and added targeted inline comments to clarify complex logic, SQL queries, and non-obvious constraints, making the codebase easier to read, maintain, and review.
 
 # Personal feedbacks
 
 # Conclusion
+
+In conclusion, NEO-Watch delivers on its core promise: users can explore near-Earth asteroids by searching, sorting and comparing them, save favorites, set distance and size alerts on them, and manage their own custom records, while administrators handle accounts, bans and database updates.
+
+The application was built to outlive this project. Its layered architecture (controller → service → DAO) isolates the two external dependencies: replacing PostgreSQL with another database would only require modifying the DAOs and their SQL queries, while switching the data source away from NASA's API would only require changing the client layer and the import process. Adding features follows the same path (a new DAO, service and controller) which keeps the codebase open to extension.
+
+The project's objectives were met, but a critical review identifies improvements before any consumer-facing release. There is room for improvement about security: registration allows users to designate themselves as administrators. Second, data freshness depends on a manual weekly import by an administrator; the natural evolution is a scheduled, validated import, single-run design already used by the admin import. These are deliberate next steps rather than design flaws, and each one maps onto the existing architecture without requiring a rewrite.
