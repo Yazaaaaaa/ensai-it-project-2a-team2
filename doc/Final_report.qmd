@@ -416,9 +416,9 @@ The main app has seven tabs:
 - Compare several NEOs : downloadable figures showing data of several NEOs selected by the user. 
 - Proposals: the corrections proposed by the user and their status, and, for administrators, the proposals of all users.
 
-![Main Menu Diagram](../doc/diagram/class_diagram_browse.jpeg)
+![Main Menu Diagram](../doc/diagram/global_menu_diagram.jpeg)
 
-![Detailed Menu Diagram](../doc/diagram/class_diagram_browse.jpeg)
+![Detailed Menu Diagram](../doc/diagram/detailed_menu_diagram.jpeg)
 
 ## F. Application quality
 
