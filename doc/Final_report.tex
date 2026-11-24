@@ -122,10 +122,10 @@
  
 
 
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{0.5em}  % Optionnel : ajoute un petit espace entre les paragraphes pour éviter qu'ils ne se collent
 \usepackage{enumitem}
-\setlist[itemize]{label=$\bullet$}  % Puce ronde classique
+\setlist[itemize]{label=$\bullet$}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -230,6 +230,9 @@ ENSAI\\
 
 \renewcommand{\contentsname}{Table of content}
 \tableofcontents
+
+\renewcommand{\listfigurename}{List of figures}
+\listoffigures
 
 \chapter{Introduction}\label{introduction}
 
@@ -380,7 +383,7 @@ the official catalogue.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{../diagram/use_case_diagram.png}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{../doc/diagram/use_case_diagram.png}}
 
 }
 
@@ -414,7 +417,7 @@ to avoid file versioning conflicts.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{../diagram/gantt_diagramal_vfinal.png}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{../doc/diagram/gantt_diagramal_vfinal.png}}
 
 }
 
@@ -443,7 +446,7 @@ simplifies queries and avoids storing redundant or unused fields.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{../diagram/diagram_bdd.png}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{../doc/diagram/diagram_bdd.png}}
 
 }
 
@@ -451,35 +454,76 @@ simplifies queries and avoids storing redundant or unused fields.
 
 \end{figure}%
 
-The database is organized around two central entities (`users' and
-`neo') with all other tables depending on them through foreign keys. As
-shown in the table diagram (figure ?), every relationship follows a
-one-to-many (1 : N) pattern, with a single exception.
+The database is organized around two central entities (\texttt{users}
+and \texttt{neo}) with all other tables depending on them through
+foreign keys. As shown in the table diagram (figure ?), every
+relationship follows a one-to-many (1 : N) pattern, with a single
+exception.
 
-The `users' table anchors account management. It connects to
-`login\_history' when the user log in, `alert' when they are configured,
-`favorite' when the user adds a neo as a favorite, and `neo' when he
-creates its own NEOs.
+The \texttt{users} table anchors account management. It connects to
+\texttt{login\_history} when the user log in, \texttt{alert} when they
+are configured, \texttt{favorite} when the user adds a neo as a
+favorite, and \texttt{neo} when he creates its own NEOs.
 
-The `neo' table anchors the astronomical data. It connects to
-`close\_approach' the close approach history of a NEO, `favorite' where
-a NEO can be saved by a user and `alert' to trigger them when they are
-configured by users.
+The \texttt{neo} table anchors the astronomical data. It connects to
+\texttt{close\_approach} the close approach history of a NEO,
+\texttt{favorite} where a NEO can be saved by a user and \texttt{alert}
+to trigger them when they are configured by users.
 
-The only deviation from the standard pattern is the `neo' and `alert'
-link: since `alert.id\_neo' is nullable, an alert can either target a
-specific NEO (0..1 : N) or be generic and triggered by any object
-crossing the configured thresholds.
+The only deviation from the standard pattern is the \texttt{neo} and
+\texttt{alert} link: since \texttt{alert.id\_neo} is nullable, an alert
+can either target a specific NEO (0..1 : N) or be generic and triggered
+by any object crossing the configured thresholds.
 
-In short, the schema separates who uses the application (`users',
-`login\_history'), what is observed (`neo', `close\_approach') and how
-users interact with data (`alert', `favorite', `distance\_history').
+In short, the schema separates who uses the application (\texttt{users},
+\texttt{login\_history}), what is observed (\texttt{neo},
+\texttt{close\_approach}) and how users interact with data
+(\texttt{alert}, \texttt{favorite}, \texttt{distance\_history}).
 
 To store this database, we use PostgreSQL which we connect to via the
-`.env' file. This system allows multiple users to view and edit the
-database at the same time.
+\texttt{.env} file. This system allows multiple users to view and edit
+the database at the same time.
 
-=\textgreater{} Explanation about updating the database
+\textbf{Database updates.} Because NASA continuously refines orbital
+parameters and publishes new close-approach predictions, the local
+PostgreSQL database must be refreshed periodically without disrupting
+active users or overwriting custom asteroids. Rather than querying
+NASA's API on every user request, updates are triggered explicitly by an
+administrator through the \texttt{POST\ /admin/import} endpoint.
+
+The update workflow relies on a dedicated synchronization script
+(\texttt{utils.weekly\_data}) executed in an isolated background
+subprocess (\texttt{subprocess.run}) so that the API remains responsive
+and immediately returns a \texttt{202\ Accepted} status. To prevent
+concurrent writes or duplicate API bursts, a shared thread lock
+(\texttt{threading.Lock}) ensures that only one synchronization runs at
+a time, rejecting overlapping requests with a \texttt{409\ Conflict}
+error.
+
+Because NASA's \texttt{/feed} endpoint restricts queries to a seven-day
+window, \texttt{sync\_weekly\_feed} computes a rolling seven-day
+interval ending on the current date (\texttt{end\ -\ 6\ days} to
+\texttt{end}) and delegates the ingestion to
+\texttt{NeoService.sync\_nasa\_data}. For each retrieved object, the
+service performs a non-destructive upsert:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Existing NASA NEOs} (matched by \texttt{nasa\_id}) have their
+  physical and orbital attributes updated without altering their
+  internal primary key (\texttt{id\_neo}), preserving existing user
+  alerts and favorites.
+\item
+  \textbf{Close approaches} are deduplicated against existing
+  \texttt{(id\_neo,\ orbiting\_body,\ approach\_date)} records so that
+  repeated runs only insert newly detected flybys.
+\item
+  \textbf{User-created NEOs} (\texttt{is\_custom\ =\ True}) carry
+  synthetic identifiers (\texttt{CUSTOM-...}) and are never touched by
+  the synchronization process, guaranteeing full data integrity across
+  updates.
+\end{itemize}
 
 \section{B. Architecture}\label{b.-architecture}
 
@@ -525,7 +569,16 @@ API. The data is then filtered, transformed and inserted into our own
 PostgreSQL database.
 
 Architecture diagram
-\pandocbounded{\includegraphics[keepaspectratio,alt={Architecture Diagram}]{../diagram/architecture_diagram.jpeg}}
+
+\begin{figure}[H]
+
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{../doc/diagram/architecture_diagram.jpeg}}
+
+}
+
+\caption{Architecture Diagram}
+
+\end{figure}%
 
 \section{C. Features' implementation}\label{c.-features-implementation}
 
@@ -588,7 +641,7 @@ waiting for a session to expire.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{../diagram/endpoint_post_users_diagram.jpeg}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{../doc/diagram/endpoint_post_users_diagram.jpeg}}
 
 }
 
@@ -600,9 +653,9 @@ waiting for a session to expire.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2667}}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1333}}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
 \toprule\noalign{}
@@ -704,8 +757,8 @@ administrator, only his own for a regular user & Token required & 200,
 list of connections & 401 (missing or invalid token), 404 (no
 connection) \\
 GET /connections/users/\{id\_user\} & List the connections of one user &
-Token required \emph{(role rules to confirm)} & 200, list of connections
-& 404 (no connection for this user) \\
+Token required & 200, list of connections & 404 (no connection for this
+user) \\
 \end{longtable}
 }
 
@@ -778,7 +831,7 @@ remove the token from the database.
 
 \begin{figure}[H]
 
-{\centering \pandocbounded{\includegraphics[keepaspectratio]{../diagram/endpoint_post_login_diagram.jpeg}}
+{\centering \pandocbounded{\includegraphics[keepaspectratio]{../doc/diagram/endpoint_post_login_diagram.jpeg}}
 
 }
 
@@ -829,9 +882,9 @@ name) \\
 DELETE /neo/\{id\_neo\} & Delete a NEO & Token required & 204 & 404
 (unknown NEO) \\
 POST /neo/sync/feed & Synchronize the NEOs of a date window (7 days max)
-& Admin & 200 + summary & --- \\
+& Admin & 200 + summary & - \\
 POST /neo/sync/page & Synchronize one page of the full NASA catalog &
-Admin & 200 + summary & --- \\
+Admin & 200 + summary & - \\
 \end{longtable}
 }
 
@@ -857,7 +910,7 @@ relying on FastAPI's \texttt{Query(...,\ min\_length=2)} to enforce at
 least two \texttt{ids} query parameters (automatically returning
 \texttt{422} otherwise) and preserving the requested order. In
 \texttt{NeoService.compare}, each \texttt{id\_neo} is first resolved via
-\texttt{get\_by\_id\_neo}---raising a \texttt{404} as soon as an unknown
+\texttt{get\_by\_id\_neo} raising a \texttt{404} as soon as an unknown
 identifier is encountered---before querying
 \texttt{CloseApproachDao().find\_by\_id\_neo(id\_neo)}. The service
 filters the approaches to retain only those orbiting \texttt{EARTH} with
@@ -902,11 +955,11 @@ everything it needs for display in one call.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.3125}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Endpoint
@@ -923,18 +976,17 @@ Errors
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-POST /alerts & Create an alert for a user, on one NEO or generic & ---
-\emph{(see note below)} & 201 + alert & 422 (\texttt{threshold\_km} ≤
-0), 404 (unknown NEO), 409 (NEO already watched), 500 (insertion
-failed) \\
+POST /alerts & Create an alert for a user, on one NEO or generic & - &
+201 + alert & 422 (\texttt{threshold\_km} ≤ 0), 404 (unknown NEO), 409
+(NEO already watched), 500 (insertion failed) \\
 GET /alerts/\{id\_user\} & List the NEOs watched by a user (most recent
-alert first), each with its NEO & --- & 200 + list & --- \\
+alert first), each with its NEO & - & 200 + list & - \\
 GET /alerts/\{id\_user\}/triggered & List the upcoming close approaches
-that trigger an active alert & --- & 200 + list & --- \\
+that trigger an active alert & - & 200 + list & - \\
 PATCH /alerts/\{id\_user\}/\{id\_alert\} & Modify an alert (only the
-fields sent are changed) & --- & 200 + alert & 404 (unknown alert) \\
-DELETE /alerts/\{id\_user\}/\{id\_alert\} & Delete an alert & --- & 204
-& 404 (unknown alert) \\
+fields sent are changed) & - & 200 + alert & 404 (unknown alert) \\
+DELETE /alerts/\{id\_user\}/\{id\_alert\} & Delete an alert & - & 204 &
+404 (unknown alert) \\
 \end{longtable}
 }
 
@@ -983,11 +1035,11 @@ a chart. The schemas wrap the NEO (\texttt{FavoriteOut} with
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1875}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Endpoint
@@ -1004,13 +1056,13 @@ Errors
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-POST /favorites & Add a NEO to the favorites of a user & --- \emph{(see
-note below)} & 201 + favorite & 404 (unknown NEO), 409 (already a
-favorite), 500 (insertion failed) \\
+POST /favorites & Add a NEO to the favorites of a user & - & 201 +
+favorite & 404 (unknown NEO), 409 (already a favorite), 500 (insertion
+failed) \\
 GET /favorites/\{id\_user\} & List the favorites of a user (most recent
-first), each with its NEO & --- & 200 + list & --- \\
+first), each with its NEO & - & 200 + list & - \\
 DELETE /favorites/\{id\_user\}/\{id\_neo\} & Remove a NEO from the
-favorites & --- & 204 & 404 (not a favorite) \\
+favorites & - & 204 & 404 (not a favorite) \\
 GET /favorites/\{id\_neo\}/distances & The miss distances of a favorite
 NEO over time, sorted & Current user (via \texttt{get\_current\_user}) &
 200 + history & 404 (not a favorite, unknown NEO) \\
@@ -1023,14 +1075,14 @@ image & 404 (not a favorite, no approach data) \\
 \textbf{Robust add and list.} Adding checks that the NEO exists (404),
 that it is not already a favorite (409), and surfaces a failed save
 (500). When listing, a favorite whose NEO no longer exists is silently
-skipped instead of breaking the whole response --- the list stays usable
+skipped instead of breaking the whole response the list stays usable
 even after referential drift.
 
 \textbf{Ownership comes from the token, not the path.} On the two
 \texttt{distances} endpoints, the user is never taken from the URL: the
 controller injects \texttt{get\_current\_user} and passes
 \texttt{current\_user.id\_user} to the service. Changing the URL cannot
-expose another user's distance history --- the same pattern as the Login
+expose another user's distance history the same pattern as the Login
 section (identity comes from the session, never from the request
 itself). The service also verifies ownership: 404 if the NEO is not in
 \emph{that user's} favorites.
@@ -1038,7 +1090,7 @@ itself). The service also verifies ownership: 404 if the NEO is not in
 \textbf{Distance history.} The service builds the points from
 close-approach data, with a case-insensitive \texttt{orbiting\_body}
 filter, sorts the points chronologically, and highlights the
-\texttt{closest} point --- the frontend receives both the curve and its
+\texttt{closest} point the frontend receives both the curve and its
 minimum in a single call.
 
 \textbf{Chart rendering.} The PNG chart is a good example of engineering
@@ -1059,14 +1111,14 @@ care:
   scale to stay readable;
 \item
   the image is rendered into an in-memory buffer (\texttt{BytesIO}) and
-  returned as raw bytes --- no temporary files to clean up.
+  returned as raw bytes no temporary files to clean up.
 \end{itemize}
 
 \textbf{Tolerant date parsing.} Approach dates come from NASA in its own
 format (\texttt{2026-Oct-23\ 12:00}) or from the database in ISO format.
 The service tries the NASA format first, then ISO, and skips with a
-warning any point whose date or distance is unreadable --- one dirty
-record bends the chart rather than breaking the request.
+warning any point whose date or distance is unreadable one dirty record
+bends the chart rather than breaking the request.
 
 \section{Concrete example: Browse
 NEOs}\label{concrete-example-browse-neos}
@@ -1094,7 +1146,7 @@ rights; the \emph{NASA API} is the external system that feeds the
 database.
 
 Two shortcuts are worth reading: the administrator inherits everything
-the user can do, and the diagram keeps two fine-grained actions ---
+the user can do, and the diagram keeps two fine-grained actions
 \emph{search} includes \emph{sort}, because every search request can
 carry a sort criterion, and \emph{NEO sheet} includes \emph{close
 approaches}, because they are always displayed with it.
@@ -1103,9 +1155,9 @@ approaches}, because they are always displayed with it.
 
 The diagram is limited to the classes involved in browsing, one layer
 per row. An arrow means \emph{uses} (the class on the left calls the one
-on the right), not inheritance --- no class here inherits from another.
-The layers are only coupled downwards, which is what allows each layer
-to be tested or replaced alone. Three points are worth explaining:
+on the right), not inheritance no class here inherits from another. The
+layers are only coupled downwards, which is what allows each layer to be
+tested or replaced alone. Three points are worth explaining:
 
 \begin{itemize}
 \tightlist
@@ -1143,9 +1195,9 @@ plus the optional sort parameters \texttt{sort\_by} (field to sort on)
 and \texttt{descending} (sort direction). The controller receives the
 request, validates it, and delegates the actual data retrieval to the
 service layer. Once the service returns the results, the controller
-converts them with the \texttt{NeoOut} schema --- which defines the
-exact structure of the response and the type of each field --- so the
-frontend always receives predictable, consistently formatted data.
+converts them with the \texttt{NeoOut} schema which defines the exact
+structure of the response and the type of each field so the frontend
+always receives predictable, consistently formatted data.
 
 The same controller exposes every browsing action: multi-criteria
 search, export, retrieval by id or by NASA identifier, close approaches
@@ -1180,16 +1232,15 @@ environment variables, so no credential is written in the code. Because
 the schema is set as the search path of the connection, the queries only
 need the table names. The connection uses a \texttt{RealDictCursor},
 which returns each row as a dictionary whose keys are the column names
---- the dictionaries read by the conversion methods.
+the dictionaries read by the conversion methods.
 
 The NEOs are handled by \texttt{NeoDao}, a singleton and the only place
 where SQL queries on the \texttt{neo} table are written. It offers one
-method per type of query --- \texttt{find\_all},
-\texttt{find\_by\_id\_neo}, \texttt{find\_by\_id\_nasa},
-\texttt{find\_by\_hazardous}, \texttt{find\_all\_by\_id\_user}, plus
-creation, update and deletion. In our example, the service calls
-\texttt{find\_all\_by\_id\_user}, which executes the parameterized query
-equivalent to
+method per type of query \texttt{find\_all}, \texttt{find\_by\_id\_neo},
+\texttt{find\_by\_id\_nasa}, \texttt{find\_by\_hazardous},
+\texttt{find\_all\_by\_id\_user}, plus creation, update and deletion. In
+our example, the service calls \texttt{find\_all\_by\_id\_user}, which
+executes the parameterized query equivalent to
 \texttt{SELECT\ *\ FROM\ neo\ WHERE\ created\_by\_user\_id\ =\ \textless{}user\ id\textgreater{}}:
 the value is passed separately from the query text, which protects
 against SQL injection. On error, the DAO logs the problem and raises the
@@ -1234,8 +1285,8 @@ other; the link is only this identifier.
 \item
   During a NASA synchronization. For each NEO retrieved from the NASA
   API, the service first saves it with \texttt{NeoDao.create}, which
-  inserts it --- or updates it if a NEO with the same \texttt{nasa\_id}
-  already exists --- and retrieves the \texttt{id\_neo} generated by the
+  inserts it or updates it if a NEO with the same \texttt{nasa\_id}
+  already exists and retrieves the \texttt{id\_neo} generated by the
   database. This identifier is then copied into each close approach of
   the NEO, saved with \texttt{CloseApproachDao.create}. Before
   inserting, this method looks for a close approach with the same NEO,
@@ -1255,12 +1306,12 @@ name \texttt{name\_neo}, its minimum and maximum diameters in meters,
 its absolute magnitude, and two booleans \texttt{is\_hazardous} and
 \texttt{is\_custom}. The \texttt{is\_custom} boolean distinguishes the
 NEOs created by users from the ones imported from NASA, and
-\texttt{created\_by\_user\_id} --- a foreign key to the \texttt{users}
-table --- links a custom NEO to the user who created it. This is the
-column used in our example. The \texttt{close\_approach} table contains,
-for each approach, the orbited body, the date, the miss distance in
-kilometers and the relative velocity in kilometers per hour, linked to
-its NEO by \texttt{id\_neo}.
+\texttt{created\_by\_user\_id} a foreign key to the \texttt{users} table
+links a custom NEO to the user who created it. This is the column used
+in our example. The \texttt{close\_approach} table contains, for each
+approach, the orbited body, the date, the miss distance in kilometers
+and the relative velocity in kilometers per hour, linked to its NEO by
+\texttt{id\_neo}.
 
 \textbf{Business objects}
 
@@ -1274,8 +1325,8 @@ business object, with one attribute per column: \texttt{id\_neo},
 table is converted by \texttt{\_row\_to\_approach} into a
 \texttt{CloseApproach} with the attributes \texttt{id\_approach},
 \texttt{id\_neo}, \texttt{approach\_date}, \texttt{orbiting\_body},
-\texttt{miss\_distance\_km} and \texttt{relative\_velocity\_kmh} ---
-note that the \texttt{id\_close\_approach} column becomes the
+\texttt{miss\_distance\_km} and \texttt{relative\_velocity\_kmh} note
+that the \texttt{id\_close\_approach} column becomes the
 \texttt{id\_approach} attribute, and the date, a \texttt{DATE} in the
 database, becomes a string. A \texttt{CloseApproach} does not embed the
 \texttt{Neo} it belongs to, only its \texttt{id\_neo}, exactly the link

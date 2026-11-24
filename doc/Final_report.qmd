@@ -4,13 +4,12 @@ format:
   pdf:
     documentclass: report
     mainfont: "TeX Gyre Termes"
-    header-includes: |
-      \usepackage{enumitem}
-      \setlist[itemize]{label=$\bullet$}  % Puce ronde classique
     include-in-header:
       text: |
+        \usepackage{enumitem}
+        \setlist[itemize]{label=$\bullet$}
         \setlength{\parindent}{0pt}
-        \setlength{\parskip}{0.5em}  % Optionnel : ajoute un petit espace entre les paragraphes pour éviter qu'ils ne se collent
+        \setlength{\parskip}{1em}
 lang: fr
 fontsize: 11pt
 papersize: a4
@@ -21,7 +20,6 @@ editor:
   markdown: 
     wrap: sentence
 ---
-
 
 
 \begin{titlepage}
@@ -65,6 +63,9 @@ ENSAI\\
 
 \renewcommand{\contentsname}{Table of content}
 \tableofcontents
+
+\renewcommand{\listfigurename}{List of figures}
+\listoffigures
 
 # Introduction
 
@@ -114,41 +115,49 @@ Our app also offers two optional features.
 
 **Proposing modifications to a NEO**. Since users may act as amateur astronomers with their own observations, the application gives them the ability to suggest corrections or updates to certain data associated with a NEO. When a user submits a modification proposal, the administrator is automatically notified so they can review the request. However, the workflow intentionally stops at this notification stage: external data fetched from NASA's public API remains read-only and is never altered directly by user submissions, preserving the integrity of the official catalogue.
 
-![Use Case Diagram](../diagram/use_case_diagram.png)
+![Use Case Diagram](../doc/diagram/use_case_diagram.png)
 
 # II. Project organization and planning 
 
 To ensure the successful completion of the implementation project, we have decided to organise ourselves as follows.
 
-We opted for a more flexible approach without assigning everyone a specific role. This enabled us to understand every stage of the app’s development and to help one another. After agreeing on the app’s overall structure (analysis report), we divided up the various key features amongst ourselves, from DAOs to controllers. As things progressed, certain roles naturally fell into place. For example, Yann made sure that the weekly tracking was updated regularly. This organisation ran smoothly thanks to the small size of our team and good communication via meetings and the WhatsApp group. At each meeting, we would list the tasks we had completed and identify those that needed to be done before the next deadline we had set ourselves, so that we could make steady progress.
+We opted for a more flexible approach without assigning everyone a specific role. This enabled us to understand every stage of the app's development and to help one another. After agreeing on the app's overall structure (analysis report), we divided up the various key features amongst ourselves, from DAOs to controllers. As things progressed, certain roles naturally fell into place. For example, Yann made sure that the weekly tracking was updated regularly. This organisation ran smoothly thanks to the small size of our team and good communication via meetings and the WhatsApp group. At each meeting, we would list the tasks we had completed and identify those that needed to be done before the next deadline we had set ourselves, so that we could make steady progress.
 
 When it came to working as a team, GitHub proved to be a very useful tool for keeping the project up to date and enabling us to work simultaneously. By dividing the work into major features, we were able to avoid file versioning conflicts. 
 
-![Gantt diagram](../diagram/gantt_diagramal_vfinal.png)
+![Gantt diagram](../doc/diagram/gantt_diagramal_vfinal.png)
 
 # III. Application design
 
 ## A. Database
 
-The data about Near-Earth Objects (NEOs) is retrieved automatically through the endpoints of NASA’s NEO API. This API provides extensive information about asteroids, including their orbital caractéristiques, physical properties and close-approach predictions. 
+The data about Near-Earth Objects (NEOs) is retrieved automatically through the endpoints of NASA's NEO API. This API provides extensive information about asteroids, including their orbital caractéristiques, physical properties and close-approach predictions. 
 
-However, the API returns far more data than our application actually needs. We therefore chose a selective approach: only information considérés useful for the application is extracted and stored in the database. This includes the NASA identifier, the object’s name, its estimated diameter range, its absolute magnitude and esther it is classified as potentially hazardons, along with the details of its close approaches to Earth (date, orbitant body, miss distance and relative velocity). This deliberate filtering keeps the database lightweight, simplifies queries and avoids storing redundant or unused fields.
+However, the API returns far more data than our application actually needs. We therefore chose a selective approach: only information considérés useful for the application is extracted and stored in the database. This includes the NASA identifier, the object's name, its estimated diameter range, its absolute magnitude and esther it is classified as potentially hazardons, along with the details of its close approaches to Earth (date, orbitant body, miss distance and relative velocity). This deliberate filtering keeps the database lightweight, simplifies queries and avoids storing redundant or unused fields.
 
-![Table Diagram](../diagram/diagram_bdd.png)
+![Table Diagram](../doc/diagram/diagram_bdd.png)
 
-The database is organized around two central entities (‘users’ and ‘neo’) with all other tables depending on them through foreign keys. As shown in the table diagram (figure ?), every relationship follows a one-to-many (1 : N) pattern, with a single exception. 
+The database is organized around two central entities (`users` and `neo`) with all other tables depending on them through foreign keys. As shown in the table diagram (figure ?), every relationship follows a one-to-many (1 : N) pattern, with a single exception. 
 
-The ‘users’ table anchors account management. It connects to ‘login_history’ when the user log in, ‘alert’ when they are configured, ‘favorite’ when the user adds a neo as a favorite, and ‘neo’ when he creates its own NEOs. 
+The `users` table anchors account management. It connects to `login_history` when the user log in, `alert` when they are configured, `favorite` when the user adds a neo as a favorite, and `neo` when he creates its own NEOs. 
 
-The ‘neo’ table anchors the astronomical data. It connects to ‘close_approach’ the close approach history of a NEO, ‘favorite’ where a NEO can be saved by a user and ‘alert’ to trigger them when they are configured by users.
+The `neo` table anchors the astronomical data. It connects to `close_approach` the close approach history of a NEO, `favorite` where a NEO can be saved by a user and `alert` to trigger them when they are configured by users.
 
-The only deviation from the standard pattern is the ‘neo’ and ‘alert’ link: since ‘alert.id_neo’ is nullable, an alert can either target a specific NEO (0..1 : N) or be generic and triggered by any object crossing the configured thresholds. 
+The only deviation from the standard pattern is the `neo` and `alert` link: since `alert.id_neo` is nullable, an alert can either target a specific NEO (0..1 : N) or be generic and triggered by any object crossing the configured thresholds. 
 
-In short, the schema separates who uses the application (‘users’, ‘login_history’), what is observed (‘neo’, ‘close_approach’) and how users interact with data (‘alert’, ‘favorite’, ‘distance_history’).
+In short, the schema separates who uses the application (`users`, `login_history`), what is observed (`neo`, `close_approach`) and how users interact with data (`alert`, `favorite`, `distance_history`).
 
-To store this database, we use PostgreSQL which we connect to via the ‘.env’ file. This system allows multiple users to view and edit the database at the same time.
+To store this database, we use PostgreSQL which we connect to via the `.env` file. This system allows multiple users to view and edit the database at the same time.
 
-=> Explanation about updating the database
+**Database updates.** Because NASA continuously refines orbital parameters and publishes new close-approach predictions, the local PostgreSQL database must be refreshed periodically without disrupting active users or overwriting custom asteroids. Rather than querying NASA's API on every user request, updates are triggered explicitly by an administrator through the `POST /admin/import` endpoint.
+
+The update workflow relies on a dedicated synchronization script (`utils.weekly_data`) executed in an isolated background subprocess (`subprocess.run`) so that the API remains responsive and immediately returns a `202 Accepted` status. To prevent concurrent writes or duplicate API bursts, a shared thread lock (`threading.Lock`) ensures that only one synchronization runs at a time, rejecting overlapping requests with a `409 Conflict` error.
+
+Because NASA's `/feed` endpoint restricts queries to a seven-day window, `sync_weekly_feed` computes a rolling seven-day interval ending on the current date (`end - 6 days` to `end`) and delegates the ingestion to `NeoService.sync_nasa_data`. For each retrieved object, the service performs a non-destructive upsert:
+
+- **Existing NASA NEOs** (matched by `nasa_id`) have their physical and orbital attributes updated without altering their internal primary key (`id_neo`), preserving existing user alerts and favorites.
+- **Close approaches** are deduplicated against existing `(id_neo, orbiting_body, approach_date)` records so that repeated runs only insert newly detected flybys.
+- **User-created NEOs** (`is_custom = True`) carry synthetic identifiers (`CUSTOM-...`) and are never touched by the synchronization process, guaranteeing full data integrity across updates.
 
 ## B. Architecture
 
@@ -165,7 +174,7 @@ Client: the code that communicates with the NASA API.
 
 **Frontend**
 
-Developed in Python with the Streamlit library, which makes it possible to generate interactive dashboards. It collects the user’s actions and displays the data.
+Developed in Python with the Streamlit library, which makes it possible to generate interactive dashboards. It collects the user's actions and displays the data.
 
 **Internal database**
 
@@ -176,7 +185,8 @@ We use the PostgreSQL relational database management system, which ensures the i
 To feed the application, the backend retrieves data from the NASA NeoWs API. The data is then filtered, transformed and inserted into our own PostgreSQL database.
 
 Architecture diagram
-![Architecture Diagram](../diagram/architecture_diagram.jpeg)
+
+![Architecture Diagram](../doc/diagram/architecture_diagram.jpeg)
 
 ## C. Features' implementation
 
@@ -194,12 +204,12 @@ All features follow the same structure: the layered architecture. The Pydantic m
 
 **Logout and authentication.** A session is a random token (`secrets.token_urlsafe`) stored in the `users` table. Logging out sets this token back to `None`. On every protected request, `authenticate` finds the user by token and refuses access if the user is banned, so a ban takes effect immediately without waiting for a session to expire.
 
-![Activity diagram for POST/users/ endpoint](../diagram/endpoint_post_users_diagram.jpeg)
+![Activity diagram for POST/users/ endpoint](../doc/diagram/endpoint_post_users_diagram.jpeg)
 
 ### 2. Admin (/admin)
 
 | Endpoint | Purpose | Access | Success | Errors |
-|---|---|---|---|---|
+|----|---|--|---|---|
 | POST /admin/users/{id_user}/ban | Ban a user | Admin | 204 | 400 (unknown user, admin, or self), 500 |
 | POST /admin/import | Start the NASA data import | Admin | 202 | 409 (import already running) |
 | GET /admin/connections | Connection history (filterable by id_user) | Admin | 200 + list | 404 (unknown user) |
@@ -224,7 +234,7 @@ Login checks who the user is and opens a session; connection history keeps a tra
 |---|---|---|---|---|
 | POST /login/ | Check the credentials, open a session and record the connection | Public | 200, with `id_user` and `access_token` | 401 (wrong email or password, or banned user) |
 | GET /connections/ | List the connections: all of them for an administrator, only his own for a regular user | Token required | 200, list of connections | 401 (missing or invalid token), 404 (no connection) |
-| GET /connections/users/{id_user} | List the connections of one user | Token required *(role rules to confirm)* | 200, list of connections | 404 (no connection for this user) |
+| GET /connections/users/{id_user} | List the connections of one user | Token required | 200, list of connections | 404 (no connection for this user) |
 
 A connection is returned as `id_login`, `id_user` and `login_at` (the date and time of the login), described by the `ConnectionReadModel` schema. Like the `UserResponseModel` of the user feature, this schema is separate from the business object, so only the intended fields leave the API.
 
@@ -243,7 +253,7 @@ A connection is returned as `id_login`, `id_user` and `login_at` (the date and t
 
 The endpoint itself only receives the authenticated user and does not repeat these checks. In `GET /connections/`, the same endpoint serves both roles: the administrator receives every connection and the regular user receives only his own, after filtering in the controller. A regular user can therefore never read the history of someone else through this endpoint. The token has no expiration date: a session ends when the user logs out or when an administrator bans him, both of which remove the token from the database.
 
-![Activity diagram for POST/login/ endpoint](../diagram/endpoint_post_login_diagram.jpeg)
+![Activity diagram for POST/login/ endpoint](../doc/diagram/endpoint_post_login_diagram.jpeg)
 
 ### 4. NEOs (/neo)
 
@@ -257,19 +267,18 @@ The endpoint itself only receives the authenticated user and does not repeat the
 | GET /neo/{id_neo}/close-approaches | List the close approaches of a NEO | Token required | 200 + list | 404 (unknown NEO) |
 | POST /neo | Create a custom NEO | Token required | 201 | 400 (missing name) |
 | DELETE /neo/{id_neo} | Delete a NEO | Token required | 204 | 404 (unknown NEO) |
-| POST /neo/sync/feed | Synchronize the NEOs of a date window (7 days max) | Admin | 200 + summary | — |
-| POST /neo/sync/page | Synchronize one page of the full NASA catalog | Admin | 200 + summary | — |
+| POST /neo/sync/feed | Synchronize the NEOs of a date window (7 days max) | Admin | 200 + summary | - |
+| POST /neo/sync/page | Synchronize one page of the full NASA catalog | Admin | 200 + summary | - |
 
 **Search.** Filtering happens in two stages inside `search_neos`: a filter runs in SQL with criterion as `nasa_id`, `user_id`, or `is_hazardous`, then refined filtering runs in Python to combine all remaining criteria: case-insensitive name substring, mean-diameter range, magnitude bound, and close approaches via `CloseApproachDao` (`orbiting_body`, `approach_date`). Sorting (`sorting_neo_by`) is also done in Python, driven by the `SORT_KEYS` dictionary; NEOs with a missing value always come last, and an unknown sort key returns 400.
 
 **Export.** The service writes the `EXPORT_FIELDS` fields to a temporary file (CSV or JSON). The controller streams that file through a `FileResponse` with a `BackgroundTask` that deletes the temporary file once the response has been sent, so nothing accumulates on disk.
 
-**Comparison.** The controller exposes `GET /neo/compare`, relying on FastAPI's `Query(..., min_length=2)` to enforce at least two `ids` query parameters (automatically returning `422` otherwise) and preserving the requested order. In `NeoService.compare`, each `id_neo` is first resolved via `get_by_id_neo`—raising a `404` as soon as an unknown identifier is encountered—before querying `CloseApproachDao().find_by_id_neo(id_neo)`. The service filters the approaches to retain only those orbiting `EARTH` with a non-null `miss_distance_km`, and selects the minimum distance (`default=None` if the NEO has no recorded Earth approach, such as objects orbiting another body or newly created custom NEOs). Finally, the controller serializes each `(Neo, CloseApproach | None)` pair through `_comparison_to_out` into a `NeoComparisonOut` schema, allowing the frontend to render a side-by-side table, a CSV export, and interactive comparison charts.
+**Comparison.** The controller exposes `GET /neo/compare`, relying on FastAPI's `Query(..., min_length=2)` to enforce at least two `ids` query parameters (automatically returning `422` otherwise) and preserving the requested order. In `NeoService.compare`, each `id_neo` is first resolved via `get_by_id_neo` raising a `404` as soon as an unknown identifier is encountered—before querying `CloseApproachDao().find_by_id_neo(id_neo)`. The service filters the approaches to retain only those orbiting `EARTH` with a non-null `miss_distance_km`, and selects the minimum distance (`default=None` if the NEO has no recorded Earth approach, such as objects orbiting another body or newly created custom NEOs). Finally, the controller serializes each `(Neo, CloseApproach | None)` pair through `_comparison_to_out` into a `NeoComparisonOut` schema, allowing the frontend to render a side-by-side table, a CSV export, and interactive comparison charts.
 
 **Custom NEO creation.** The controller sets `is_custom=True` and generates a synthetic identifier (`CUSTOM-<uuid8>`) when the client does not supply one, distinguishing user-created entries from NASA-imported objects. The service enforces only one rule: a NEO must have a name (400 otherwise).
 
 **NASA synchronization.** Two entry points delegate to `NasaClient`, which queries the NASA API (`/feed` for a date window, `/browse` for a page of the paginated catalog) and maps the response into `Neo` + `CloseApproach` objects. The shared persistence step, `_save_neos`, inserts each NEO together with its approaches under the newly assigned `id_neo`, and is fault-tolerant per NEO: a failure is logged and counted without interrupting the batch, and the endpoint returns a summary (`synchronized_neos`, `synchronized_approaches`, `errors`). Duplicate approaches are skipped because `CloseApproachDao().create()` returns `True` only for a new insert.
-
 
 
 ### 5. Alerts (/alerts)
@@ -277,12 +286,12 @@ The endpoint itself only receives the authenticated user and does not repeat the
 An alert watches a NEO (or all of them, for generic alerts) and fires when its next close approach to Earth gets closer than the user's distance threshold, optionally also requiring a size threshold. The schemas (`AlertIn`, `AlertUpdate`, `AlertOut`, `TriggeredAlertOut`) are separate from the business objects and embed the watched NEO through `NeoOut`, so the client receives everything it needs for display in one call.
 
 | Endpoint | Purpose | Access | Success | Errors |
-|---|---|---|---|---|
-| POST /alerts | Create an alert for a user, on one NEO or generic | — *(see note below)* | 201 + alert | 422 (`threshold_km` ≤ 0), 404 (unknown NEO), 409 (NEO already watched), 500 (insertion failed) |
-| GET /alerts/{id_user} | List the NEOs watched by a user (most recent alert first), each with its NEO | — | 200 + list | — |
-| GET /alerts/{id_user}/triggered | List the upcoming close approaches that trigger an active alert | — | 200 + list | — |
-| PATCH /alerts/{id_user}/{id_alert} | Modify an alert (only the fields sent are changed) | — | 200 + alert | 404 (unknown alert) |
-| DELETE /alerts/{id_user}/{id_alert} | Delete an alert | — | 204 | 404 (unknown alert) |
+|-----|---|--|---|---|
+| POST /alerts | Create an alert for a user, on one NEO or generic | - | 201 + alert | 422 (`threshold_km` ≤ 0), 404 (unknown NEO), 409 (NEO already watched), 500 (insertion failed) |
+| GET /alerts/{id_user} | List the NEOs watched by a user (most recent alert first), each with its NEO | - | 200 + list | - |
+| GET /alerts/{id_user}/triggered | List the upcoming close approaches that trigger an active alert | - | 200 + list | - |
+| PATCH /alerts/{id_user}/{id_alert} | Modify an alert (only the fields sent are changed) | - | 200 + alert | 404 (unknown alert) |
+| DELETE /alerts/{id_user}/{id_alert} | Delete an alert | - | 204 | 404 (unknown alert) |
 
 **Targeted and generic alerts.** `id_neo` is nullable, which gives two modes in a single model: a targeted alert watches one specific NEO (404 if it does not exist), while a generic alert watches every NEO. In the list, a generic alert comes back with `neo: null`, so the client can tell the two apart.
 
@@ -297,27 +306,27 @@ An alert watches a NEO (or all of them, for generic alerts) and fires when its n
 A favorite pins a NEO for a user, and each favorite carries its distance history: the NEO's miss distances over time, available as raw data or as a chart. The schemas wrap the NEO (`FavoriteOut` with `NeoOut`) the same way the alerts feature does.
 
 | Endpoint | Purpose | Access | Success | Errors |
-|---|---|---|---|---|
-| POST /favorites | Add a NEO to the favorites of a user | — *(see note below)* | 201 + favorite | 404 (unknown NEO), 409 (already a favorite), 500 (insertion failed) |
-| GET /favorites/{id_user} | List the favorites of a user (most recent first), each with its NEO | — | 200 + list | — |
-| DELETE /favorites/{id_user}/{id_neo} | Remove a NEO from the favorites | — | 204 | 404 (not a favorite) |
+|----|---|---|---|---|
+| POST /favorites | Add a NEO to the favorites of a user | - | 201 + favorite | 404 (unknown NEO), 409 (already a favorite), 500 (insertion failed) |
+| GET /favorites/{id_user} | List the favorites of a user (most recent first), each with its NEO | - | 200 + list | - |
+| DELETE /favorites/{id_user}/{id_neo} | Remove a NEO from the favorites | - | 204 | 404 (not a favorite) |
 | GET /favorites/{id_neo}/distances | The miss distances of a favorite NEO over time, sorted | Current user (via `get_current_user`) | 200 + history | 404 (not a favorite, unknown NEO) |
 | GET /favorites/{id_neo}/distances/chart | PNG chart of the miss distances | Current user (via `get_current_user`) | 200 + PNG image | 404 (not a favorite, no approach data) |
 
-**Robust add and list.** Adding checks that the NEO exists (404), that it is not already a favorite (409), and surfaces a failed save (500). When listing, a favorite whose NEO no longer exists is silently skipped instead of breaking the whole response — the list stays usable even after referential drift.
+**Robust add and list.** Adding checks that the NEO exists (404), that it is not already a favorite (409), and surfaces a failed save (500). When listing, a favorite whose NEO no longer exists is silently skipped instead of breaking the whole response the list stays usable even after referential drift.
 
-**Ownership comes from the token, not the path.** On the two `distances` endpoints, the user is never taken from the URL: the controller injects `get_current_user` and passes `current_user.id_user` to the service. Changing the URL cannot expose another user's distance history — the same pattern as the Login section (identity comes from the session, never from the request itself). The service also verifies ownership: 404 if the NEO is not in *that user's* favorites.
+**Ownership comes from the token, not the path.** On the two `distances` endpoints, the user is never taken from the URL: the controller injects `get_current_user` and passes `current_user.id_user` to the service. Changing the URL cannot expose another user's distance history the same pattern as the Login section (identity comes from the session, never from the request itself). The service also verifies ownership: 404 if the NEO is not in *that user's* favorites.
 
-**Distance history.** The service builds the points from close-approach data, with a case-insensitive `orbiting_body` filter, sorts the points chronologically, and highlights the `closest` point — the frontend receives both the curve and its minimum in a single call.
+**Distance history.** The service builds the points from close-approach data, with a case-insensitive `orbiting_body` filter, sorts the points chronologically, and highlights the `closest` point the frontend receives both the curve and its minimum in a single call.
 
 **Chart rendering.** The PNG chart is a good example of engineering care:
 
 - the service uses a matplotlib `Figure` object instead of `pyplot`, which keeps no global state and is therefore safe to call from FastAPI's thread pool;
 - one line (and one color) is drawn per orbited body, so approaches around different bodies do not blend together;
 - when the distances span several orders of magnitude (max/min ratio > 100), the axis automatically switches to a logarithmic scale to stay readable;
-- the image is rendered into an in-memory buffer (`BytesIO`) and returned as raw bytes — no temporary files to clean up.
+- the image is rendered into an in-memory buffer (`BytesIO`) and returned as raw bytes no temporary files to clean up.
 
-**Tolerant date parsing.** Approach dates come from NASA in its own format (`2026-Oct-23 12:00`) or from the database in ISO format. The service tries the NASA format first, then ISO, and skips with a warning any point whose date or distance is unreadable — one dirty record bends the chart rather than breaking the request.
+**Tolerant date parsing.** Approach dates come from NASA in its own format (`2026-Oct-23 12:00`) or from the database in ISO format. The service tries the NASA format first, then ISO, and skips with a warning any point whose date or distance is unreadable one dirty record bends the chart rather than breaking the request.
 
 ## Concrete example: Browse NEOs
 
@@ -331,11 +340,11 @@ Browsing is the most used feature of NEO-Watch, and the one the other features r
 
 The diagram below shows who can do what. The actor *user* is a person with an account; the *administrator* is a user with extra rights; the *NASA API* is the external system that feeds the database.
 
-Two shortcuts are worth reading: the administrator inherits everything the user can do, and the diagram keeps two fine-grained actions — *search* includes *sort*, because every search request can carry a sort criterion, and *NEO sheet* includes *close approaches*, because they are always displayed with it.
+Two shortcuts are worth reading: the administrator inherits everything the user can do, and the diagram keeps two fine-grained actions *search* includes *sort*, because every search request can carry a sort criterion, and *NEO sheet* includes *close approaches*, because they are always displayed with it.
 
 **Class diagram**
 
-The diagram is limited to the classes involved in browsing, one layer per row. An arrow means *uses* (the class on the left calls the one on the right), not inheritance — no class here inherits from another. The layers are only coupled downwards, which is what allows each layer to be tested or replaced alone. Three points are worth explaining:
+The diagram is limited to the classes involved in browsing, one layer per row. An arrow means *uses* (the class on the left calls the one on the right), not inheritance no class here inherits from another. The layers are only coupled downwards, which is what allows each layer to be tested or replaced alone. Three points are worth explaining:
 
 - **The controller never talks to a DAO.** It calls `NeoService`, which applies the business rules (combining the filters, sorting, refusing an unknown sort criterion) and is the only class that calls the DAOs.
 - **Business objects and API schemas are separate classes.** `Neo` and `CloseApproach` circulate between the service and the DAOs and contain neither SQL nor HTTP code. `NeoOut`, `CloseApproachOut` and `NeoComparisonOut` define what the API sends back; the controller converts one into the other, so a change in the database does not change the contract with the frontend.
@@ -345,7 +354,7 @@ The diagram is limited to the classes involved in browsing, one layer per row. A
 
 When the user interacts with the frontend, the fields they fill and the buttons they click become HTTP calls against the REST endpoints exposed by `neo_controller.py`. Let us follow one concrete example: a search for a NEO named "my neo", limited to the NEOs the user created themselves.
 
-In the interface, the user types the name and checks the box "Is custom". The frontend builds a `GET` request against the search endpoint with the matching parameters: `name=my neo` and `user_id=<id of the logged-in user>`, plus the optional sort parameters `sort_by` (field to sort on) and `descending` (sort direction). The controller receives the request, validates it, and delegates the actual data retrieval to the service layer. Once the service returns the results, the controller converts them with the `NeoOut` schema — which defines the exact structure of the response and the type of each field — so the frontend always receives predictable, consistently formatted data.
+In the interface, the user types the name and checks the box "Is custom". The frontend builds a `GET` request against the search endpoint with the matching parameters: `name=my neo` and `user_id=<id of the logged-in user>`, plus the optional sort parameters `sort_by` (field to sort on) and `descending` (sort direction). The controller receives the request, validates it, and delegates the actual data retrieval to the service layer. Once the service returns the results, the controller converts them with the `NeoOut` schema which defines the exact structure of the response and the type of each field so the frontend always receives predictable, consistently formatted data.
 
 The same controller exposes every browsing action: multi-criteria search, export, retrieval by id or by NASA identifier, close approaches of a NEO, creation and deletion of a NEO, and the two NASA synchronization entry points.
 
@@ -355,9 +364,9 @@ The service (`NeoService`) turns the search criteria into database calls, in two
 
 **Data access layer (DAO)**
 
-All DAO classes rely on `DBConnection`, a singleton that opens a single PostgreSQL connection with the psycopg2 library and shares it across the application. The connection parameters (host, port, database, user, password) and the schema name (`NEOW`) are read from environment variables, so no credential is written in the code. Because the schema is set as the search path of the connection, the queries only need the table names. The connection uses a `RealDictCursor`, which returns each row as a dictionary whose keys are the column names — the dictionaries read by the conversion methods.
+All DAO classes rely on `DBConnection`, a singleton that opens a single PostgreSQL connection with the psycopg2 library and shares it across the application. The connection parameters (host, port, database, user, password) and the schema name (`NEOW`) are read from environment variables, so no credential is written in the code. Because the schema is set as the search path of the connection, the queries only need the table names. The connection uses a `RealDictCursor`, which returns each row as a dictionary whose keys are the column names the dictionaries read by the conversion methods.
 
-The NEOs are handled by `NeoDao`, a singleton and the only place where SQL queries on the `neo` table are written. It offers one method per type of query — `find_all`, `find_by_id_neo`, `find_by_id_nasa`, `find_by_hazardous`, `find_all_by_id_user`, plus creation, update and deletion. In our example, the service calls `find_all_by_id_user`, which executes the parameterized query equivalent to `SELECT * FROM neo WHERE created_by_user_id = <user id>`: the value is passed separately from the query text, which protects against SQL injection. On error, the DAO logs the problem and raises the exception again, so the upper layers decide how to handle it.
+The NEOs are handled by `NeoDao`, a singleton and the only place where SQL queries on the `neo` table are written. It offers one method per type of query `find_all`, `find_by_id_neo`, `find_by_id_nasa`, `find_by_hazardous`, `find_all_by_id_user`, plus creation, update and deletion. In our example, the service calls `find_all_by_id_user`, which executes the parameterized query equivalent to `SELECT * FROM neo WHERE created_by_user_id = <user id>`: the value is passed separately from the query text, which protects against SQL injection. On error, the DAO logs the problem and raises the exception again, so the upper layers decide how to handle it.
 
 The close approaches have their own DAO, `CloseApproachDao`, built the same way:
 
@@ -374,21 +383,21 @@ A NEO can have several close approaches, and each close approach belongs to a si
 
 - During a search. When the user filters on an orbiting body or an approach date, the service asks `CloseApproachDao` for the matching close approaches, collects their `id_neo`, and keeps, among the NEOs already found, only those whose `id_neo` is in that set.
 
-- During a NASA synchronization. For each NEO retrieved from the NASA API, the service first saves it with `NeoDao.create`, which inserts it — or updates it if a NEO with the same `nasa_id` already exists — and retrieves the `id_neo` generated by the database. This identifier is then copied into each close approach of the NEO, saved with `CloseApproachDao.create`. Before inserting, this method looks for a close approach with the same NEO, orbiting body and date: if one exists it returns `False` and nothing is inserted, otherwise the row is inserted and the generated identifier is stored in the object. This duplicate check is what allows the administrator to refresh the database without creating duplicates.
+- During a NASA synchronization. For each NEO retrieved from the NASA API, the service first saves it with `NeoDao.create`, which inserts it or updates it if a NEO with the same `nasa_id` already exists and retrieves the `id_neo` generated by the database. This identifier is then copied into each close approach of the NEO, saved with `CloseApproachDao.create`. Before inserting, this method looks for a close approach with the same NEO, orbiting body and date: if one exists it returns `False` and nothing is inserted, otherwise the row is inserted and the generated identifier is stored in the object. This duplicate check is what allows the administrator to refresh the database without creating duplicates.
 
 **Database**
 
-The data is stored in a PostgreSQL database, in the `NEOW` schema. Each row of the `neo` table describes one NEO: its primary key `id_neo`, its NASA identifier `nasa_id`, its name `name_neo`, its minimum and maximum diameters in meters, its absolute magnitude, and two booleans `is_hazardous` and `is_custom`. The `is_custom` boolean distinguishes the NEOs created by users from the ones imported from NASA, and `created_by_user_id` — a foreign key to the `users` table — links a custom NEO to the user who created it. This is the column used in our example. The `close_approach` table contains, for each approach, the orbited body, the date, the miss distance in kilometers and the relative velocity in kilometers per hour, linked to its NEO by `id_neo`.
+The data is stored in a PostgreSQL database, in the `NEOW` schema. Each row of the `neo` table describes one NEO: its primary key `id_neo`, its NASA identifier `nasa_id`, its name `name_neo`, its minimum and maximum diameters in meters, its absolute magnitude, and two booleans `is_hazardous` and `is_custom`. The `is_custom` boolean distinguishes the NEOs created by users from the ones imported from NASA, and `created_by_user_id` a foreign key to the `users` table links a custom NEO to the user who created it. This is the column used in our example. The `close_approach` table contains, for each approach, the orbited body, the date, the miss distance in kilometers and the relative velocity in kilometers per hour, linked to its NEO by `id_neo`.
 
 **Business objects**
 
-The DAOs do not return raw database rows. Each row of the `neo` table is converted by `_row_to_neo` into a `Neo` business object, with one attribute per column: `id_neo`, `nasa_id`, `name_neo`, `diameter_min_m`, `diameter_max_m`, `absolute_magnitude`, `is_hazardous`, `is_custom` and `created_by_user_id`. Each row of the `close_approach` table is converted by `_row_to_approach` into a `CloseApproach` with the attributes `id_approach`, `id_neo`, `approach_date`, `orbiting_body`, `miss_distance_km` and `relative_velocity_kmh` — note that the `id_close_approach` column becomes the `id_approach` attribute, and the date, a `DATE` in the database, becomes a string. A `CloseApproach` does not embed the `Neo` it belongs to, only its `id_neo`, exactly the link used in the database. These objects are what circulates between the layers: the DAOs return lists of `Neo` and `CloseApproach` to the service.
+The DAOs do not return raw database rows. Each row of the `neo` table is converted by `_row_to_neo` into a `Neo` business object, with one attribute per column: `id_neo`, `nasa_id`, `name_neo`, `diameter_min_m`, `diameter_max_m`, `absolute_magnitude`, `is_hazardous`, `is_custom` and `created_by_user_id`. Each row of the `close_approach` table is converted by `_row_to_approach` into a `CloseApproach` with the attributes `id_approach`, `id_neo`, `approach_date`, `orbiting_body`, `miss_distance_km` and `relative_velocity_kmh` note that the `id_close_approach` column becomes the `id_approach` attribute, and the date, a `DATE` in the database, becomes a string. A `CloseApproach` does not embed the `Neo` it belongs to, only its `id_neo`, exactly the link used in the database. These objects are what circulates between the layers: the DAOs return lists of `Neo` and `CloseApproach` to the service.
 
 ## E. User interface
 
 ## F. Application quality
 
-To ensure the quality of the code throughout the project, we reviewed the code written by other team members, in particular to ensure consistency in the use of variables, naming conventions, and shared patterns across modules. Furthermore, unit tests were carried out in parallel with the coding of the DAOs and services to validate business rules, edge cases, and database interactions, and to improve the reliability of the methods. We focused our testing on these two layers as they are essential to the application’s operation and data integrity.
+To ensure the quality of the code throughout the project, we reviewed the code written by other team members, in particular to ensure consistency in the use of variables, naming conventions, and shared patterns across modules. Furthermore, unit tests were carried out in parallel with the coding of the DAOs and services to validate business rules, edge cases, and database interactions, and to improve the reliability of the methods. We focused our testing on these two layers as they are essential to the application's operation and data integrity.
 
 The quality of the controller code is verified when the endpoints are used within the frontend, allowing us to check request handling, status codes, authentication/authorization behavior, and end-to-end data flow. It was in this context that the application logs proved particularly useful: they enabled us to trace execution flow, identify the source of errors, and inspect the sequence of functions that had been executed before a failure occurred. To run the tests, we used `pytest`, and to ensure adequate test coverage, we used coverage tooling alongside Python 3 on the DAO and service layers, reaching 91% coverage and helping us spot remaining uncovered branches and edge cases. 
 
