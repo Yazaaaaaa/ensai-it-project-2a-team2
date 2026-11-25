@@ -328,6 +328,41 @@ A favorite pins a NEO for a user, and each favorite carries its distance history
 
 **Tolerant date parsing.** Approach dates come from NASA in its own format (`2026-Oct-23 12:00`) or from the database in ISO format. The service tries the NASA format first, then ISO, and skips with a warning any point whose date or distance is unreadable one dirty record bends the chart rather than breaking the request.
 
+## 7. Proposals (/proposals)
+
+Users can suggest a correction to the data of a NEO (a near-Earth object). A proposal never modifies the NEO: it is only recorded so that the administrators can review it.
+
+| Endpoint | Purpose | Access | Success | Errors |
+|---|---|---|---|---|
+| POST /proposals | Propose a change to one field of a NEO | Token required | 201 + the recorded proposal | 400 (invalid value, no-op, inconsistent diameters, reason too long), 401 (missing or invalid token), 404 (unknown NEO), 409 (same proposal already made), 422 (malformed body), 500 |
+| GET /proposals/me | List the proposals of the current user, most recent first | Token required | 200 + list | 401 (missing or invalid token) |
+| GET /proposals | List all proposals (filterable by id_neo) | Admin | 200 + list | 401 (missing or invalid token), 403 (not an administrator) |
+
+A proposal is described by the `NeoProposalOut` schema: `id_proposal`, `id_neo`, `id_user`, `field`, `old_value`, `new_value`, `reason`, `created_at`, the `neo` it refers to and, for administrators only, the `proposer_email`. Like the other schemas of the API, it is separate from the business object, so only the intended fields leave the API.
+
+**Which fields can be proposed.** Only five fields are open to proposals: `name_neo`, `diameter_min_m`, `diameter_max_m`, `absolute_magnitude` and `is_hazardous`. The list is enforced at three levels: the `Literal` type of the `NeoProposalIn` schema, the `PROPOSABLE_FIELDS` dictionary of the service (which also gives the expected type of each field), and a `CHECK` constraint on the `field` column of the database. An invalid field therefore cannot get through, even if the service is called from another entry point than the API.
+
+**How a proposal is created.** The controller gives the authenticated user and the body to `NeoProposalService.propose`, which does all the checking, in this order:
+
+1. the field must be proposable (400);
+2. the NEO must exist (404);
+3. the raw value is converted to the type of the field (400 if it is invalid);
+4. for the diameters, the value must be coherent (400);
+5. the value must differ from the current one (400);
+6. the reason is cleaned and its length checked (400);
+7. the same user must not have already made the same proposal (409);
+8. the proposal is saved (500 if the save fails).
+
+Several choices here are worth explaining:
+
+- **A proposal never touches the NEO.** The current value is copied into `old_value` at the moment of the proposal, so the administrator always sees what the user was looking at, even if the NEO changes afterwards.
+- **Strict conversion of the value.** `new_value` can arrive as a string, a number or a boolean, so `_convert` brings it back to the type of the field. A boolean accepts `true/false`, `1/0` and `yes/no`. A float refuses booleans, `NaN` and infinity. A text cannot be empty.
+- **Coherent diameters.** A diameter cannot be negative, and the minimum cannot exceed the maximum. The check uses the other bound as it currently is in the NEO. Pending proposals are not taken into account.
+- **No useless proposals.** A value equal to the current one is refused. Floats are compared with `math.isclose`, to avoid false differences caused by floating-point conversions.
+- **No duplicates, but no collision between users.** The 409 only concerns the same user, the same NEO, the same field and the same value. Two different users can propose the same change.
+- **A clean reason.** An empty or whitespace-only reason is stored as `None`. The limit is 500 characters, checked by the schema (422) and again by the service (400) after cleaning.
+
+
 ## D. Concrete example: Browse NEOs
 
 **What the feature does**
@@ -425,7 +460,7 @@ The main app has seven tabs:
 
 ![Main Menu Diagram](../doc/diagram/global_menu_diagram.jpeg)
 
-![Detailed Menu Diagram](../doc/diagram/detailed_menu_diagram.jpeg)
+![Detailed Menu Diagram of Favorites et Browse a NEO](../doc/diagram/detailed_menu_diagram.jpeg)
 
 ## F. Application quality
 
